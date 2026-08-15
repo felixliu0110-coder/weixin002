@@ -1,0 +1,8 @@
+{
+  "pages": ["pages/login/index"],
+  "window": {
+    "navigationStyle": "custom",
+    "backgroundColor": "#FBF5ED"
+  },
+  "sitemapLocation": "sitemap.json"
+}

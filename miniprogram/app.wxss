@@ -1,0 +1,56 @@
+/* ============ 全局设计 token（迁移自 weixin002/assets/proto.css） ============ */
+page {
+  /* 基础色板 */
+  --bg: #FBF5ED;
+  --surface: #FFFFFF;
+  --surface-2: #F6F1E9;
+  --fg: #1F1D1B;
+  --fg-2: #4A423C;
+  --muted: #8F8378;
+  --border: #EADFD3;
+  --border-soft: #F2EBE3;
+
+  /* 强调色 */
+  --accent: #E3A595;
+  --accent-deep: #C98F80;
+  --accent-strong: #D4978A;
+  --accent-soft: #F8E3DB;
+  --accent-tab: #E8B4A6;
+  --ring-track: #F0D6CC;
+  --danger: #C0392B;
+  --tag-bg: #F0EDE8;
+  --btn-soft: #F5EDE4;
+  --search-bg: #F5F3EE;
+  --backdrop: #EFEAE2;
+  --accent-on: #FFFFFF;
+  --mask: rgba(31, 29, 27, 0.45);
+
+  /* 字体 */
+  --font-body: "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: Consolas, "SF Mono", ui-monospace, monospace;
+
+  /* 结构 */
+  --nav-h: 44px;
+  --tabbar-h: 56px;
+  --radius-sm: 24rpx;
+  --radius-md: 32rpx;
+  --radius-lg: 40rpx;
+  --radius-pill: 999rpx;
+  --shadow-card: 0 10rpx 28rpx rgba(70, 52, 40, 0.07);
+  --shadow-raise: 0 14rpx 34rpx rgba(70, 52, 40, 0.12);
+  --ease: cubic-bezier(0.28, 0, 0.22, 1);
+
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 30rpx;
+  -webkit-font-smoothing: antialiased;
+}
+
+view, text, button, image, input, textarea { box-sizing: border-box; }
+button { margin: 0; padding: 0; background: none; font: inherit; line-height: inherit; }
+button::after { border: 0; }
+image { display: block; }
+
+/* 等宽数字 */
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
