@@ -22,6 +22,7 @@
     "navigationStyle": "custom",
     "backgroundColor": "#FBF5ED"
   },
+  "lazyCodeLoading": "requiredComponents",
   "tabBar": {
     "custom": true,
     "color": "#4A423C",
