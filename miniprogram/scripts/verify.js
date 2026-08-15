@@ -21,8 +21,8 @@ function walk(dir, exts, out) {
 
 // 1. app.json 页面注册 + 四件套
 const app = JSON.parse(fs.readFileSync(path.join(root, "app.json"), "utf8"));
-if (app.pages.length !== 17) {
-  errors.push(`app.json pages 数量 ${app.pages.length}，应为 17`);
+if (app.pages.length !== 18) {
+  errors.push(`app.json pages 数量 ${app.pages.length}，应为 18`);
 }
 for (const p of app.pages) {
   for (const ext of ["wxml", "js", "wxss", "json"]) {

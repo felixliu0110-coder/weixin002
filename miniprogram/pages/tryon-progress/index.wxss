@@ -1,4 +1,4 @@
-.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
 .ring-wrap { position: relative; width: 432rpx; height: 432rpx; margin: 68rpx auto 48rpx; }
 .ring { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(#E3A595 calc(var(--p) * 1%), #F0D6CC 0); }
 .ring-hole { position: absolute; inset: 44rpx; border-radius: 50%; background: var(--bg); }

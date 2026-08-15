@@ -1,12 +1,26 @@
 const { toast } = require("../../utils/interaction");
+const api = require("../../utils/api");
 
 Page({
-  data: { angle: "正面" },
+  data: { angle: "正面", collectVisible: false },
   onAngle(e) {
     const angle = e.detail.label;
     this.setData({ angle });
     toast("已切换至「" + angle + "」视角（真实实现将切换生成图）");
   },
-  onSave() { toast("已保存到相册（模拟）"); },
+  onCollect() { this.setData({ collectVisible: true }); },
+  closeCollect() { this.setData({ collectVisible: false }); },
+  collectYes() {
+    this.setData({ collectVisible: false });
+    api.saveResult({ saved: true }).then(() => {
+      toast("已收藏并保存到相册");
+    });
+  },
+  collectNo() {
+    this.setData({ collectVisible: false });
+    api.saveResult({ saved: true }).then(() => {
+      toast("已收藏");
+    });
+  },
   onShare() { toast("分享卡片已生成，含「AI 生成效果，仅供参考」标识"); }
 });

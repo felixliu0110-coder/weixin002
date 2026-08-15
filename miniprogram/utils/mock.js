@@ -43,6 +43,11 @@ const history = [
   { id: "r5", garmentName: "牛仔裤休闲裤", date: "8月11日", image: "/assets/img/p13-5.jpg", aiTagged: true }
 ];
 
+const favorites = [
+  { id: "f1", garmentName: "粉色针织连衣裙", date: "8月15日", image: "/assets/img/p07-result.jpg", aiTagged: true },
+  { id: "f2", garmentName: "蓝色衬衫搭配", date: "8月14日", image: "/assets/img/p14-right.jpg", aiTagged: true }
+];
+
 module.exports = {
   async getAvatarProfile() { await delay(400); return JSON.parse(JSON.stringify(avatarProfile)); },
   async saveAvatarProfile(data) { await delay(300); Object.assign(avatarProfile, data); return { ok: true }; },
@@ -58,7 +63,19 @@ module.exports = {
   },
   async getTryonStatus(taskId) { await delay(300); return { taskId, status: "success" }; },
   async getHistory() { await delay(400); return JSON.parse(JSON.stringify(history)); },
+  async getFavorites() { await delay(300); return JSON.parse(JSON.stringify(favorites)); },
   async getQuota() { await delay(200); return JSON.parse(JSON.stringify(quota)); },
-  async saveResult(result) { await delay(300); return { ok: true, id: "r-" + Date.now() }; },
+  async saveResult(result) {
+    await delay(300);
+    const item = {
+      id: "f-" + Date.now(),
+      garmentName: result.garmentName || "新收藏试穿",
+      date: "刚刚",
+      image: result.image || "/assets/img/p07-result.jpg",
+      aiTagged: true
+    };
+    favorites.unshift(item);
+    return { ok: true, id: item.id };
+  },
   async deleteUserData() { await delay(500); return { ok: true }; }
 };

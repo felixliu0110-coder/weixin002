@@ -1,4 +1,4 @@
-.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
 .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28rpx; }
 .hint { font-size: 25rpx; color: var(--fg-2); line-height: 1.65; }
 .center { text-align: center; }

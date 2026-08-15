@@ -1,4 +1,4 @@
-.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
 .photo-card { position: relative; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-soft); background: var(--surface); box-shadow: var(--shadow-card); }
 .photo-card image { width: 100%; }
 .badge-ai { position: absolute; top: 24rpx; left: 24rpx; background: rgba(31,29,27,0.76); color: var(--accent-on); font-size: 22rpx; font-weight: 500; padding: 10rpx 20rpx; border-radius: 999rpx; display: inline-flex; align-items: center; gap: 10rpx; }
@@ -14,4 +14,9 @@
 .rm-tag { flex: 0 0 auto; background: var(--tag-bg); color: var(--fg-2); font-size: 24rpx; font-weight: 600; border-radius: 999rpx; padding: 10rpx 22rpx; }
 .action-row { display: flex; gap: 20rpx; margin-top: 28rpx; }
 .action-btn { display: block; flex: 1; }
+.sheet-head { display: flex; flex-direction: column; gap: 8rpx; }
+.grab { width: 80rpx; height: 8rpx; border-radius: 4rpx; background: var(--border); margin: 0 auto 20rpx; }
+.sheet-title { font-size: 34rpx; font-weight: 600; }
+.sheet-desc { font-size: 26rpx; color: var(--fg-2); line-height: 1.65; margin-top: 12rpx; }
+.sheet-action { display: block; flex: 1; }
 .action-row .iconfont { font-size: 32rpx; margin-right: 8rpx; }

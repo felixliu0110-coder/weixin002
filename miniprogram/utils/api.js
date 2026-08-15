@@ -10,6 +10,7 @@ module.exports = {
   submitTryon: mock.submitTryon,
   getTryonStatus: mock.getTryonStatus,
   getHistory: mock.getHistory,
+  getFavorites: mock.getFavorites,
   getQuota: mock.getQuota,
   saveResult: mock.saveResult,
   deleteUserData: mock.deleteUserData

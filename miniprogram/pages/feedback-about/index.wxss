@@ -1,4 +1,4 @@
-.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
 .field-label { display: block; font-size: 26rpx; color: var(--fg-2); margin: 4rpx 4rpx 16rpx; }
 .textarea { width: 100%; min-height: 220rpx; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 28rpx; line-height: 1.65; color: var(--fg); padding: 26rpx 28rpx; }
 .submit-btn { display: block; margin-top: 28rpx; width: 100%; }

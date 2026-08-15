@@ -4,6 +4,7 @@
     "btn": "/components/btn/index",
     "chip": "/components/chip/index",
     "card": "/components/card/index",
+    "sheet": "/components/sheet/index",
     "tab-bar": "/components/tabbar/index"
   },
   "navigationBarTitleText": "今日穿搭灵感"

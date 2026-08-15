@@ -1,4 +1,4 @@
-.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
 .footer-half { display: block; flex: 1; }
 .card-gap { display: block; margin-top: 48rpx; }
 .num-card { padding: 18rpx 12rpx 14rpx; }

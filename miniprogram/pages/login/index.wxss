@@ -1,4 +1,4 @@
-.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
 .content { flex: 1; padding: 4px 20px 24px; overflow-y: auto; }
 .big-hero-center { display: flex; flex-direction: column; justify-content: center; padding-bottom: 16rpx; }
 .login-title { font-size: 64rpx; font-weight: 700; letter-spacing: 0.1em; text-align: center; margin-top: 68rpx; color: var(--fg); }

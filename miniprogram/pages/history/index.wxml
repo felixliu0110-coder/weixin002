@@ -20,4 +20,6 @@
 
     <view class="hint center mt-16">以上为 AI 生成效果，仅供参考</view>
   </view>
+
+  <tab-bar selected="{{3}}" navMode="{{true}}"></tab-bar>
 </view>

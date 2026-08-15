@@ -1,4 +1,4 @@
-.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
+.wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
 .home-nav { height: 88rpx; display: flex; align-items: center; padding: 0 20rpx; }
 .brand { font-size: 38rpx; font-weight: 700; letter-spacing: 0.05em; padding: 0 16rpx; color: var(--fg); }
 .brand .accent { color: var(--accent-deep); font-weight: 700; }

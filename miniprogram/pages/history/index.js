@@ -4,15 +4,16 @@ const api = require("../../utils/api");
 Page({
   data: { records: [] },
   onLoad() {
+    this.loadRecords();
+  },
+  onShow() {
+    // 试穿记录已移入「我的」体系：页面为普通页，底部 Tab 高亮「我的」
+    this.loadRecords();
+  },
+  loadRecords() {
     api.getHistory().then((records) => {
       this.setData({ records });
     });
-  },
-  onShow() {
-    if (typeof this.getTabBar === "function" && this.getTabBar()) {
-      // 原型 13 页 tabbar 高亮「我的」属原稿不一致，按 TabBar 结构高亮「收藏」（第 3 Tab）
-      this.getTabBar().setData({ selected: 2, navMode: false, pill: false });
-    }
   },
   openResult() {
     navigate("/pages/tryon-result/index");

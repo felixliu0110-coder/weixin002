@@ -1,0 +1,19 @@
+<view class="wx-page">
+  <nav-bar title="收藏"></nav-bar>
+
+  <view class="content">
+    <view wx:if="{{favorites.length === 0}}" class="empty-state">
+      <view class="es-ic"><image class="es-img" src="/assets/icons/png/icon-heart-gray.png" mode="aspectFit" /></view>
+      <text class="es-text">还没有收藏，试穿结果页点「收藏」即可加入</text>
+    </view>
+
+    <view wx:else class="fav-grid">
+      <record-item
+        wx:for="{{favorites}}"
+        wx:key="id"
+        data="{{item}}"
+        bindtap="openResult"
+      />
+    </view>
+  </view>
+</view>

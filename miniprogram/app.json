@@ -4,6 +4,7 @@
     "pages/home/index",
     "pages/tryon-select/index",
     "pages/history/index",
+    "pages/favorites/index",
     "pages/profile/index",
     "pages/basic-info/index",
     "pages/body-params/index",
@@ -31,7 +32,7 @@
     "list": [
       { "pagePath": "pages/home/index", "text": "主页" },
       { "pagePath": "pages/tryon-select/index", "text": "试衣" },
-      { "pagePath": "pages/history/index", "text": "收藏" },
+      { "pagePath": "pages/favorites/index", "text": "收藏" },
       { "pagePath": "pages/profile/index", "text": "我的" }
     ]
   },

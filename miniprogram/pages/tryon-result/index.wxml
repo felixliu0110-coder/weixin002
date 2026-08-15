@@ -1,5 +1,5 @@
 <view class="wx-page">
-  <nav-bar title="今日穿搭灵感" showBack="{{true}}" backRoute="/pages/history/index"></nav-bar>
+  <nav-bar title="今日穿搭灵感" showBack="{{true}}"></nav-bar>
 
   <view class="content">
     <view class="subtitle">选择一件衣服，先看上身效果。</view>
@@ -26,10 +26,22 @@
     </card>
 
     <view class="action-row">
-      <btn class="action-btn" type="secondary" bindtap="onSave"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-export-dark.png" />保存到相册</btn>
+      <btn class="action-btn" type="secondary" bindtap="onCollect"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-heart-gray.png" />收藏</btn>
       <btn class="action-btn" type="dark" bindtap="onShare"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-upload-white.png" />分享</btn>
     </view>
   </view>
 
   <tab-bar selected="{{1}}" navMode="{{true}}"></tab-bar>
+
+  <sheet visible="{{collectVisible}}" bind:cancel="closeCollect">
+    <view class="sheet-head">
+      <view class="grab"></view>
+      <text class="sheet-title">收藏成功</text>
+      <text class="sheet-desc">是否同时保存到相册？</text>
+    </view>
+    <view slot="actions">
+      <btn class="sheet-action" type="secondary" bindtap="collectNo">否</btn>
+      <btn class="sheet-action" type="primary" bindtap="collectYes">是</btn>
+    </view>
+  </sheet>
 </view>
