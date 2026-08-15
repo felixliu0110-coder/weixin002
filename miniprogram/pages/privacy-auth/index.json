@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "btn": "/components/btn/index"
+  },
+  "navigationBarTitleText": "隐私授权"
+}

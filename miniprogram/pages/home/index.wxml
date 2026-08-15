@@ -1,4 +1,49 @@
 <view class="wx-page">
-  <nav-bar title="发现"></nav-bar>
-  <view class="content"><text>home placeholder</text></view>
+  <view class="home-nav">
+    <text class="brand">我形<text class="accent">我衣</text></text>
+  </view>
+
+  <view class="content">
+    <view class="search-box">
+      <text class="iconfont icon-search"></text>
+      <input class="search-input" placeholder="搜索衣物" confirm-type="search" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
+    </view>
+
+    <view class="hero-tryon" hover-class="hero-hover" bindtap="goTryon">
+      <view class="ht-copy">
+        <view class="ht-title">一键试穿</view>
+        <view class="ht-sub">上传衣物即刻看到上身效果</view>
+      </view>
+      <view class="ht-ic"><text class="iconfont icon-hanger"></text></view>
+    </view>
+
+    <view class="quota-row">
+      <text class="iconfont icon-star"></text>
+      今日剩余 <text class="mono">{{quota.dailyFree}}</text> 次免费试穿
+    </view>
+
+    <view class="sec-hd">
+      <text class="sec-title">热门模板</text>
+      <view class="more" hover-class="more-hover" bindtap="onMore">查看全部<text class="iconfont icon-chevron-right"></text></view>
+    </view>
+    <view class="template-grid">
+      <view class="template" hover-class="template-hover" wx:for="{{templates}}" wx:key="id" data-index="{{index}}" bindtap="goTryon">
+        <view class="t-img"><image src="{{item.image}}" mode="aspectFill" /></view>
+        <view class="t-name">{{item.name}}</view>
+      </view>
+    </view>
+
+    <view class="sec-hd sec-avatar">
+      <text class="sec-title">我的数字人</text>
+      <text class="hint">已就绪</text>
+    </view>
+    <view class="avatar-row" hover-class="avatar-hover" bindtap="goAvatar">
+      <view class="ar-img"><image src="/assets/img/p05-avatar.png" mode="aspectFill" /></view>
+      <view class="ar-copy">
+        <view class="ar-name">小云的专属数字人</view>
+        <view class="ar-sub">点击查看和编辑身材档案</view>
+      </view>
+      <view class="ar-btn">去试穿</view>
+    </view>
+  </view>
 </view>

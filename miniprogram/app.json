@@ -15,7 +15,8 @@
     "pages/tryon-result/index",
     "pages/compare-view/index",
     "pages/privacy-manage/index",
-    "pages/feedback-about/index"
+    "pages/feedback-about/index",
+    "pages/privacy-auth/index"
   ],
   "window": {
     "navigationStyle": "custom",
