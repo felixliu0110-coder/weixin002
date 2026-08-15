@@ -1,3 +1,5 @@
+@import "./assets/icons/iconfont.css";
+
 /* ============ 全局设计 token（迁移自 weixin002/assets/proto.css） ============ */
 page {
   /* 基础色板 */
@@ -51,6 +53,14 @@ view, text, button, image, input, textarea { box-sizing: border-box; }
 button { margin: 0; padding: 0; background: none; font: inherit; line-height: inherit; }
 button::after { border: 0; }
 image { display: block; }
+
+/* 图标字体基类 */
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 44rpx;
+  color: inherit;
+  line-height: 1;
+}
 
 /* 等宽数字 */
 .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
