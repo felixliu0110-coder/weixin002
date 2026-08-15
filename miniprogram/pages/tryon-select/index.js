@@ -10,6 +10,7 @@ Page({
     tab: "lib",
     templates: [],
     selected: [],
+    buttonText: "开始试穿",
     uploadVisible: false
   },
   onLoad() {
@@ -37,7 +38,10 @@ Page({
     const selected = this.data.selected.includes(id)
       ? this.data.selected.filter((x) => x !== id)
       : [...this.data.selected, id];
-    this.setData({ selected });
+    this.setData({
+      selected,
+      buttonText: selected.length > 0 ? "开始试穿（已选 " + selected.length + " 件）" : "开始试穿"
+    });
     toast(selected.includes(id) ? "已选择「" + name + "」" : "已取消选择");
   },
   startTryon() {

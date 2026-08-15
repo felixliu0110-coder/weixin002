@@ -1,8 +1,10 @@
 Component({
+  properties: {
+    selected: { type: Number, value: 0 },
+    navMode: { type: Boolean, value: false },
+    pill: { type: Boolean, value: false }
+  },
   data: {
-    selected: 0,
-    navMode: false,
-    pill: false,
     list: [
       { pagePath: "/pages/home/index", text: "发现", icon: "icon-home" },
       { pagePath: "/pages/tryon-select/index", text: "试衣", icon: "icon-hanger" },
