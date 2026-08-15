@@ -1,0 +1,20 @@
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96rpx;
+  padding: 0 44rpx;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(180deg, #E4A999, #D9A191);
+  color: var(--accent-on);
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: filter 0.16s var(--ease), transform 0.08s ease;
+}
+.btn-hover { filter: brightness(1.045); transform: scale(0.98); }
+.btn.secondary { background: var(--surface); border: 1px solid var(--border); color: var(--fg); font-weight: 500; }
+.btn.danger { background: var(--danger); }
+.btn.dark { background: var(--fg); }
+.btn.sm { min-height: 88rpx; padding: 0 36rpx; font-size: 29rpx; }
+.btn[disabled] { background: var(--surface-2); color: var(--fg-2); }

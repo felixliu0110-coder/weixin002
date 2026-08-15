@@ -1,0 +1,9 @@
+<button
+  class="btn {{type}} {{size}}"
+  hover-class="btn-hover"
+  disabled="{{disabled || loading}}"
+  loading="{{loading}}"
+  bindtap="onTap"
+>
+  <slot></slot>
+</button>

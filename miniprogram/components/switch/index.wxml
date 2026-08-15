@@ -1,0 +1,3 @@
+<view class="switch {{checked ? 'on' : ''}}" bindtap="onTap">
+  <view class="knob"></view>
+</view>
