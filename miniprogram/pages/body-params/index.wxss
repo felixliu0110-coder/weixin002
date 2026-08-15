@@ -8,5 +8,18 @@
 .nc-val .unit { font-size: 22rpx; font-weight: 500; color: var(--fg-2); }
 .step-hover { background: var(--accent-soft); border-color: var(--accent); }
 .chip-row .chip { min-width: 0; }
+.opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24rpx; }
+.opt-card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 28rpx 24rpx; display: flex; flex-direction: column; gap: 10rpx; box-shadow: var(--shadow-card); }
+.opt-hover { border-color: var(--accent); }
+.opt-label { font-size: 26rpx; color: var(--fg-2); }
+.opt-val { font-size: 36rpx; font-weight: 700; color: var(--fg); }
+.opt-unit { font-size: 22rpx; font-weight: 500; color: var(--fg-2); margin-left: 4rpx; }
+.opt-edit { font-size: 24rpx; color: #7A5A4E; }
+.sheet-head { display: flex; flex-direction: column; gap: 8rpx; }
+.grab { width: 80rpx; height: 8rpx; border-radius: 4rpx; background: var(--border); margin: 0 auto 20rpx; }
+.sheet-title { font-size: 34rpx; font-weight: 600; }
+.edit-body { margin-top: 28rpx; }
+.edit-val { font-size: 44rpx; font-weight: 700; color: var(--fg); }
+.sheet-action { flex: 1; }
 slider { width: 100%; }
 slider.skin-range .wx-slider-track { background: linear-gradient(to right, #FFF0E4, #5C3A28); }

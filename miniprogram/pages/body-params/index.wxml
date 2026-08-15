@@ -36,7 +36,7 @@
       </view>
     </view>
 
-    <card style="margin-top:32rpx">
+    <card style="margin-top:56rpx">
       <view class="row-toggle">
         <view class="rt-main">
           <view class="rt-title">缺省估算</view>
@@ -60,11 +60,31 @@
       </view>
     </card>
 
-    <view class="chip-row" style="margin-top:32rpx">
-      <chip label="颈长 10cm" bindchange="onChip" />
-      <chip label="肩宽 38cm" bindchange="onChip" />
-      <chip label="臂长 55cm" bindchange="onChip" />
-      <chip label="鞋码 38" bindchange="onChip" />
+    <view class="sec-hd" style="margin-top:56rpx">
+      <text class="sec-title">其他身材数据</text>
+      <text class="hint">点按可修改</text>
+    </view>
+    <view class="opt-grid">
+      <view class="opt-card" hover-class="opt-hover" data-field="neck" bindtap="openEdit">
+        <text class="opt-label">颈长</text>
+        <text class="opt-val mono">{{neck}}<text class="opt-unit">cm</text></text>
+        <text class="opt-edit">修改</text>
+      </view>
+      <view class="opt-card" hover-class="opt-hover" data-field="shoulder" bindtap="openEdit">
+        <text class="opt-label">肩宽</text>
+        <text class="opt-val mono">{{shoulder}}<text class="opt-unit">cm</text></text>
+        <text class="opt-edit">修改</text>
+      </view>
+      <view class="opt-card" hover-class="opt-hover" data-field="arm" bindtap="openEdit">
+        <text class="opt-label">臂长</text>
+        <text class="opt-val mono">{{arm}}<text class="opt-unit">cm</text></text>
+        <text class="opt-edit">修改</text>
+      </view>
+      <view class="opt-card" hover-class="opt-hover" data-field="shoe" bindtap="openEdit">
+        <text class="opt-label">鞋码</text>
+        <text class="opt-val mono">{{shoe}}</text>
+        <text class="opt-edit">修改</text>
+      </view>
     </view>
   </view>
 
@@ -74,4 +94,19 @@
   </view>
 
   <tab-bar selected="{{0}}" navMode="{{true}}"></tab-bar>
+
+  <sheet visible="{{editVisible}}" bind:cancel="closeEdit">
+    <view class="sheet-head">
+      <view class="grab"></view>
+      <text class="sheet-title">{{editTitle}}</text>
+    </view>
+    <view class="edit-body">
+      <text class="edit-val mono">{{editValue}}<text class="opt-unit">{{editUnit}}</text></text>
+      <slider min="{{editMin}}" max="{{editMax}}" step="1" value="{{editValue}}" activeColor="#E3A595" backgroundColor="#EADFD3" block-size="24" bindchanging="onEditChange" bindchange="onEditChange" />
+    </view>
+    <view slot="actions">
+      <btn class="sheet-action" type="secondary" bindtap="closeEdit">取消</btn>
+      <btn class="sheet-action" type="primary" bindtap="confirmEdit">确定</btn>
+    </view>
+  </sheet>
 </view>

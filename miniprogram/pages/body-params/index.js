@@ -13,7 +13,18 @@ Page({
     hip: 92,
     estimate: true,
     leg: 96,
-    skin: 55
+    skin: 55,
+    neck: 10,
+    shoulder: 38,
+    arm: 55,
+    shoe: 38,
+    editVisible: false,
+    editField: "neck",
+    editTitle: "颈长",
+    editValue: 10,
+    editMin: 5,
+    editMax: 15,
+    editUnit: "cm"
   },
   onEstimate(e) {
     const on = e.detail.value;
@@ -29,15 +40,37 @@ Page({
   },
   onLeg(e) { this.setData({ leg: e.detail.value }); },
   onSkin(e) { this.setData({ skin: e.detail.value }); },
-  onChip(e) {
-    const label = e.detail.label;
-    const values = {
-      "颈长 10cm": "颈长 10cm（估算值，可修改）",
-      "肩宽 38cm": "肩宽 38cm（估算值，可修改）",
-      "臂长 55cm": "臂长 55cm（估算值，可修改）",
-      "鞋码 38": "鞋码 38（估算值，可修改）"
+  openEdit(e) {
+    const field = e.currentTarget.dataset.field;
+    const CONFIG = {
+      neck: { title: "颈长", min: 5, max: 15, unit: "cm" },
+      shoulder: { title: "肩宽", min: 30, max: 50, unit: "cm" },
+      arm: { title: "臂长", min: 45, max: 70, unit: "cm" },
+      shoe: { title: "鞋码", min: 34, max: 44, unit: "" }
     };
-    toast(values[label] || label);
+    const cfg = CONFIG[field];
+    this.setData({
+      editVisible: true,
+      editField: field,
+      editTitle: cfg.title,
+      editValue: this.data[field],
+      editMin: cfg.min,
+      editMax: cfg.max,
+      editUnit: cfg.unit
+    });
+  },
+  onEditChange(e) {
+    this.setData({ editValue: e.detail.value });
+  },
+  closeEdit() {
+    this.setData({ editVisible: false });
+  },
+  confirmEdit() {
+    this.setData({
+      [this.data.editField]: this.data.editValue,
+      editVisible: false
+    });
+    toast(this.data.editTitle + "已改为 " + this.data.editValue + (this.data.editUnit || ""));
   },
   next() {
     navigate("/pages/photo-upload/index");
