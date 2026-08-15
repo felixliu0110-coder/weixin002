@@ -1,4 +1,5 @@
 .wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.upload-gap { display: block; margin-top: 32rpx; }
 .sheet-head { display: flex; flex-direction: column; gap: 8rpx; }
 .grab { width: 80rpx; height: 8rpx; border-radius: 4rpx; background: var(--border); margin: 0 auto 20rpx; }
 .sheet-title { font-size: 34rpx; font-weight: 600; }
