@@ -5,3 +5,5 @@ miniprogram/assets/icons/_*
 docs/qa/edge-profile/
 docs/qa/edge-profile2/
 docs/qa/edge-profiles/
+miniprogram/assets/.diag-*
+miniprogram/assets/.diag/
