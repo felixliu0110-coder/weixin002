@@ -23,7 +23,7 @@ const names = [
   "icon-hanger",       // 3  试衣
   "icon-heart",        // 4  收藏
   "icon-user",         // 5  我的
-  "icon-chevron-right",// 6  右箭头
+  "icon-back",         // 6  左箭头/返回
   "icon-minus",        // 7  减号
   "icon-plus",         // 8  加号
   "icon-camera",       // 9  相机
@@ -31,7 +31,7 @@ const names = [
   "icon-rotate",       // 11 旋转
   "icon-ruler",        // 12 尺子/身材标注
   "icon-ok",           // 13 圈勾确认
-  "icon-back",         // 14 左箭头/返回
+  "icon-chevron-right",// 14 右箭头
   "icon-star",         // 15 星/额度
   "icon-export",       // 16 导出
   "icon-upload",       // 17 上传

@@ -1,23 +1,22 @@
-/* 从 icons-src SVG 生成彩色 PNG 图标（替换 iconfont 字体方案，真机兼容） */
+/* 用 Chrome 无头渲染 SVG 生成彩色 PNG 图标（sharp 渲染 SVG 相对路径会镜像，必须用浏览器渲染） */
 const fs = require("fs");
 const path = require("path");
-const sharp = require("sharp");
+const puppeteer = require("puppeteer-core");
 
 const srcDir = path.join(__dirname, "../assets/icons-src");
 const outDir = path.join(__dirname, "../assets/icons/png");
+const chromePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 fs.mkdirSync(outDir, { recursive: true });
 
-// 需要生成的颜色版本
 const COLORS = {
-  gray: "#8F8378",    // 次级/未选中
-  active: "#7A5A4E",  // Tab 选中 / circle-btn
-  deep: "#C98F80",    // 强调粉（ri-ic、quota）
-  white: "#FFFFFF",   // 按钮/徽标白
-  dark: "#1F1D1B",    // 主文字/返回
-  green: "#2F7D5C"    // 成功态
+  gray: "#8F8378",
+  active: "#7A5A4E",
+  deep: "#C98F80",
+  white: "#FFFFFF",
+  dark: "#1F1D1B",
+  green: "#2F7D5C"
 };
 
-// 每个图标需要的颜色版本（未列出的用 gray）
 const NEED = {
   "icon-home": ["gray", "active"],
   "icon-hanger": ["gray", "active", "white"],
@@ -46,6 +45,14 @@ const NEED = {
 };
 
 (async () => {
+  const browser = await puppeteer.launch({
+    executablePath: chromePath,
+    headless: "new",
+    args: ["--no-sandbox", "--disable-gpu"]
+  });
+  const page = await browser.newPage();
+  await page.setViewport({ width: 96, height: 96 });
+
   let count = 0;
   for (const [name, variants] of Object.entries(NEED)) {
     const src = path.join(srcDir, name + ".svg");
@@ -53,14 +60,17 @@ const NEED = {
       console.log("MISSING SRC:", name);
       continue;
     }
-    let svg = fs.readFileSync(src, "utf8");
+    const base = fs.readFileSync(src, "utf8");
     for (const v of variants) {
-      const colored = svg.replace(/stroke="#000"/g, `stroke="${COLORS[v]}"`);
+      const colored = base.replace(/stroke="#000"/g, `stroke="${COLORS[v]}"`);
+      const url = "data:image/svg+xml;base64," + Buffer.from(colored).toString("base64");
+      await page.goto(url, { waitUntil: "networkidle0", timeout: 10000 });
       const out = path.join(outDir, `${name}-${v}.png`);
-      await sharp(Buffer.from(colored)).resize(96, 96).png().toFile(out);
+      await page.screenshot({ path: out, omitBackground: true });
       count++;
     }
   }
+  await browser.close();
   console.log("PNG ICONS:", count);
 })().catch((e) => {
   console.error(e.message);

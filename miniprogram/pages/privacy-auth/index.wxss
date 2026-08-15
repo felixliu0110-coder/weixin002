@@ -3,8 +3,10 @@
 .auth-card { width: 100%; background: #FFFFFF; border-radius: 48rpx; padding: 52rpx 44rpx 44rpx; border: 1px solid #F2EBE3; }
 .auth-title { font-size: 38rpx; font-weight: 700; text-align: center; color: #1F1D1B; }
 .auth-list { margin-top: 36rpx; }
-.auth-item { padding: 18rpx 4rpx; font-size: 27rpx; line-height: 1.65; color: #4A423C; }
+.auth-item { display: flex; align-items: flex-start; gap: 20rpx; padding: 18rpx 4rpx; font-size: 27rpx; line-height: 1.65; color: #4A423C; }
+.auth-item text { flex: 1; }
+.dot { flex: 0 0 16rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: #E3A595; margin-top: 14rpx; }
 .auth-actions { display: flex; margin-top: 44rpx; }
-.auth-btn { flex: 1; min-height: 96rpx; margin: 0 10rpx; border: 0; border-radius: 999rpx; background: linear-gradient(180deg, #E4A999, #D9A191); color: #FFFFFF; font-size: 32rpx; font-weight: 600; }
+.auth-btn { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 96rpx; margin: 0 10rpx; padding: 0; border: 0; border-radius: 999rpx; background: linear-gradient(180deg, #E4A999, #D9A191); color: #FFFFFF; font-size: 32rpx; font-weight: 600; line-height: 1; }
 .auth-btn.secondary { background: #FFFFFF; border: 1px solid #EADFD3; color: #1F1D1B; font-weight: 500; }
 .auth-btn-hover { opacity: 0.9; }
