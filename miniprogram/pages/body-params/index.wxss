@@ -1,4 +1,5 @@
 .wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.footer-half { flex: 1; }
 .sec-title { font-size: 34rpx; font-weight: 600; color: var(--fg); }
 .hint { font-size: 24rpx; color: var(--fg-2); }
 .label { font-size: 28rpx; color: var(--fg-2); }

@@ -12,8 +12,8 @@
     <view class="hint center mt-16">点圆点切换，保存所选</view>
 
     <view class="action-row">
-      <btn type="primary" bindtap="onSave">保存</btn>
-      <btn type="secondary" bindtap="onShare">分享</btn>
+      <btn class="action-btn" type="primary" bindtap="onSave">保存</btn>
+      <btn class="action-btn" type="secondary" bindtap="onShare">分享</btn>
     </view>
   </view>
 

@@ -2,6 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   min-height: 96rpx;
   padding: 0 44rpx;
   border-radius: var(--radius-pill);

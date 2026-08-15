@@ -9,7 +9,7 @@
     <view wx:if="{{templates.length === 0}}" class="empty-state">
       <view class="es-ic"><image class="ic-img" style="width:40rpx;height:40rpx" src="/assets/icons/png/icon-hanger-gray.png" /></view>
       <text class="es-text">暂无模板衣物，试试上传一件</text>
-      <btn type="secondary" size="sm" bindtap="openUpload">上传衣物</btn>
+      <btn class="empty-btn" type="secondary" size="sm" bindtap="openUpload">上传衣物</btn>
     </view>
 
     <view class="garment-grid">

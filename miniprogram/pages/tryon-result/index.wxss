@@ -13,5 +13,5 @@
 .rm-hint { font-size: 24rpx; color: var(--fg-2); margin-top: 8rpx; }
 .rm-tag { flex: 0 0 auto; background: var(--tag-bg); color: var(--fg-2); font-size: 24rpx; font-weight: 600; border-radius: 999rpx; padding: 10rpx 22rpx; }
 .action-row { display: flex; gap: 20rpx; margin-top: 28rpx; }
-.action-row .btn { flex: 1; }
+.action-btn { flex: 1; }
 .action-row .iconfont { font-size: 32rpx; margin-right: 8rpx; }

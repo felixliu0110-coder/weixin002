@@ -26,8 +26,8 @@
     </card>
 
     <view class="action-row">
-      <btn type="secondary" bindtap="onSave"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-export-dark.png" />保存到相册</btn>
-      <btn type="dark" bindtap="onShare"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-upload-white.png" />分享</btn>
+      <btn class="action-btn" type="secondary" bindtap="onSave"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-export-dark.png" />保存到相册</btn>
+      <btn class="action-btn" type="dark" bindtap="onShare"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-upload-white.png" />分享</btn>
     </view>
   </view>
 

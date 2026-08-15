@@ -69,8 +69,8 @@
   </view>
 
   <view class="footer-bar">
-    <btn type="secondary" bindtap="next">跳过</btn>
-    <btn type="primary" bindtap="next">下一步</btn>
+    <btn class="footer-half" type="secondary" bindtap="next">跳过</btn>
+    <btn class="footer-half" type="primary" bindtap="next">下一步</btn>
   </view>
 
   <tab-bar selected="{{0}}" navMode="{{true}}"></tab-bar>
