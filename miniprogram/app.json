@@ -9,7 +9,11 @@
     "pages/body-params/index",
     "pages/photo-upload/index",
     "pages/generate-progress/index",
-    "pages/avatar-3d/index"
+    "pages/avatar-3d/index",
+    "pages/image-preview/index",
+    "pages/tryon-progress/index",
+    "pages/tryon-result/index",
+    "pages/compare-view/index"
   ],
   "window": {
     "navigationStyle": "custom",

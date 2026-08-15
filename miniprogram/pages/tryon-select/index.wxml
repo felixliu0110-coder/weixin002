@@ -1,4 +1,41 @@
 <view class="wx-page">
-  <nav-bar title="试衣"></nav-bar>
-  <view class="content"><text>tryon-select placeholder</text></view>
+  <nav-bar title="选择衣物" showBack="{{true}}" backRoute="/pages/home/index"></nav-bar>
+
+  <view class="content">
+    <seg options="{{tabs}}" value="{{tab}}" bindchange="onTab" />
+
+    <view class="hint">选择一件衣物，AI 将按你的数字人体型生成试穿效果。</view>
+
+    <view wx:if="{{templates.length === 0}}" class="empty-state">
+      <view class="es-ic"><text class="iconfont icon-hanger"></text></view>
+      <text class="es-text">暂无模板衣物，试试上传一件</text>
+      <btn type="secondary" size="sm" bindtap="openUpload">上传衣物</btn>
+    </view>
+
+    <view class="garment-grid">
+      <garment-item
+        wx:for="{{templates}}"
+        wx:key="id"
+        data="{{item}}"
+        selected="{{selected.includes(item.id)}}"
+        bindtap="toggleGarment"
+      />
+    </view>
+  </view>
+
+  <view class="footer-bar">
+    <btn type="primary" disabled="{{selected.length === 0}}" bindtap="startTryon">{{selected.length > 0 ? '开始试穿（已选 ' + selected.length + ' 件）' : '开始试穿'}}</btn>
+  </view>
+
+  <sheet visible="{{uploadVisible}}" bind:cancel="closeUpload">
+    <view class="sheet-head">
+      <view class="grab"></view>
+      <text class="sheet-title">上传衣物</text>
+      <text class="sheet-desc">拍照或从相册选择，AI 自动识别品类并抠图；jpg / png ≤ 20MB，非衣物图片将被拦截。</text>
+    </view>
+    <view class="s-rows">
+      <view class="s-row" hover-class="row-hover" data-mode="album" bindtap="pickPhoto">从相册选择</view>
+      <view class="s-row" hover-class="row-hover" data-mode="camera" bindtap="pickPhoto">拍照</view>
+    </view>
+  </sheet>
 </view>

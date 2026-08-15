@@ -5,6 +5,7 @@ module.exports = {
   getAvatarProfile: mock.getAvatarProfile,
   saveAvatarProfile: mock.saveAvatarProfile,
   getGarmentTemplates: mock.getGarmentTemplates,
+  getHomeTemplates: mock.getHomeTemplates,
   uploadGarment: mock.uploadGarment,
   submitTryon: mock.submitTryon,
   getTryonStatus: mock.getTryonStatus,

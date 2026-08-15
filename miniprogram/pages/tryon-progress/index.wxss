@@ -1,0 +1,13 @@
+.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.big-hero-center { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 16rpx; }
+.gen-title { text-align: center; font-size: 34rpx; font-weight: 600; }
+.gen-sub { text-align: center; font-size: 27rpx; color: var(--fg-2); margin-top: 16rpx; line-height: 1.6; }
+.gen-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 24rpx; margin-top: 44rpx; }
+.gen-card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 28rpx; text-align: center; }
+.gc-ic { width: 68rpx; height: 68rpx; border-radius: 20rpx; background: var(--accent-soft); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; margin: 0 auto 16rpx; }
+.gc-ic .iconfont { font-size: 34rpx; }
+.gc-label { font-size: 24rpx; color: var(--fg-2); }
+.gc-val { font-size: 30rpx; font-weight: 600; margin-top: 6rpx; }
+.hint { font-size: 25rpx; color: var(--fg-2); line-height: 1.65; }
+.center { text-align: center; }
+.mt-20 { margin-top: 40rpx; }

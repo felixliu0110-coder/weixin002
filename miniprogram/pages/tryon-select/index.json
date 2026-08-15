@@ -1,4 +1,10 @@
 {
-  "usingComponents": { "nav-bar": "/components/nav-bar/index" },
-  "navigationBarTitleText": "试衣"
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/index",
+    "btn": "/components/btn/index",
+    "seg": "/components/seg/index",
+    "garment-item": "/components/garment-item/index",
+    "sheet": "/components/sheet/index"
+  },
+  "navigationBarTitleText": "选择衣物"
 }

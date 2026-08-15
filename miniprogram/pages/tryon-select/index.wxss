@@ -1,2 +1,15 @@
 .wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
-.content { flex: 1; padding: 4px 20px 24px; overflow-y: auto; }
+.hint { font-size: 25rpx; color: var(--fg-2); margin: 20rpx 4rpx 24rpx; }
+.garment-grid { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 24rpx; row-gap: 52rpx; }
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: 20rpx; padding: 68rpx 32rpx; text-align: center; }
+.es-ic { width: 84rpx; height: 84rpx; border-radius: 28rpx; background: var(--surface-2); color: var(--fg-2); display: flex; align-items: center; justify-content: center; }
+.es-ic .iconfont { font-size: 40rpx; }
+.es-text { font-size: 26rpx; color: var(--fg-2); }
+.sheet-head { display: flex; flex-direction: column; gap: 8rpx; }
+.grab { width: 80rpx; height: 8rpx; border-radius: 4rpx; background: var(--border); margin: 0 auto 20rpx; }
+.sheet-title { font-size: 34rpx; font-weight: 600; }
+.sheet-desc { font-size: 26rpx; color: var(--fg-2); line-height: 1.65; margin-top: 12rpx; }
+.s-rows { margin-top: 24rpx; }
+.s-row { display: flex; align-items: center; width: 100%; height: 104rpx; font-size: 30rpx; color: var(--fg); border-bottom: 1px solid var(--border-soft); }
+.s-row:last-of-type { border-bottom: 0; }
+.row-hover { background: var(--border-soft); }

@@ -8,6 +8,6 @@ test("api.getAvatarProfile 返回档案（mock 实现）", async () => {
 });
 
 test("api 暴露全部数据访问方法", () => {
-  const methods = ["getAvatarProfile", "saveAvatarProfile", "getGarmentTemplates", "uploadGarment", "submitTryon", "getTryonStatus", "getHistory", "getQuota", "saveResult", "deleteUserData"];
+  const methods = ["getAvatarProfile", "saveAvatarProfile", "getGarmentTemplates", "getHomeTemplates", "uploadGarment", "submitTryon", "getTryonStatus", "getHistory", "getQuota", "saveResult", "deleteUserData"];
   methods.forEach((m) => assert.strictEqual(typeof api[m], "function", m + " missing"));
 });

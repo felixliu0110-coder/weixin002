@@ -1,0 +1,35 @@
+<view class="wx-page">
+  <nav-bar title="今日穿搭灵感" showBack="{{true}}" backRoute="/pages/history/index"></nav-bar>
+
+  <view class="content">
+    <view class="subtitle">选择一件衣服，先看上身效果。</view>
+
+    <view class="photo-card">
+      <image src="/assets/img/p07-result.png" mode="widthFix" />
+      <view class="badge-ai"><text class="iconfont icon-star"></text>AI 生成</view>
+      <view class="wm">AI 生成效果，仅供参考</view>
+    </view>
+
+    <view class="angle-row">
+      <chip label="正面" selected="{{angle === '正面'}}" bindchange="onAngle" />
+      <chip label="侧面" selected="{{angle === '侧面'}}" bindchange="onAngle" />
+      <chip label="背面" selected="{{angle === '背面'}}" bindchange="onAngle" />
+    </view>
+
+    <card class="result-meta">
+      <view class="rm-copy">
+        <view class="rm-title">粉色针织连衣裙</view>
+        <view class="rm-sub">按你的身材（168cm / 55kg）生成，默认正面全身，可选侧面 / 背面。</view>
+        <view class="rm-hint">尺码建议仅供参考</view>
+      </view>
+      <view class="rm-tag">建议 M</view>
+    </card>
+
+    <view class="action-row">
+      <btn type="secondary" bindtap="onSave"><text class="iconfont icon-export"></text>保存到相册</btn>
+      <btn type="dark" bindtap="onShare"><text class="iconfont icon-upload"></text>分享</btn>
+    </view>
+  </view>
+
+  <tab-bar selected="{{1}}" navMode="{{true}}"></tab-bar>
+</view>

@@ -1,0 +1,31 @@
+<view class="wx-page">
+  <nav-bar title="衣物预览" showBack="{{true}}"></nav-bar>
+
+  <view class="content">
+    <view class="subtitle">系统已完成自动抠图与方向矫正，请确认品类后生成试穿。</view>
+
+    <view class="photo-card">
+      <image src="/assets/img/p11-garment.png" mode="widthFix" />
+      <view class="badge-cut">已自动抠图</view>
+    </view>
+
+    <view class="sec-hd" style="margin-top:36rpx">
+      <text class="sec-title">品类识别</text>
+      <text class="hint">可手动修正</text>
+    </view>
+    <view class="chip-row">
+      <chip label="上装" selected="{{category === '上装'}}" bindchange="onCategory" />
+      <chip label="下装" selected="{{category === '下装'}}" bindchange="onCategory" />
+      <chip label="连衣裙" selected="{{category === '连衣裙'}}" bindchange="onCategory" />
+      <chip label="外套" selected="{{category === '外套'}}" bindchange="onCategory" />
+    </view>
+
+    <view class="step-note">非衣物、多人合照或涉敏图片会被拦截，不会进入生成流程。</view>
+  </view>
+
+  <view class="footer-bar">
+    <btn type="primary" bindtap="confirm">确认生成试穿</btn>
+  </view>
+
+  <tab-bar selected="{{1}}" navMode="{{true}}"></tab-bar>
+</view>

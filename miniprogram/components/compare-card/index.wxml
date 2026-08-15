@@ -1,0 +1,9 @@
+<view class="compare-card">
+  <view class="c-img">
+    <image src="{{data.image}}" mode="aspectFill" />
+    <view class="sel-dot {{selected ? 'on' : ''}}" hover-class="dot-hover" bindtap="onTap">
+      <text class="iconfont icon-check"></text>
+    </view>
+  </view>
+  <view class="c-name">{{data.name}}</view>
+</view>

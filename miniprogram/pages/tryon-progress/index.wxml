@@ -1,0 +1,26 @@
+<view class="wx-page">
+  <nav-bar title="试穿生成中" showBack="{{true}}"></nav-bar>
+
+  <view class="content big-hero-center">
+    <ring-progress percent="{{percent}}" />
+    <view class="gen-title">正在为你试穿针织连衣裙...</view>
+    <view class="gen-sub">以你的 3D 数字人为底图生成照片级效果</view>
+
+    <view class="gen-cards">
+      <view class="gen-card">
+        <view class="gc-ic"><text class="iconfont icon-clock"></text></view>
+        <view class="gc-label">排队中</view>
+        <view class="gc-val">第 2 位（示例）</view>
+      </view>
+      <view class="gen-card">
+        <view class="gc-ic"><text class="iconfont icon-star"></text></view>
+        <view class="gc-label">预计耗时</view>
+        <view class="gc-val">15 秒</view>
+      </view>
+    </view>
+
+    <view class="hint center mt-20">生成完成后将通过微信消息通知你</view>
+  </view>
+
+  <tab-bar selected="{{1}}" navMode="{{true}}"></tab-bar>
+</view>

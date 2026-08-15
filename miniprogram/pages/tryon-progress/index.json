@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/index",
+    "ring-progress": "/components/ring-progress/index",
+    "tab-bar": "/custom-tab-bar/index"
+  },
+  "navigationBarTitleText": "试穿生成中"
+}
