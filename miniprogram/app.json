@@ -29,7 +29,7 @@
     "selectedColor": "#7A5A4E",
     "backgroundColor": "#FFFFFF",
     "list": [
-      { "pagePath": "pages/home/index", "text": "发现" },
+      { "pagePath": "pages/home/index", "text": "主页" },
       { "pagePath": "pages/tryon-select/index", "text": "试衣" },
       { "pagePath": "pages/history/index", "text": "收藏" },
       { "pagePath": "pages/profile/index", "text": "我的" }

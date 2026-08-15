@@ -1,14 +1,17 @@
 <view class="wx-page auth-page">
-  <view class="auth-card">
-    <view class="auth-title">隐私授权说明</view>
-    <view class="auth-list">
-      <view class="auth-item">人脸照片仅用于数字人头部重建，不会用于其他用途</view>
-      <view class="auth-item">身体数据加密存储（AES-256），可随时删除</view>
-      <view class="auth-item">照片与数据不用于任何第三方模型训练</view>
-    </view>
-    <view class="auth-actions">
-      <button class="auth-btn secondary" hover-class="auth-btn-hover" bindtap="onDecline">不同意</button>
-      <button class="auth-btn" hover-class="auth-btn-hover" bindtap="onAccept">同意并继续</button>
+  <nav-bar title="隐私授权" showBack="{{true}}"></nav-bar>
+  <view class="auth-body">
+    <view class="auth-card">
+      <view class="auth-title">隐私授权说明</view>
+      <view class="auth-list">
+        <view class="auth-item">人脸照片仅用于数字人头部重建，不会用于其他用途</view>
+        <view class="auth-item">身体数据加密存储（AES-256），可随时删除</view>
+        <view class="auth-item">照片与数据不用于任何第三方模型训练</view>
+      </view>
+      <view class="auth-actions">
+        <button class="auth-btn secondary" hover-class="auth-btn-hover" bindtap="onDecline">不同意</button>
+        <button class="auth-btn" hover-class="auth-btn-hover" bindtap="onAccept">同意并继续</button>
+      </view>
     </view>
   </view>
 </view>

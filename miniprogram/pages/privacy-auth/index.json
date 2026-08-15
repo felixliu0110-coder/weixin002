@@ -1,3 +1,6 @@
 {
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/index"
+  },
   "navigationBarTitleText": "隐私授权"
 }
