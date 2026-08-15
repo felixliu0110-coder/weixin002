@@ -2,8 +2,6 @@
   <nav-bar title="试穿记录" showBack="{{true}}" backRoute="/pages/profile/index"></nav-bar>
 
   <view class="content">
-    <view class="subtitle">选择一件衣服，先看上身效果。</view>
-
     <view wx:if="{{records.length === 0}}" class="empty-state">
       <view class="es-ic"><image class="ic-img" style="width:40rpx;height:40rpx" src="/assets/icons/png/icon-heart-gray.png" /></view>
       <text class="es-text">暂无试穿记录，去试试第一件吧</text>
