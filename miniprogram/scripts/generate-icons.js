@@ -29,12 +29,14 @@ const out = path.join(__dirname, "../assets/icons");
   src: url('./iconfont.ttf') format('truetype');
 }`
   );
-  fs.writeFileSync(cssPath, css);
+  // 小程序 wxss @import 只识别 .wxss 后缀，输出一份 iconfont.wxss
+  const wxssPath = path.join(out, "iconfont.wxss");
+  fs.writeFileSync(wxssPath, css);
 
-  // 清理小程序用不到的多余产物，仅保留 ttf / woff / css
+  // 清理小程序用不到的多余产物，仅保留 ttf / woff / wxss
   for (const f of fs.readdirSync(out)) {
-    if (!/^iconfont\.(ttf|woff|css)$/.test(f)) {
-      fs.unlinkSync(path.join(out, f));
+    if (!/^iconfont\.(ttf|woff|wxss)$/.test(f)) {
+      try { fs.unlinkSync(path.join(out, f)); } catch (e) { /* 文件被占用时跳过，不影响产物 */ }
     }
   }
   console.log("iconfont generated at", out);
