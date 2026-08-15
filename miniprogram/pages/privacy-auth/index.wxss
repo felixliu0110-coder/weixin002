@@ -1,4 +1,4 @@
-.auth-page { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 56rpx 44rpx; background: radial-gradient(120% 80% at 50% 0%, #FCF0EA, transparent 62%), var(--bg); }
+.auth-page { position: fixed; top: 0; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center; padding: 56rpx 44rpx; background: radial-gradient(120% 80% at 50% 0%, #FCF0EA, transparent 62%), var(--bg); }
 .auth-card { width: 100%; background: var(--surface); border-radius: 48rpx; padding: 52rpx 44rpx 44rpx; box-shadow: var(--shadow-raise); border: 1px solid var(--border-soft); }
 .auth-title { font-size: 38rpx; font-weight: 700; text-align: center; }
 .auth-list { margin-top: 36rpx; }
