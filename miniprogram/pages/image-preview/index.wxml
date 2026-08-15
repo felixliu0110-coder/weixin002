@@ -5,7 +5,7 @@
     <view class="subtitle">系统已完成自动抠图与方向矫正，请确认品类后生成试穿。</view>
 
     <view class="photo-card">
-      <image src="/assets/img/p11-garment.png" mode="widthFix" />
+      <image src="/assets/img/p11-garment.webp" mode="widthFix" />
       <view class="badge-cut">已自动抠图</view>
     </view>
 

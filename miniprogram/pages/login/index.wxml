@@ -3,7 +3,7 @@
     <view class="login-title">我形<text class="accent-word">我衣</text></view>
     <view class="login-tag">看见每一件衣服穿在自己身上的样子</view>
     <view class="hero-art">
-      <image src="/assets/img/p01-hero.png" mode="widthFix" />
+      <image src="/assets/img/p01-hero.webp" mode="widthFix" />
     </view>
     <view class="check-row {{agreed ? 'on' : ''}}" hover-class="check-hover" bindtap="toggleAgree">
       <view class="box"><text class="iconfont icon-check"></text></view>

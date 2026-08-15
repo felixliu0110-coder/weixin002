@@ -18,7 +18,11 @@
   "compileType": "miniprogram",
   "simulatorPluginLibVersion": {},
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      { "type": "folder", "value": "node_modules" },
+      { "type": "folder", "value": "scripts" },
+      { "type": "folder", "value": "assets/icons-src" }
+    ],
     "include": []
   },
   "appid": "wxe44ebc1661569b32",
