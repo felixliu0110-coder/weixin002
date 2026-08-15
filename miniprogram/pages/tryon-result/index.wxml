@@ -40,8 +40,10 @@
       <text class="sheet-desc">是否同时保存到相册？</text>
     </view>
     <view slot="actions">
-      <btn class="sheet-action" type="secondary" bindtap="collectNo">否</btn>
-      <btn class="sheet-action" type="primary" bindtap="collectYes">是</btn>
+      <view class="collect-actions">
+        <btn class="collect-btn" type="primary" bindtap="collectYes">是，保存到相册</btn>
+        <btn class="collect-btn" type="secondary" bindtap="collectNo">否，仅收藏</btn>
+      </view>
     </view>
   </sheet>
 </view>
