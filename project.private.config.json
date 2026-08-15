@@ -16,7 +16,7 @@
       "list": [
         {
           "name": "pages/privacy-auth/index",
-          "pathName": "pages/login/index",
+          "pathName": "pages/photo-upload/index",
           "query": "",
           "scene": null,
           "launchMode": "default"

@@ -8,7 +8,7 @@ Page({
     toast(agreed ? "已同意《用户协议》和《隐私政策》" : "需同意协议后才能使用人脸相关功能");
   },
   onLogin() {
-    // 真实微信登录（wx.login/手机号快捷登录）待后端接口就绪后接入
-    navigate("/pages/basic-info/index");
+    // 【临时诊断】验证跳转到 09 页是否白屏（页面栈 2 层）；测试后改回 basic-info
+    navigate("/pages/privacy-auth/index");
   }
 });
