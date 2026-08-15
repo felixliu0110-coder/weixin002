@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>03 · 身材参数 · 我形我衣</title>
+  <link rel="stylesheet" href="../assets/proto.css?v=16">
+</head>
+<body class="wx-page" data-od-id="screen-body-params" data-screen="03-body-params.html">
+  <header class="nav">
+    <button class="nav-btn" data-nav="02-basic-info.html" aria-label="返回">
+      <svg class="ic" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg>
+    </button>
+    <span class="nav-title">步骤2/3 身材参数（选填）</span>
+  </header>
+
+  <main class="content">
+    <div class="steps" aria-label="步骤 2/3">
+      <i class="on"></i><i class="on"></i><i></i>
+    </div>
+    <p class="subtitle">选填内容，按性别与身高体重估算，可逐项调整。</p>
+
+    <div class="sec-hd" style="margin-top:4px"><h2>三围</h2><span class="hint">单位 cm · 示例</span></div>
+    <div class="num-cards" data-od-id="body-measures">
+      <div class="num-card">
+        <span class="nc-name">胸围</span>
+        <span class="nc-val" id="mChest">88<small>cm</small></span>
+        <span class="nc-step">
+          <button data-step="-1" data-target="mChest" data-min="70" data-max="115" aria-label="胸围减 1"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+          <button data-step="1" data-target="mChest" data-min="70" data-max="115" aria-label="胸围加 1"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        </span>
+      </div>
+      <div class="num-card">
+        <span class="nc-name">腰围</span>
+        <span class="nc-val" id="mWaist">66<small>cm</small></span>
+        <span class="nc-step">
+          <button data-step="-1" data-target="mWaist" data-min="50" data-max="105" aria-label="腰围减 1"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+          <button data-step="1" data-target="mWaist" data-min="50" data-max="105" aria-label="腰围加 1"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        </span>
+      </div>
+      <div class="num-card">
+        <span class="nc-name">臀围</span>
+        <span class="nc-val" id="mHip">92<small>cm</small></span>
+        <span class="nc-step">
+          <button data-step="-1" data-target="mHip" data-min="75" data-max="120" aria-label="臀围减 1"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+          <button data-step="1" data-target="mHip" data-min="75" data-max="120" aria-label="臀围加 1"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        </span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="row-toggle">
+        <div class="rt-main">
+          <div class="rt-title">缺省估算</div>
+          <div class="rt-sub">开启后按身高体重自动填充，可逐项覆盖</div>
+        </div>
+        <button class="switch on" id="estSwitch" data-od-id="wizard-estimate" aria-pressed="true"></button>
+      </div>
+      <div class="field" style="margin-top:4px">
+        <div class="fl"><label>腿长</label><span class="val" id="legVal">96<small>cm</small></span></div>
+        <input type="range" min="70" max="115" value="96" data-out="legVal" data-unit="cm" data-od-id="wizard-leg">
+      </div>
+      <div class="field">
+        <div class="fl"><label>肤色</label><span class="hint">左右滑动调整</span></div>
+        <input type="range" class="skin-range" min="0" max="100" value="55" data-od-id="wizard-skin" aria-label="肤色深浅">
+      </div>
+    </div>
+
+    <div class="chip-row" style="margin-top:16px" data-od-id="body-extra">
+      <button class="chip" data-toast="颈长 10cm（估算值，可修改）">颈长 10cm</button>
+      <button class="chip" data-toast="肩宽 38cm（估算值，可修改）">肩宽 38cm</button>
+      <button class="chip" data-toast="臂长 55cm（估算值，可修改）">臂长 55cm</button>
+      <button class="chip" data-toast="鞋码 38（估算值，可修改）">鞋码 38</button>
+    </div>
+  </main>
+
+  <div class="footer-bar">
+    <button class="btn secondary" data-nav="04-photo-upload.html" data-od-id="wizard-body-skip">跳过</button>
+    <button class="btn" data-nav="04-photo-upload.html" data-od-id="wizard-body-next">下一步</button>
+  </div>
+
+  <nav class="tabbar" data-od-id="wizard-tabbar">
+    <button class="on" data-nav="17-home"><svg class="ic" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>发现</button>
+    <button data-nav="06-tryon-select.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 6.5a2.5 2.5 0 1 1 2.4 3.2H9.6A2.5 2.5 0 0 1 12 6.5Z"/><path d="M6.5 11.5 4 18h16l-2.5-6.5"/><path d="M8 12h8"/></svg>试衣</button>
+    <button data-nav="13-tryon-history.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.4-9 9-9 9Z"/></svg>收藏</button>
+    <button data-nav="08-profile.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.6-6.5 8-6.5s8 2 8 6.5"/></svg>我的</button>
+  </nav>
+
+  <div class="toast" role="status"></div>
+  <script src="../assets/proto.js"></script>
+  <script>
+    document.getElementById("estSwitch").addEventListener("click", function () {
+      var on = this.classList.toggle("on");
+      this.setAttribute("aria-pressed", on ? "true" : "false");
+      OD.toast(on ? "缺省估算已开启" : "缺省估算已关闭，改为手动填写");
+    });
+    document.querySelectorAll("[data-step]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var el = document.getElementById(b.getAttribute("data-target"));
+        var v = parseInt(el.textContent, 10) + parseInt(b.getAttribute("data-step"), 10);
+        var min = parseInt(b.getAttribute("data-min"), 10);
+        var max = parseInt(b.getAttribute("data-max"), 10);
+        v = Math.max(min, Math.min(max, v));
+        el.innerHTML = v + "<small>cm</small>";
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>15 · 隐私与数据管理 · 我形我衣</title>
+  <link rel="stylesheet" href="../assets/proto.css?v=16">
+</head>
+<body class="wx-page" data-od-id="screen-privacy-manage" data-screen="15-privacy-manage.html">
+  <header class="nav">
+    <button class="nav-btn" data-nav="08-profile.html" aria-label="返回">
+      <svg class="ic" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg>
+    </button>
+    <span class="nav-title">隐私与数据管理</span>
+  </header>
+
+  <main class="content">
+    <p class="subtitle">所有数据加密存储，不用于任何第三方模型训练。</p>
+    <div class="row-list" data-od-id="privacy-list">
+      <button class="row" data-toast="已授权：微信信息、人脸照片、身体参数" data-od-id="privacy-data">
+        <span class="ri-ic neu"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3 5 5.8v5.4c0 4.4 3 7.6 7 9.3 4-1.7 7-4.9 7-9.3V5.8Z"/><path d="m9 12 2.2 2.2L15.5 9.5"/></svg></span>
+        <span class="ri-main"><span class="ri-title">已授权数据</span><span class="ri-sub">人脸照片、身体参数</span></span>
+        <span class="ri-end"><svg class="ic" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span>
+      </button>
+      <button class="row" data-toast="正在生成导出文件，稍后通知下载（模拟）" data-od-id="privacy-export">
+        <span class="ri-ic neu"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v11"/><path d="m8 10 4 4 4-4"/><path d="M4 17v3.5h16V17"/></svg></span>
+        <span class="ri-main"><span class="ri-title">导出我的数据</span><span class="ri-sub">含照片、身材参数与试穿记录</span></span>
+        <span class="ri-end"><svg class="ic" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span>
+      </button>
+      <button class="row" data-sheet="delSheet" data-od-id="privacy-del-face">
+        <span class="ri-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2.5h7L17 8h3v11H4Z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+        <span class="ri-main"><span class="ri-title">删除人脸照片</span><span class="ri-sub">敏感个人信息 · 单独删除</span></span>
+        <span class="ri-end"><svg class="ic" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span>
+      </button>
+      <button class="row" data-sheet="delSheet" data-od-id="privacy-del-avatar">
+        <span class="ri-ic"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.6-6.5 8-6.5s8 2 8 6.5"/></svg></span>
+        <span class="ri-main"><span class="ri-title">删除数字人及关联数据</span><span class="ri-sub">数字人、照片与生成记录</span></span>
+        <span class="ri-end"><svg class="ic" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span>
+      </button>
+      <button class="row" data-sheet="revokeSheet" data-od-id="privacy-revoke">
+        <span class="ri-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3 5 5.8v5.4c0 4.4 3 7.6 7 9.3 4-1.7 7-4.9 7-9.3V5.8Z"/></svg></span>
+        <span class="ri-main"><span class="ri-title">撤回隐私授权</span><span class="ri-sub">停止照片与身体数据的使用</span></span>
+        <span class="ri-end"><svg class="ic" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span>
+      </button>
+    </div>
+
+    <p class="hint center danger-text mt-16">删除操作不可恢复，请谨慎操作</p>
+  </main>
+
+  <div class="sheet-mask" id="delSheet">
+    <div class="sheet">
+      <div class="grab"></div>
+      <h3>确认删除</h3>
+      <p>删除操作不可恢复：将同时移除数字人、照片与生成记录，异步清理 7 天内完成。</p>
+      <div class="s-actions">
+        <button class="btn secondary" data-close="delSheet">取消</button>
+        <button class="btn danger" data-close="delSheet" data-toast="已提交删除，将在 7 天内完成清理">确认删除</button>
+      </div>
+    </div>
+  </div>
+  <div class="sheet-mask" id="revokeSheet">
+    <div class="sheet">
+      <div class="grab"></div>
+      <h3>撤回隐私授权</h3>
+      <p>撤回后将停止人脸照片与身体数据的使用，相关数据将异步清理；部分功能将不可用。</p>
+      <div class="s-actions">
+        <button class="btn secondary" data-close="revokeSheet">取消</button>
+        <button class="btn" data-close="revokeSheet" data-toast="已撤回授权，数据将异步清理">确认撤回</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="tabbar pill" data-od-id="privacy-tabbar">
+    <button data-nav="17-home.html"><svg class="ic" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>发现</button>
+    <button data-nav="06-tryon-select.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 6.5a2.5 2.5 0 1 1 2.4 3.2H9.6A2.5 2.5 0 0 1 12 6.5Z"/><path d="M6.5 11.5 4 18h16l-2.5-6.5"/><path d="M8 12h8"/></svg>试衣</button>
+    <button data-nav="13-tryon-history.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.4-9 9-9 9Z"/></svg>收藏</button>
+    <button class="on" data-nav="08-profile"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.6-6.5 8-6.5s8 2 8 6.5"/></svg>我的</button>
+  </nav>
+
+  <div class="toast" role="status"></div>
+  <script src="../assets/proto.js"></script>
+</body>
+</html>
