@@ -2,7 +2,7 @@
   "usingComponents": {
     "btn": "/components/btn/index",
     "sheet": "/components/sheet/index",
-    "tab-bar": "/custom-tab-bar/index"
+    "tab-bar": "/components/tabbar/index"
   },
   "navigationBarTitleText": "登录"
 }

@@ -3,7 +3,7 @@
     "nav-bar": "/components/nav-bar/index",
     "btn": "/components/btn/index",
     "chip": "/components/chip/index",
-    "tab-bar": "/custom-tab-bar/index"
+    "tab-bar": "/components/tabbar/index"
   },
   "navigationBarTitleText": "衣物预览"
 }

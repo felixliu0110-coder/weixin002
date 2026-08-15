@@ -1,0 +1,12 @@
+<view class="tabbar {{pill ? 'pill' : ''}}">
+  <view
+    wx:for="{{list}}"
+    wx:key="pagePath"
+    class="tab {{selected === index ? 'on' : ''}}"
+    data-index="{{index}}"
+    bindtap="onSelect"
+  >
+    <text class="iconfont {{item.icon}}"></text>
+    <text class="tab-label">{{item.text}}</text>
+  </view>
+</view>

@@ -1,0 +1,5 @@
+.tabbar { display: flex; background: var(--surface); border-top: 1px solid var(--border-soft); padding: 12rpx 20rpx calc(12rpx + env(safe-area-inset-bottom)); min-height: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6rpx; font-size: 22rpx; color: var(--fg-2); border-radius: var(--radius-md); }
+.tab .iconfont { font-size: 44rpx; }
+.tab.on { color: #7A5A4E; font-weight: 600; }
+.tabbar.pill .tab.on { background: var(--accent-tab); color: var(--fg); border-radius: 999rpx; margin: 4rpx 16rpx; }

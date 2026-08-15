@@ -5,7 +5,7 @@
     "card": "/components/card/index",
     "switch": "/components/switch/index",
     "chip": "/components/chip/index",
-    "tab-bar": "/custom-tab-bar/index"
+    "tab-bar": "/components/tabbar/index"
   },
   "navigationBarTitleText": "身材参数"
 }
