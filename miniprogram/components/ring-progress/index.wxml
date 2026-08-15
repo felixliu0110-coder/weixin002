@@ -1,4 +1,0 @@
-<view class="ring-wrap">
-  <canvas type="2d" id="ringCanvas" class="ring-canvas"></canvas>
-  <view class="ring-num mono">{{percent}}%</view>
-</view>

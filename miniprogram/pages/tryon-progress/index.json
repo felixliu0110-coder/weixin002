@@ -1,7 +1,6 @@
 {
   "usingComponents": {
     "nav-bar": "/components/nav-bar/index",
-    "ring-progress": "/components/ring-progress/index",
     "tab-bar": "/components/tabbar/index"
   },
   "navigationBarTitleText": "试穿生成中"

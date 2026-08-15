@@ -2,7 +2,11 @@
   <nav-bar title="生成数字人" showBack="{{true}}"></nav-bar>
 
   <view class="content big-hero-center">
-    <view class="ring-placeholder mono">{{percent}}%</view>
+    <view class="ring-wrap">
+      <view class="ring" style="--p: {{percent}};"></view>
+      <view class="ring-hole"></view>
+      <view class="ring-num mono">{{percent}}%</view>
+    </view>
     <view class="gen-title">正在生成你的专属数字人~</view>
     <view class="gen-sub">根据身高体重与三围建立身体比例骨架</view>
 

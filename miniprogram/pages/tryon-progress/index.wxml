@@ -2,7 +2,11 @@
   <nav-bar title="试穿生成中" showBack="{{true}}"></nav-bar>
 
   <view class="content big-hero-center">
-    <ring-progress percent="{{percent}}" />
+    <view class="ring-wrap">
+      <view class="ring" style="--p: {{percent}};"></view>
+      <view class="ring-hole"></view>
+      <view class="ring-num mono">{{percent}}%</view>
+    </view>
     <view class="gen-title">正在为你试穿针织连衣裙...</view>
     <view class="gen-sub">以你的 3D 数字人为底图生成照片级效果</view>
 
