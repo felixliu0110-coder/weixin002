@@ -1,4 +1,4 @@
-@import "./assets/icons/iconfont.css";
+@import "assets/icons/iconfont.css";
 
 /* ============ 全局设计 token（迁移自 weixin002/assets/proto.css） ============ */
 page {
