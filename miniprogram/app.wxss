@@ -114,8 +114,8 @@ image { display: block; }
 }
 .footer-bar .btn { flex: 1; }
 
-/* 底部操作主按钮：居中、宽度约 90%（与设计稿一致） */
-.footer-main { width: 90%; margin: 0 auto; }
+/* 底部操作主按钮：居中、宽度约 90%（与设计稿一致）——display:block 让自定义组件 host 的宽/边距生效 */
+.footer-main { display: block; width: 90%; margin: 0 auto; }
 
 .steps { display: flex; gap: 6px; padding: 2px 0 4px; }
 .steps i { flex: 1; height: 4px; border-radius: 2px; background: var(--border); }

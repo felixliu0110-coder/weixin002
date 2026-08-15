@@ -14,4 +14,4 @@
 .check-copy { font-size: 24rpx; color: var(--fg-2); line-height: 1.65; }
 .strong { color: var(--fg); font-weight: 500; }
 .check-hover { opacity: 0.85; }
-.login-cta { margin-top: 44rpx; width: 100%; }
+.login-cta { display: block; margin-top: 44rpx; width: 100%; }

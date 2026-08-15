@@ -6,12 +6,12 @@
 .wm { position: absolute; left: 50%; bottom: 24rpx; transform: translateX(-50%); background: rgba(31,29,27,0.66); color: rgba(255,255,255,0.92); font-size: 21rpx; padding: 8rpx 24rpx; border-radius: 999rpx; white-space: nowrap; }
 .angle-row { display: flex; gap: 16rpx; margin-top: 28rpx; }
 .angle-row .chip { flex: 1; }
-.result-meta { margin-top: 28rpx; display: flex; align-items: flex-start; justify-content: space-between; gap: 20rpx; }
+.result-meta { display: block; margin-top: 28rpx; display: flex; align-items: flex-start; justify-content: space-between; gap: 20rpx; }
 .rm-copy { flex: 1; min-width: 0; }
 .rm-title { font-size: 34rpx; font-weight: 600; }
 .rm-sub { font-size: 25rpx; color: var(--fg-2); margin-top: 8rpx; line-height: 1.55; }
 .rm-hint { font-size: 24rpx; color: var(--fg-2); margin-top: 8rpx; }
 .rm-tag { flex: 0 0 auto; background: var(--tag-bg); color: var(--fg-2); font-size: 24rpx; font-weight: 600; border-radius: 999rpx; padding: 10rpx 22rpx; }
 .action-row { display: flex; gap: 20rpx; margin-top: 28rpx; }
-.action-btn { flex: 1; }
+.action-btn { display: block; flex: 1; }
 .action-row .iconfont { font-size: 32rpx; margin-right: 8rpx; }

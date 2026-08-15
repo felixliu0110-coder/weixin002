@@ -36,7 +36,7 @@
       </view>
     </view>
 
-    <card style="margin-top:56rpx">
+    <card class="card-gap">
       <view class="row-toggle">
         <view class="rt-main">
           <view class="rt-title">缺省估算</view>

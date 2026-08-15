@@ -4,4 +4,4 @@
 .center { text-align: center; }
 .mt-16 { margin-top: 32rpx; }
 .action-row { display: flex; gap: 20rpx; margin-top: 28rpx; }
-.action-btn { flex: 1; }
+.action-btn { display: block; flex: 1; }
