@@ -1,0 +1,11 @@
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/index",
+    "btn": "/components/btn/index",
+    "card": "/components/card/index",
+    "switch": "/components/switch/index",
+    "chip": "/components/chip/index",
+    "tab-bar": "/custom-tab-bar/index"
+  },
+  "navigationBarTitleText": "身材参数"
+}

@@ -1,0 +1,9 @@
+.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.sheet-head { display: flex; flex-direction: column; gap: 8rpx; }
+.grab { width: 80rpx; height: 8rpx; border-radius: 4rpx; background: var(--border); margin: 0 auto 20rpx; }
+.sheet-title { font-size: 34rpx; font-weight: 600; }
+.sheet-desc { font-size: 26rpx; color: var(--fg-2); line-height: 1.65; margin-top: 12rpx; }
+.s-rows { margin-top: 24rpx; }
+.s-row { display: flex; align-items: center; width: 100%; height: 104rpx; font-size: 30rpx; color: var(--fg); border-bottom: 1px solid var(--border-soft); }
+.s-row:last-of-type { border-bottom: 0; }
+.row-hover { background: var(--border-soft); }

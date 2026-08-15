@@ -1,0 +1,8 @@
+<view class="upload-card {{state === 'done' ? 'done' : ''}}" hover-class="upload-hover" bindtap="onTap">
+  <view class="uc-ic"><text class="iconfont {{icon}}"></text></view>
+  <view class="uc-main">
+    <view class="uc-title">{{title}}</view>
+    <view class="uc-desc">{{desc}}</view>
+  </view>
+  <view class="uc-state">{{state === 'done' ? '已上传' : stateText}}</view>
+</view>

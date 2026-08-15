@@ -1,0 +1,9 @@
+.upload-card { display: flex; align-items: center; gap: 28rpx; border: 3rpx dashed var(--accent-deep); background: var(--accent-soft); border-radius: var(--radius-lg); padding: 36rpx 32rpx; width: 100%; }
+.upload-card + .upload-card { margin-top: 24rpx; }
+.uc-ic { flex: 0 0 92rpx; width: 92rpx; height: 92rpx; border-radius: 30rpx; background: var(--accent); color: var(--accent-on); display: flex; align-items: center; justify-content: center; }
+.uc-main { flex: 1; min-width: 0; }
+.uc-title { font-size: 30rpx; font-weight: 600; }
+.uc-desc { font-size: 25rpx; color: var(--fg-2); margin-top: 6rpx; line-height: 1.5; }
+.uc-state { font-size: 26rpx; font-weight: 600; color: var(--fg-2); }
+.upload-card.done .uc-state { color: var(--accent-deep); }
+.upload-hover { filter: brightness(0.97); }

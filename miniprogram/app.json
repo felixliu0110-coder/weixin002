@@ -4,7 +4,10 @@
     "pages/home/index",
     "pages/tryon-select/index",
     "pages/history/index",
-    "pages/profile/index"
+    "pages/profile/index",
+    "pages/basic-info/index",
+    "pages/body-params/index",
+    "pages/photo-upload/index"
   ],
   "window": {
     "navigationStyle": "custom",

@@ -1,0 +1,5 @@
+.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.label { font-size: 28rpx; color: var(--fg-2); }
+.val { font-size: 36rpx; font-weight: 700; color: var(--fg); }
+.val .unit { font-size: 26rpx; font-weight: 500; color: var(--fg-2); margin-left: 4rpx; }
+slider { width: 100%; }

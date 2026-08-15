@@ -1,0 +1,77 @@
+<view class="wx-page">
+  <nav-bar title="步骤2/3 身材参数（选填）" showBack="{{true}}"></nav-bar>
+
+  <view class="content">
+    <view class="steps"><i class="on"></i><i class="on"></i><i></i></view>
+    <view class="subtitle">选填内容，按性别与身高体重估算，可逐项调整。</view>
+
+    <view class="sec-hd" style="margin-top:8rpx">
+      <text class="sec-title">三围</text>
+      <text class="hint">单位 cm · 示例</text>
+    </view>
+    <view class="num-cards">
+      <view class="num-card">
+        <text class="nc-name">胸围</text>
+        <text class="nc-val mono">{{bust}}<text class="unit">cm</text></text>
+        <view class="nc-step">
+          <view class="step-btn" hover-class="step-hover" data-kind="bust" data-delta="-1" bindtap="step"><text class="iconfont icon-minus"></text></view>
+          <view class="step-btn" hover-class="step-hover" data-kind="bust" data-delta="1" bindtap="step"><text class="iconfont icon-plus"></text></view>
+        </view>
+      </view>
+      <view class="num-card">
+        <text class="nc-name">腰围</text>
+        <text class="nc-val mono">{{waist}}<text class="unit">cm</text></text>
+        <view class="nc-step">
+          <view class="step-btn" hover-class="step-hover" data-kind="waist" data-delta="-1" bindtap="step"><text class="iconfont icon-minus"></text></view>
+          <view class="step-btn" hover-class="step-hover" data-kind="waist" data-delta="1" bindtap="step"><text class="iconfont icon-plus"></text></view>
+        </view>
+      </view>
+      <view class="num-card">
+        <text class="nc-name">臀围</text>
+        <text class="nc-val mono">{{hip}}<text class="unit">cm</text></text>
+        <view class="nc-step">
+          <view class="step-btn" hover-class="step-hover" data-kind="hip" data-delta="-1" bindtap="step"><text class="iconfont icon-minus"></text></view>
+          <view class="step-btn" hover-class="step-hover" data-kind="hip" data-delta="1" bindtap="step"><text class="iconfont icon-plus"></text></view>
+        </view>
+      </view>
+    </view>
+
+    <card style="margin-top:32rpx">
+      <view class="row-toggle">
+        <view class="rt-main">
+          <view class="rt-title">缺省估算</view>
+          <view class="rt-sub">开启后按身高体重自动填充，可逐项覆盖</view>
+        </view>
+        <switch checked="{{estimate}}" bindchange="onEstimate"></switch>
+      </view>
+      <view class="field" style="margin-top:8rpx">
+        <view class="fl">
+          <text class="label">腿长</text>
+          <text class="val mono">{{leg}}<text class="unit">cm</text></text>
+        </view>
+        <slider min="70" max="115" step="1" value="{{leg}}" activeColor="#E3A595" backgroundColor="#EADFD3" block-size="24" bindchanging="onLeg" bindchange="onLeg" />
+      </view>
+      <view class="field">
+        <view class="fl">
+          <text class="label">肤色</text>
+          <text class="hint">左右滑动调整</text>
+        </view>
+        <slider class="skin-range" min="0" max="100" step="1" value="{{skin}}" activeColor="#E3A595" backgroundColor="#EADFD3" block-size="24" bindchanging="onSkin" bindchange="onSkin" />
+      </view>
+    </card>
+
+    <view class="chip-row" style="margin-top:32rpx">
+      <chip label="颈长 10cm" bindchange="onChip" />
+      <chip label="肩宽 38cm" bindchange="onChip" />
+      <chip label="臂长 55cm" bindchange="onChip" />
+      <chip label="鞋码 38" bindchange="onChip" />
+    </view>
+  </view>
+
+  <view class="footer-bar">
+    <btn type="secondary" bindtap="next">跳过</btn>
+    <btn type="primary" bindtap="next">下一步</btn>
+  </view>
+
+  <tab-bar selected="{{0}}" navMode="{{true}}"></tab-bar>
+</view>

@@ -1,0 +1,37 @@
+<view class="wx-page">
+  <nav-bar title="步骤1/3 基本信息" showBack="{{true}}"></nav-bar>
+
+  <view class="content">
+    <view class="steps"><i class="on"></i><i></i><i></i></view>
+    <view class="subtitle">先告诉我你的基础信息，后续可随时修改。</view>
+
+    <card>
+      <view class="field" style="margin-top:2px">
+        <view class="fl"><text class="label">性别</text></view>
+        <seg options="{{genderOptions}}" value="{{gender}}" bindchange="onGender"></seg>
+      </view>
+      <view class="field">
+        <view class="fl">
+          <text class="label">身高</text>
+          <text class="val mono">{{height}}<text class="unit">cm</text></text>
+        </view>
+        <slider min="145" max="200" step="1" value="{{height}}" activeColor="#E3A595" backgroundColor="#EADFD3" block-size="24" bindchanging="onHeight" bindchange="onHeight" />
+      </view>
+      <view class="field">
+        <view class="fl">
+          <text class="label">体重</text>
+          <text class="val mono">{{weight}}<text class="unit">kg</text></text>
+        </view>
+        <slider min="40" max="120" step="1" value="{{weight}}" activeColor="#E3A595" backgroundColor="#EADFD3" block-size="24" bindchanging="onWeight" bindchange="onWeight" />
+      </view>
+    </card>
+
+    <view class="step-note">仅填身高体重时，三围等将按你的性别自动估算，可逐项修改。</view>
+  </view>
+
+  <view class="footer-bar">
+    <btn type="primary" bindtap="next">下一步</btn>
+  </view>
+
+  <tab-bar selected="{{0}}" navMode="{{true}}"></tab-bar>
+</view>

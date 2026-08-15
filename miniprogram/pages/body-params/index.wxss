@@ -1,0 +1,11 @@
+.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.sec-title { font-size: 34rpx; font-weight: 600; color: var(--fg); }
+.hint { font-size: 24rpx; color: var(--fg-2); }
+.label { font-size: 28rpx; color: var(--fg-2); }
+.val { font-size: 36rpx; font-weight: 700; color: var(--fg); }
+.val .unit { font-size: 26rpx; font-weight: 500; color: var(--fg-2); margin-left: 4rpx; }
+.nc-val .unit { font-size: 22rpx; font-weight: 500; color: var(--fg-2); }
+.step-hover { background: var(--accent-soft); border-color: var(--accent); }
+.chip-row .chip { min-width: 0; }
+slider { width: 100%; }
+slider.skin-range .wx-slider-track { background: linear-gradient(to right, #FFF0E4, #5C3A28); }
