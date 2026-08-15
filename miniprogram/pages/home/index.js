@@ -3,11 +3,18 @@ const api = require("../../utils/api");
 
 Page({
   data: {
+    statusBarHeight: 20,
     keyword: "",
     templates: [],
     quota: { dailyFree: 3 }
   },
   onLoad() {
+    try {
+      const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      this.setData({ statusBarHeight: info.statusBarHeight || 20 });
+    } catch (e) {
+      this.setData({ statusBarHeight: 20 });
+    }
     api.getHomeTemplates().then((templates) => {
       this.setData({ templates });
     });

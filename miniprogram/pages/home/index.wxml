@@ -1,5 +1,5 @@
 <view class="wx-page">
-  <view class="home-nav">
+  <view class="home-nav" style="padding-top: {{statusBarHeight}}px;">
     <text class="brand">我形<text class="accent">我衣</text></text>
   </view>
 
