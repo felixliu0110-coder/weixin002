@@ -1,4 +1,4 @@
-<view class="garment {{selected ? 'on' : ''}}" hover-class="garment-hover" bindtap="onTap">
+<view class="garment {{selected ? 'on' : ''}}" hover-class="garment-hover" catchtap="onTap">
   <view class="g-img"><image src="{{data.image}}" mode="aspectFill" /></view>
   <view class="pick"><text class="iconfont icon-check"></text></view>
   <view class="g-name">{{data.name}}</view>

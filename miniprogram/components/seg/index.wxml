@@ -5,6 +5,6 @@
     class="seg-item {{value === item.value ? 'on' : ''}}"
     hover-class="seg-hover"
     data-value="{{item.value}}"
-    bindtap="onTap"
+    catchtap="onTap"
   >{{item.label}}</view>
 </view>

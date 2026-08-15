@@ -1,4 +1,4 @@
-<view class="upload-card {{state === 'done' ? 'done' : ''}}" hover-class="upload-hover" bindtap="onTap">
+<view class="upload-card {{state === 'done' ? 'done' : ''}}" hover-class="upload-hover" catchtap="onTap">
   <view class="uc-ic"><text class="iconfont {{icon}}"></text></view>
   <view class="uc-main">
     <view class="uc-title">{{title}}</view>

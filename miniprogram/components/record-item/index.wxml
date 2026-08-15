@@ -1,4 +1,4 @@
-<view class="record" hover-class="record-hover" bindtap="onTap">
+<view class="record" hover-class="record-hover" catchtap="onTap">
   <view class="r-img">
     <image src="{{data.image}}" mode="{{data.contain ? 'aspectFit' : 'aspectFill'}}" />
     <view wx:if="{{data.aiTagged}}" class="r-ai">AI 生成</view>

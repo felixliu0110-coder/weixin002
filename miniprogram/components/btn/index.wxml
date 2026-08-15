@@ -3,7 +3,7 @@
   hover-class="btn-hover"
   disabled="{{disabled || loading}}"
   loading="{{loading}}"
-  bindtap="onTap"
+  catchtap="onTap"
 >
   <slot></slot>
 </button>
