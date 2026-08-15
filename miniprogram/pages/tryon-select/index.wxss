@@ -10,6 +10,6 @@
 .grab { width: 80rpx; height: 8rpx; border-radius: 4rpx; background: var(--border); margin: 0 auto 20rpx; }
 .sheet-title { font-size: 34rpx; font-weight: 600; }
 .sheet-desc { font-size: 26rpx; color: var(--fg-2); line-height: 1.65; margin-top: 12rpx; }
-.pick-actions { display: flex; gap: 24rpx; margin: 36rpx 0 24rpx; }
+.pick-actions { display: flex; gap: 24rpx; margin: 36rpx 0 8rpx; }
 .pick-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 16rpx; padding: 40rpx 0 36rpx; border-radius: var(--radius-md); background: var(--accent-soft); color: #7A5A4E; font-size: 28rpx; font-weight: 600; }
 .pick-hover { background: var(--accent-tab); }
