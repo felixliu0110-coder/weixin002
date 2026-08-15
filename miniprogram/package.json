@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "miniprogram-automator": "^0.12.1",
     "sharp": "^0.35.3",
     "svg2ttf": "^6.1.0",
     "svgicons2svgfont": "^16.0.0",
