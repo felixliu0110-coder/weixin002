@@ -1,8 +1,26 @@
 {
-  "pages": ["pages/login/index"],
+  "pages": [
+    "pages/login/index",
+    "pages/home/index",
+    "pages/tryon-select/index",
+    "pages/history/index",
+    "pages/profile/index"
+  ],
   "window": {
     "navigationStyle": "custom",
     "backgroundColor": "#FBF5ED"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#4A423C",
+    "selectedColor": "#7A5A4E",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      { "pagePath": "pages/home/index", "text": "发现" },
+      { "pagePath": "pages/tryon-select/index", "text": "试衣" },
+      { "pagePath": "pages/history/index", "text": "收藏" },
+      { "pagePath": "pages/profile/index", "text": "我的" }
+    ]
   },
   "sitemapLocation": "sitemap.json"
 }
