@@ -1,5 +1,5 @@
-<view class="auth-page" bindtap="onMaskTap">
-  <view class="auth-card" catchtap="noop">
+<view class="auth-page" data-mask="1" bindtap="onMaskTap">
+  <view class="auth-card" data-card="1">
     <view class="auth-title">隐私授权说明</view>
     <view class="auth-list">
       <view class="auth-item"><view class="dot"></view><text>人脸照片仅用于数字人头部重建，不会用于其他用途</text></view>
