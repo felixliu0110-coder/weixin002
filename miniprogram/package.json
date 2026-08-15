@@ -12,7 +12,10 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "fonteditor-core": "^2.6.3",
     "miniprogram-automator": "^0.12.1",
+    "opentype.js": "^2.0.0",
+    "puppeteer-core": "^25.7.0",
     "sharp": "^0.35.3",
     "svg2ttf": "^6.1.0",
     "svgicons2svgfont": "^16.0.0",

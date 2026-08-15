@@ -1,10 +1,11 @@
-/* 生成 iconfont 字体并内联到 app.wxss（base64，避免本地路径限制）。
+/* 生成 iconfont：svgtofont 生成 SVG 字体，fonteditor-core 转 ttf（修复 svgtofont 的 cmap 错乱）。
    注意：svgtofont 依赖在 Node 26 下不兼容，需用 Node 18 运行：
    npm run icons   （等价 npx -y node@18 scripts/generate-icons.js）
  */
 const path = require("path");
-const svgtofont = require("svgtofont");
 const fs = require("fs");
+const svgtofont = require("svgtofont");
+const { svg2ttfobject, TTFWriter } = require("fonteditor-core");
 
 const src = path.join(__dirname, "../assets/icons-src");
 const out = path.join(__dirname, "../assets/icons");
@@ -20,12 +21,17 @@ const START_UNICODE = 0xe001;
     svgicons2svgfont: { fontHeight: 1000, normalize: true }
   });
 
-  const files = fs.readdirSync(src).filter((f) => f.endsWith(".svg")).sort();
-  const fontBase64 = fs.readFileSync(path.join(out, "iconfont.ttf")).toString("base64");
+  // 用 fonteditor-core 从 SVG 字体重新生成 ttf（修复 svgtofont 的 cmap 错乱）
+  const svgFont = fs.readFileSync(path.join(out, "iconfont.svg"), "utf8");
+  const ttfObj = svg2ttfobject(svgFont, {});
+  const ttfBuf = Buffer.from(new TTFWriter().write(ttfObj));
+  fs.writeFileSync(path.join(out, "iconfont.ttf"), ttfBuf);
 
+  const fontBase64 = ttfBuf.toString("base64");
+  const files = fs.readdirSync(src).filter((f) => f.endsWith(".svg")).sort();
   const glyphCss = files
     .map((f, i) => {
-      const name = f.replace(/\.svg$/, ""); // icon-avatar.svg -> icon-avatar -> .icon-avatar
+      const name = f.replace(/\.svg$/, "");
       const code = (START_UNICODE + i).toString(16);
       return `.${name}:before { content: "\\${code}"; }`;
     })
@@ -64,7 +70,7 @@ ${glyphCss}
   // 清理多余产物，仅保留 ttf / woff / wxss
   for (const f of fs.readdirSync(out)) {
     if (!/^iconfont\.(ttf|woff|wxss)$/.test(f)) {
-      try { fs.unlinkSync(path.join(out, f)); } catch (e) { /* 文件被占用时跳过 */ }
+      try { fs.unlinkSync(path.join(out, f)); } catch (e) { /* 忽略占用 */ }
     }
   }
   console.log(`iconfont generated: ${files.length} glyphs; app.wxss synced`);
