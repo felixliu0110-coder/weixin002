@@ -21,6 +21,7 @@
   ],
   "window": {
     "navigationStyle": "custom",
+    "navigationBarTextStyle": "black",
     "backgroundColor": "#FBF5ED"
   },
   "lazyCodeLoading": "requiredComponents",
