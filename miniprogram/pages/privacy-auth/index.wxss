@@ -1,4 +1,6 @@
-.auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 56rpx 44rpx; background: linear-gradient(180deg, #FCF0EA 0%, #FBF5ED 100%); }
+.wx-page { min-height: 100vh; display: flex; flex-direction: column; }
+.auth-page { background: linear-gradient(180deg, #FCF0EA 0%, #FBF5ED 100%); }
+.auth-content { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 56rpx 44rpx; }
 .auth-card { width: 100%; background: var(--surface); border-radius: 48rpx; padding: 52rpx 44rpx 44rpx; box-shadow: var(--shadow-raise); border: 1px solid var(--border-soft); }
 .auth-title { font-size: 38rpx; font-weight: 700; text-align: center; }
 .auth-list { margin-top: 36rpx; }
