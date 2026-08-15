@@ -1,7 +1,8 @@
 Component({
   properties: {
     title: { type: String, value: "" },
-    showBack: { type: Boolean, value: false }
+    showBack: { type: Boolean, value: false },
+    backRoute: { type: String, value: "" }
   },
   data: { statusBarHeight: 20, navHeight: 44 },
   lifetimes: {
@@ -16,6 +17,16 @@ Component({
   },
   methods: {
     onBack() {
+      if (this.data.backRoute) {
+        const url = this.data.backRoute;
+        const tabRoutes = ["/pages/home/index", "/pages/tryon-select/index", "/pages/history/index", "/pages/profile/index"];
+        if (tabRoutes.includes(url)) {
+          wx.switchTab({ url });
+        } else {
+          wx.navigateTo({ url });
+        }
+        return;
+      }
       const pages = getCurrentPages();
       if (pages.length > 1) {
         wx.navigateBack();

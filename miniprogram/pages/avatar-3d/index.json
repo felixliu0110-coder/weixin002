@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/index",
+    "btn": "/components/btn/index",
+    "card": "/components/card/index"
+  },
+  "navigationBarTitleText": "我的数字人"
+}

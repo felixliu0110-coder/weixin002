@@ -1,0 +1,23 @@
+.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.avatar-stage { border-radius: 48rpx; overflow: hidden; border: 1px solid var(--border-soft); background: linear-gradient(180deg, var(--surface-2), var(--border-soft)); box-shadow: var(--shadow-card); }
+.avatar-stage image { width: 100%; }
+.stage-fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20rpx; min-height: 640rpx; color: var(--fg-2); font-size: 26rpx; }
+.stage-fallback .iconfont { font-size: 68rpx; color: var(--fg-2); }
+.meas-hint { text-align: center; font-size: 24rpx; color: var(--fg-2); margin-top: 24rpx; }
+.circle-actions { display: flex; justify-content: center; gap: 60rpx; margin-top: 32rpx; }
+.circle-btn { position: relative; width: 128rpx; height: 128rpx; border-radius: 50%; background: var(--accent-soft); color: #7A5A4E; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-card); }
+.circle-btn .iconfont { font-size: 48rpx; }
+.circle-label { position: absolute; bottom: -42rpx; left: 50%; transform: translateX(-50%); font-size: 24rpx; color: var(--fg-2); white-space: nowrap; }
+.circle-hover { background: var(--accent-tab); transform: scale(0.93); }
+.profile-card { margin-top: 76rpx; background: linear-gradient(180deg, #FDF0EB, #FBEAE3); border-color: var(--border); }
+.sec-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16rpx; }
+.sec-title { font-size: 34rpx; font-weight: 600; }
+.more { display: flex; align-items: center; gap: 4rpx; font-size: 26rpx; color: #7A5A4E; padding: 8rpx 4rpx; }
+.more .iconfont { font-size: 26rpx; }
+.more-hover { opacity: 0.8; }
+.profile-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border); }
+.p-cell { padding: 26rpx 16rpx 24rpx; text-align: center; }
+.p-cell:nth-child(even) { border-left: 1px solid var(--border); }
+.p-cell:nth-child(n + 3) { border-top: 1px solid var(--border); }
+.pc-label { font-size: 24rpx; color: var(--fg-2); letter-spacing: 0.02em; }
+.pc-val { display: block; font-size: 34rpx; font-weight: 700; color: var(--fg); margin-top: 10rpx; }

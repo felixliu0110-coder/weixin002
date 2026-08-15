@@ -10,7 +10,7 @@ const avatarProfile = {
   bustCm: 88,
   waistCm: 66,
   hipCm: 92,
-  legLengthCm: 88,
+  legLengthCm: 96,
   neckLengthCm: 9,
   skinTone: "light",
   modelVersion: "v1-demo",

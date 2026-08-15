@@ -7,7 +7,9 @@
     "pages/profile/index",
     "pages/basic-info/index",
     "pages/body-params/index",
-    "pages/photo-upload/index"
+    "pages/photo-upload/index",
+    "pages/generate-progress/index",
+    "pages/avatar-3d/index"
   ],
   "window": {
     "navigationStyle": "custom",

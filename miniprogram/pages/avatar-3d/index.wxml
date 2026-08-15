@@ -1,0 +1,46 @@
+<view class="wx-page">
+  <nav-bar title="我的数字人" showBack="{{true}}" backRoute="/pages/home/index"></nav-bar>
+
+  <view class="content">
+    <view class="avatar-stage">
+      <image wx:if="{{!imgError}}" src="/assets/img/p05-avatar.png" mode="widthFix" binderror="onImgError" />
+      <view wx:else class="stage-fallback">
+        <text class="iconfont icon-avatar"></text>
+        <text>形象加载失败，请刷新重试</text>
+      </view>
+    </view>
+    <view class="meas-hint">单指旋转 · 双指缩放 · 点按标注查看尺寸</view>
+
+    <view class="circle-actions">
+      <view class="circle-btn" hover-class="circle-hover" bindtap="onRotate">
+        <text class="iconfont icon-rotate"></text>
+        <text class="circle-label">旋转</text>
+      </view>
+      <view class="circle-btn" hover-class="circle-hover" bindtap="onMeasure">
+        <text class="iconfont icon-ruler"></text>
+        <text class="circle-label">标注</text>
+      </view>
+      <view class="circle-btn" hover-class="circle-hover" bindtap="onConfirm">
+        <text class="iconfont icon-ok"></text>
+        <text class="circle-label">确认</text>
+      </view>
+    </view>
+
+    <card class="profile-card">
+      <view class="sec-hd">
+        <text class="sec-title">身材档案</text>
+        <view class="more" hover-class="more-hover" bindtap="edit">编辑<text class="iconfont icon-chevron-right"></text></view>
+      </view>
+      <view class="profile-grid">
+        <view class="p-cell"><text class="pc-label">身高</text><text class="pc-val mono">{{profile.heightCm}}cm</text></view>
+        <view class="p-cell"><text class="pc-label">体重</text><text class="pc-val mono">{{profile.weightKg}}kg</text></view>
+        <view class="p-cell"><text class="pc-label">腰围</text><text class="pc-val mono">{{profile.waistCm}}cm</text></view>
+        <view class="p-cell"><text class="pc-label">腿长</text><text class="pc-val mono">{{profile.legLengthCm}}cm</text></view>
+      </view>
+    </card>
+  </view>
+
+  <view class="footer-bar">
+    <btn type="primary" bindtap="goTryon">去试穿</btn>
+  </view>
+</view>
