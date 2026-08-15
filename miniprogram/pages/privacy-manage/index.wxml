@@ -6,29 +6,29 @@
 
     <view class="row-list">
       <view class="row" hover-class="row-hover" bindtap="onDataInfo">
-        <view class="ri-ic neu"><text class="iconfont icon-shield-check"></text></view>
+        <view class="ri-ic neu"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-shield-check-gray.png" /></view>
         <view class="ri-main"><view class="ri-title">已授权数据</view><view class="ri-sub">人脸照片、身体参数</view></view>
-        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+        <view class="ri-end"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
       <view class="row" hover-class="row-hover" bindtap="onExport">
-        <view class="ri-ic neu"><text class="iconfont icon-export"></text></view>
+        <view class="ri-ic neu"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-export-gray.png" /></view>
         <view class="ri-main"><view class="ri-title">导出我的数据</view><view class="ri-sub">含照片、身材参数与试穿记录</view></view>
-        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+        <view class="ri-end"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
       <view class="row" hover-class="row-hover" bindtap="openDel">
-        <view class="ri-ic"><text class="iconfont icon-camera"></text></view>
+        <view class="ri-ic"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-camera-deep.png" /></view>
         <view class="ri-main"><view class="ri-title">删除人脸照片</view><view class="ri-sub">敏感个人信息 · 单独删除</view></view>
-        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+        <view class="ri-end"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
       <view class="row" hover-class="row-hover" bindtap="openDel">
-        <view class="ri-ic"><text class="iconfont icon-avatar"></text></view>
+        <view class="ri-ic"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-avatar-deep.png" /></view>
         <view class="ri-main"><view class="ri-title">删除数字人及关联数据</view><view class="ri-sub">数字人、照片与生成记录</view></view>
-        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+        <view class="ri-end"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
       <view class="row" hover-class="row-hover" bindtap="openRevoke">
-        <view class="ri-ic"><text class="iconfont icon-shield"></text></view>
+        <view class="ri-ic"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-shield-gray.png" /></view>
         <view class="ri-main"><view class="ri-title">撤回隐私授权</view><view class="ri-sub">停止照片与身体数据的使用</view></view>
-        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+        <view class="ri-end"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
     </view>
 

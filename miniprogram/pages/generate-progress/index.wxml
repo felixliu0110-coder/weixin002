@@ -12,12 +12,12 @@
 
     <view class="gen-cards">
       <view class="gen-card">
-        <view class="gc-ic"><text class="iconfont icon-clock"></text></view>
+        <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-clock-deep.png" /></view>
         <view class="gc-label">排队中</view>
         <view class="gc-val">第 1 位（示例）</view>
       </view>
       <view class="gen-card">
-        <view class="gc-ic"><text class="iconfont icon-star"></text></view>
+        <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-star-deep.png" /></view>
         <view class="gc-label">预计还需</view>
         <view class="gc-val">8 秒</view>
       </view>

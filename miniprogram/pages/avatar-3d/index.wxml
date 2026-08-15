@@ -5,7 +5,7 @@
     <view class="avatar-stage">
       <image wx:if="{{!imgError}}" class="avatar-img" src="/assets/img/p05-avatar.jpg" mode="aspectFill" binderror="onImgError" />
       <view wx:else class="stage-fallback">
-        <text class="iconfont icon-avatar"></text>
+        <image class="ic-img" style="width:68rpx;height:68rpx" src="/assets/icons/png/icon-avatar-gray.png" />
         <text>形象加载失败，请刷新重试</text>
       </view>
     </view>
@@ -13,15 +13,15 @@
 
     <view class="circle-actions">
       <view class="circle-btn" hover-class="circle-hover" bindtap="onRotate">
-        <text class="iconfont icon-rotate"></text>
+        <image class="ic-img" style="width:48rpx;height:48rpx" src="/assets/icons/png/icon-rotate-active.png" />
         <text class="circle-label">旋转</text>
       </view>
       <view class="circle-btn" hover-class="circle-hover" bindtap="onMeasure">
-        <text class="iconfont icon-ruler"></text>
+        <image class="ic-img" style="width:48rpx;height:48rpx" src="/assets/icons/png/icon-ruler-active.png" />
         <text class="circle-label">标注</text>
       </view>
       <view class="circle-btn" hover-class="circle-hover" bindtap="onConfirm">
-        <text class="iconfont icon-ok"></text>
+        <image class="ic-img" style="width:48rpx;height:48rpx" src="/assets/icons/png/icon-ok-active.png" />
         <text class="circle-label">确认</text>
       </view>
     </view>
@@ -29,7 +29,7 @@
     <card class="profile-card">
       <view class="sec-hd">
         <text class="sec-title">身材档案</text>
-        <view class="more" hover-class="more-hover" bindtap="edit">编辑<text class="iconfont icon-chevron-right"></text></view>
+        <view class="more" hover-class="more-hover" bindtap="edit">编辑<image class="ic-img" style="width:26rpx;height:26rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
       <view class="profile-grid">
         <view class="p-cell"><text class="pc-label">身高</text><text class="pc-val mono">{{profile.heightCm}}cm</text></view>

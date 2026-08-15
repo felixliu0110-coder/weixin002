@@ -6,7 +6,7 @@
 
     <view class="photo-card">
       <image src="/assets/img/p07-result.jpg" mode="widthFix" />
-      <view class="badge-ai"><text class="iconfont icon-star"></text>AI 生成</view>
+      <view class="badge-ai"><image class="ic-img" style="width:24rpx;height:24rpx" src="/assets/icons/png/icon-star-white.png" />AI 生成</view>
       <view class="wm">AI 生成效果，仅供参考</view>
     </view>
 
@@ -26,8 +26,8 @@
     </card>
 
     <view class="action-row">
-      <btn type="secondary" bindtap="onSave"><text class="iconfont icon-export"></text>保存到相册</btn>
-      <btn type="dark" bindtap="onShare"><text class="iconfont icon-upload"></text>分享</btn>
+      <btn type="secondary" bindtap="onSave"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-export-dark.png" />保存到相册</btn>
+      <btn type="dark" bindtap="onShare"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-upload-white.png" />分享</btn>
     </view>
   </view>
 

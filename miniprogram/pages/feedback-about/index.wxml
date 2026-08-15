@@ -7,7 +7,7 @@
 
     <btn type="primary" block="{{true}}" class="submit-btn" bindtap="onSubmit">提交反馈</btn>
     <view wx:if="{{formOk}}" class="form-success">
-      <text class="iconfont icon-check"></text>
+      <image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-check-green.png" />
       已提交，我们将在 3 个工作日内回复
     </view>
 

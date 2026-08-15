@@ -71,12 +71,10 @@ for (const m of allText.matchAll(/\/assets\/img\/[a-z0-9-]+\.(png|jpg|webp)/g)) 
   if (!fs.existsSync(p)) errors.push(`图片资源缺失: ${m[0]}`);
 }
 
-// 5. 图标类名存在于 app.wxss
-const appWxss = fs.readFileSync(path.join(root, "app.wxss"), "utf8");
-for (const m of allText.matchAll(/\bicon-[a-z0-9-]+/g)) {
-  const cls = m[0];
-  if (cls === "iconfont") continue;
-  if (!appWxss.includes("." + cls + ":before")) errors.push(`图标类未定义: ${cls}`);
+// 5. PNG 图标资源引用存在
+for (const m of allText.matchAll(/\/assets\/icons\/png\/[a-z0-9-]+\.png/g)) {
+  const p = path.join(root, m[0].replace(/^\//, ""));
+  if (!fs.existsSync(p)) errors.push(`PNG 图标缺失: ${m[0]}`);
 }
 
 if (errors.length) {

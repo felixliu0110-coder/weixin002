@@ -6,6 +6,6 @@
 .g-name { font-size: 25rpx; font-weight: 500; margin-top: 14rpx; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .g-cat { font-size: 22rpx; color: var(--fg-2); margin-top: 4rpx; }
 .pick { position: absolute; top: 28rpx; right: 24rpx; width: 44rpx; height: 44rpx; border-radius: 50%; border: 3rpx solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.7); transition: opacity 0.16s var(--ease), transform 0.16s var(--ease); }
-.pick .iconfont { font-size: 26rpx; color: transparent; }
+.pick-img { width: 26rpx; height: 26rpx; opacity: 0; }
 .garment.on .pick { opacity: 1; transform: scale(1); background: var(--accent); border-color: var(--accent); }
-.garment.on .pick .iconfont { color: var(--accent-on); }
+.garment.on .pick-img { opacity: 1; }

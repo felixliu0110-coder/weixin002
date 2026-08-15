@@ -2,7 +2,7 @@
   <view class="nav-bar" style="height: {{navHeight}}px;">
     <view class="nav-left">
       <view wx:if="{{showBack}}" class="nav-btn" hover-class="nav-btn-hover" bindtap="onBack">
-        <text class="iconfont icon-back"></text>
+        <image class="ic-img" style="width:42rpx;height:42rpx" src="/assets/icons/png/icon-back-dark.png" />
       </view>
     </view>
     <view wx:if="{{brand}}" class="nav-brand">{{brand}}</view>

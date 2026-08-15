@@ -1,5 +1,5 @@
 <view class="upload-card {{state === 'done' ? 'done' : ''}}" hover-class="upload-hover" catchtap="onTap">
-  <view class="uc-ic"><text class="iconfont {{icon}}"></text></view>
+  <view class="uc-ic"><image class="uc-img" src="{{icon}}" mode="aspectFit" /></view>
   <view class="uc-main">
     <view class="uc-title">{{title}}</view>
     <view class="uc-desc">{{desc}}</view>

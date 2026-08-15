@@ -5,7 +5,7 @@
 
   <view class="content">
     <view class="search-box">
-      <text class="iconfont icon-search"></text>
+      <image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-search-gray.png" />
       <input class="search-input" placeholder="搜索衣物" confirm-type="search" value="{{keyword}}" bindinput="onSearchInput" bindconfirm="onSearch" />
     </view>
 
@@ -14,17 +14,17 @@
         <view class="ht-title">一键试穿</view>
         <view class="ht-sub">上传衣物即刻看到上身效果</view>
       </view>
-      <view class="ht-ic"><text class="iconfont icon-hanger"></text></view>
+      <view class="ht-ic"><image class="ic-img" style="width:44rpx;height:44rpx" src="/assets/icons/png/icon-hanger-white.png" /></view>
     </view>
 
     <view class="quota-row">
-      <text class="iconfont icon-star"></text>
+      <image class="ic-img" style="width:30rpx;height:30rpx" src="/assets/icons/png/icon-star-deep.png" />
       今日剩余 <text class="mono">{{quota.dailyFree}}</text> 次免费试穿
     </view>
 
     <view class="sec-hd">
       <text class="sec-title">热门模板</text>
-      <view class="more" hover-class="more-hover" bindtap="onMore">查看全部<text class="iconfont icon-chevron-right"></text></view>
+      <view class="more" hover-class="more-hover" bindtap="onMore">查看全部<image class="ic-img" style="width:26rpx;height:26rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
     </view>
     <view class="template-grid">
       <view class="template" hover-class="template-hover" wx:for="{{templates}}" wx:key="id" data-index="{{index}}" bindtap="goTryon">

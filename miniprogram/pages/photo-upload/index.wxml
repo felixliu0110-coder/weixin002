@@ -8,7 +8,7 @@
     <upload-card
       title="人脸正面照"
       desc="正面照、光线均匀 · jpg/png ≤ 10MB"
-      icon="icon-camera"
+      icon="/assets/icons/png/icon-camera-white.png"
       state="{{faceState}}"
       stateText="跳过"
       bindtap="openPhotoSheet"
@@ -16,7 +16,7 @@
     <upload-card
       title="全身照（选填）"
       desc="用于肤色与体态校准 · 可跳过"
-      icon="icon-avatar"
+      icon="/assets/icons/png/icon-avatar-white.png"
       state="{{bodyState}}"
       stateText="跳过"
       bindtap="openPhotoSheet"
