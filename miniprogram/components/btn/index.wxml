@@ -1,5 +1,5 @@
 <button
-  class="btn {{type}} {{size}}"
+  class="btn {{type}} {{size}} {{disabled || loading ? 'disabled' : ''}}"
   hover-class="btn-hover"
   disabled="{{disabled || loading}}"
   loading="{{loading}}"

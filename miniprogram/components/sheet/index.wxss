@@ -3,4 +3,3 @@
 @keyframes sheet-up { from { transform: translateY(60%); } to { transform: none; } }
 .grab { width: 80rpx; height: 8rpx; border-radius: 4rpx; background: var(--border); margin: 8rpx auto 28rpx; }
 .s-actions { display: flex; gap: 20rpx; margin-top: 36rpx; }
-.s-actions > * { flex: 1; }

@@ -3,12 +3,7 @@
   src: url('./iconfont.ttf') format('truetype');
 }
 
-[class^="iconfont-"], [class*=" iconfont-"] {
-  font-family: 'iconfont' !important;
-  font-style:normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+
 
 
 .icon-avatar:before { content: "\e001"; }

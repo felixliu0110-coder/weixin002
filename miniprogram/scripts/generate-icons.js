@@ -22,6 +22,7 @@ const out = path.join(__dirname, "../assets/icons");
   const cssPath = path.join(out, "iconfont.css");
   let css = fs.readFileSync(cssPath, "utf8");
   css = css.replace(/\.iconfont-icon-/g, ".icon-");
+  css = css.replace(/\[class\^="iconfont-"\]\s*,\s*\[class\*=" iconfont-"\]\s*\{[\s\S]*?\}/, "");
   css = css.replace(
     /@font-face \{[\s\S]*?\}/,
     `@font-face {
