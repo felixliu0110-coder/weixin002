@@ -1,4 +1,5 @@
 .wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.ring-placeholder { width: 432rpx; height: 432rpx; margin: 68rpx auto 48rpx; border-radius: 50%; background: var(--ring-track); display: flex; align-items: center; justify-content: center; font-size: 92rpx; font-weight: 700; color: var(--fg); }
 .big-hero-center { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 16rpx; }
 .gen-title { text-align: center; font-size: 34rpx; font-weight: 600; }
 .gen-sub { text-align: center; font-size: 27rpx; color: var(--fg-2); margin-top: 16rpx; line-height: 1.6; }

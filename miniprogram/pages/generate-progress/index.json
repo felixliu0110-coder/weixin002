@@ -1,7 +1,6 @@
 {
   "usingComponents": {
-    "nav-bar": "/components/nav-bar/index",
-    "ring-progress": "/components/ring-progress/index"
+    "nav-bar": "/components/nav-bar/index"
   },
   "navigationBarTitleText": "生成数字人"
 }
