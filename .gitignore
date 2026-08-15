@@ -2,3 +2,6 @@ node_modules/
 miniprogram_npm/
 .DS_Store
 miniprogram/assets/icons/_*
+docs/qa/edge-profile/
+docs/qa/edge-profile2/
+docs/qa/edge-profiles/
