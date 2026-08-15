@@ -1,6 +1,6 @@
 .wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
 .avatar-stage { border-radius: 48rpx; overflow: hidden; border: 1px solid var(--border-soft); background: linear-gradient(180deg, var(--surface-2), var(--border-soft)); box-shadow: var(--shadow-card); }
-.avatar-stage image { width: 100%; }
+.avatar-img { width: 100%; height: 700rpx; }
 .stage-fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20rpx; min-height: 640rpx; color: var(--fg-2); font-size: 26rpx; }
 .stage-fallback .iconfont { font-size: 68rpx; color: var(--fg-2); }
 .meas-hint { text-align: center; font-size: 24rpx; color: var(--fg-2); margin-top: 24rpx; }

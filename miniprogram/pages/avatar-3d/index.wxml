@@ -3,7 +3,7 @@
 
   <view class="content">
     <view class="avatar-stage">
-      <image wx:if="{{!imgError}}" src="/assets/img/p05-avatar.jpg" mode="widthFix" binderror="onImgError" />
+      <image wx:if="{{!imgError}}" class="avatar-img" src="/assets/img/p05-avatar.jpg" mode="aspectFill" binderror="onImgError" />
       <view wx:else class="stage-fallback">
         <text class="iconfont icon-avatar"></text>
         <text>形象加载失败，请刷新重试</text>
