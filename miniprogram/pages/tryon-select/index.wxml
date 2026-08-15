@@ -24,7 +24,7 @@
   </view>
 
   <view class="footer-bar">
-    <btn type="primary" disabled="{{selectedCount === 0}}" bindtap="startTryon">{{buttonText}}</btn>
+    <btn class="footer-main" type="primary" disabled="{{selectedCount === 0}}" bindtap="startTryon">{{buttonText}}</btn>
   </view>
 
   <sheet visible="{{uploadVisible}}" bind:cancel="closeUpload">

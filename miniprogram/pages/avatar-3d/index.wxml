@@ -41,6 +41,6 @@
   </view>
 
   <view class="footer-bar">
-    <btn type="primary" bindtap="goTryon">去试穿</btn>
+    <btn class="footer-main" type="primary" bindtap="goTryon">去试穿</btn>
   </view>
 </view>

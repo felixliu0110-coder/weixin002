@@ -20,7 +20,7 @@
   </view>
 
   <view class="footer-bar">
-    <btn type="primary" bindtap="goProfile">下一步</btn>
+    <btn class="footer-main" type="primary" bindtap="goProfile">下一步</btn>
   </view>
 
   <tab-bar selected="{{3}}" navMode="{{true}}" pill="{{true}}"></tab-bar>

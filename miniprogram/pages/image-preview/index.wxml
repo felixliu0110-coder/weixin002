@@ -24,7 +24,7 @@
   </view>
 
   <view class="footer-bar">
-    <btn type="primary" bindtap="confirm">确认生成试穿</btn>
+    <btn class="footer-main" type="primary" bindtap="confirm">确认生成试穿</btn>
   </view>
 
   <tab-bar selected="{{1}}" navMode="{{true}}"></tab-bar>
