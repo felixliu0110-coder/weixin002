@@ -33,9 +33,15 @@
       <text class="sheet-title">上传衣物</text>
       <text class="sheet-desc">拍照或从相册选择，AI 自动识别品类并抠图；jpg / png ≤ 20MB，非衣物图片将被拦截。</text>
     </view>
-    <view class="s-rows">
-      <view class="s-row" hover-class="row-hover" data-mode="album" bindtap="pickPhoto">从相册选择</view>
-      <view class="s-row" hover-class="row-hover" data-mode="camera" bindtap="pickPhoto">拍照</view>
+    <view class="pick-actions">
+      <view class="pick-btn" hover-class="pick-hover" data-mode="album" bindtap="pickPhoto">
+        <image class="ic-img" style="width:44rpx;height:44rpx" src="/assets/icons/png/icon-photo-deep.png" />
+        <text>从相册选择</text>
+      </view>
+      <view class="pick-btn" hover-class="pick-hover" data-mode="camera" bindtap="pickPhoto">
+        <image class="ic-img" style="width:44rpx;height:44rpx" src="/assets/icons/png/icon-camera-deep.png" />
+        <text>拍照</text>
+      </view>
     </view>
   </sheet>
 </view>
