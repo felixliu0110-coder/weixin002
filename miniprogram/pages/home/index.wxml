@@ -38,7 +38,7 @@
       <text class="hint">已就绪</text>
     </view>
     <view class="avatar-row" hover-class="avatar-hover" bindtap="goAvatar">
-      <view class="ar-img"><image src="/assets/img/p05-avatar.webp" mode="aspectFill" /></view>
+      <view class="ar-img"><image src="/assets/img/p05-avatar.jpg" mode="aspectFill" /></view>
       <view class="ar-copy">
         <view class="ar-name">小云的专属数字人</view>
         <view class="ar-sub">点击查看和编辑身材档案</view>

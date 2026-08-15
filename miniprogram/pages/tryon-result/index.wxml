@@ -5,7 +5,7 @@
     <view class="subtitle">选择一件衣服，先看上身效果。</view>
 
     <view class="photo-card">
-      <image src="/assets/img/p07-result.webp" mode="widthFix" />
+      <image src="/assets/img/p07-result.jpg" mode="widthFix" />
       <view class="badge-ai"><text class="iconfont icon-star"></text>AI 生成</view>
       <view class="wm">AI 生成效果，仅供参考</view>
     </view>

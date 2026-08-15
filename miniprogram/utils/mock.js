@@ -21,26 +21,26 @@ const avatarProfile = {
 const quota = { userId: "u-demo", dailyFree: 3, used: 0, resetDate: "2026-08-16", isExample: true };
 
 const templates = [
-  { id: "g-tee", name: "白色基础T恤", category: "上装", image: "/assets/img/p06-tee.webp" },
-  { id: "g-shirt", name: "蓝色条纹衬衫", category: "上装", image: "/assets/img/p06-shirt.webp" },
-  { id: "g-hoodie", name: "米白连帽卫衣", category: "上装", image: "/assets/img/p06-hoodie.webp" },
-  { id: "g-jeans", name: "蓝色直筒牛仔裤", category: "下装", image: "/assets/img/p06-jeans.webp" },
-  { id: "g-pants", name: "浅灰休闲裤", category: "下装", image: "/assets/img/p06-pants.webp" },
-  { id: "g-skirt", name: "粉色半身裙", category: "下装", image: "/assets/img/p06-skirt.webp" }
+  { id: "g-tee", name: "白色基础T恤", category: "上装", image: "/assets/img/p06-tee.jpg" },
+  { id: "g-shirt", name: "蓝色条纹衬衫", category: "上装", image: "/assets/img/p06-shirt.jpg" },
+  { id: "g-hoodie", name: "米白连帽卫衣", category: "上装", image: "/assets/img/p06-hoodie.jpg" },
+  { id: "g-jeans", name: "蓝色直筒牛仔裤", category: "下装", image: "/assets/img/p06-jeans.jpg" },
+  { id: "g-pants", name: "浅灰休闲裤", category: "下装", image: "/assets/img/p06-pants.jpg" },
+  { id: "g-skirt", name: "粉色半身裙", category: "下装", image: "/assets/img/p06-skirt.jpg" }
 ];
 
 const homeTemplates = [
-  { id: "t-dress", name: "粉色连衣裙", category: "连衣裙", image: "/assets/img/p17-dress.webp" },
-  { id: "t-shirt", name: "蓝色衬衫", category: "上装", image: "/assets/img/p17-shirt.webp" },
-  { id: "t-white", name: "白色衬衫", category: "上装", image: "/assets/img/p17-white.webp" }
+  { id: "t-dress", name: "粉色连衣裙", category: "连衣裙", image: "/assets/img/p17-dress.jpg" },
+  { id: "t-shirt", name: "蓝色衬衫", category: "上装", image: "/assets/img/p17-shirt.jpg" },
+  { id: "t-white", name: "白色衬衫", category: "上装", image: "/assets/img/p17-white.jpg" }
 ];
 
 const history = [
-  { id: "r1", garmentName: "针织连衣裙", date: "8月14日", image: "/assets/img/p13-1.webp", aiTagged: true },
-  { id: "r2", garmentName: "蓝色衬衫", date: "8月13日", image: "/assets/img/p13-2.webp", aiTagged: true },
-  { id: "r3", garmentName: "白色T恤", date: "8月12日", image: "/assets/img/p13-3.webp", aiTagged: true },
-  { id: "r4", garmentName: "牛仔裤·平铺", date: "8月12日", image: "/assets/img/p13-4.webp", aiTagged: true, contain: true },
-  { id: "r5", garmentName: "牛仔裤休闲裤", date: "8月11日", image: "/assets/img/p13-5.webp", aiTagged: true }
+  { id: "r1", garmentName: "针织连衣裙", date: "8月14日", image: "/assets/img/p13-1.jpg", aiTagged: true },
+  { id: "r2", garmentName: "蓝色衬衫", date: "8月13日", image: "/assets/img/p13-2.jpg", aiTagged: true },
+  { id: "r3", garmentName: "白色T恤", date: "8月12日", image: "/assets/img/p13-3.jpg", aiTagged: true },
+  { id: "r4", garmentName: "牛仔裤·平铺", date: "8月12日", image: "/assets/img/p13-4.jpg", aiTagged: true, contain: true },
+  { id: "r5", garmentName: "牛仔裤休闲裤", date: "8月11日", image: "/assets/img/p13-5.jpg", aiTagged: true }
 ];
 
 module.exports = {
@@ -54,7 +54,7 @@ module.exports = {
   },
   async submitTryon(params) {
     await delay(900);
-    return { taskId: "task-" + Date.now(), status: "success", pose: params.pose || "front", resultUrls: ["/assets/img/p07-result.webp"] };
+    return { taskId: "task-" + Date.now(), status: "success", pose: params.pose || "front", resultUrls: ["/assets/img/p07-result.jpg"] };
   },
   async getTryonStatus(taskId) { await delay(300); return { taskId, status: "success" }; },
   async getHistory() { await delay(400); return JSON.parse(JSON.stringify(history)); },

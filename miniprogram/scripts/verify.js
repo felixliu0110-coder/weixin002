@@ -66,7 +66,7 @@ for (const t of navTargets) {
 }
 
 // 4. 图片资源引用存在
-for (const m of allText.matchAll(/\/assets\/img\/[a-z0-9-]+\.png/g)) {
+for (const m of allText.matchAll(/\/assets\/img\/[a-z0-9-]+\.(png|jpg|webp)/g)) {
   const p = path.join(root, m[0].replace(/^\//, ""));
   if (!fs.existsSync(p)) errors.push(`图片资源缺失: ${m[0]}`);
 }

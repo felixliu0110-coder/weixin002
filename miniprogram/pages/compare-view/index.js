@@ -3,8 +3,8 @@ const { toast } = require("../../utils/interaction");
 Page({
   data: {
     selectedId: "left",
-    left: { id: "left", name: "针织连衣裙", image: "/assets/img/p14-left.webp" },
-    right: { id: "right", name: "蓝色衬衫", image: "/assets/img/p14-right.webp" }
+    left: { id: "left", name: "针织连衣裙", image: "/assets/img/p14-left.jpg" },
+    right: { id: "right", name: "蓝色衬衫", image: "/assets/img/p14-right.jpg" }
   },
   onSelect(e) {
     this.setData({ selectedId: e.detail.id });
