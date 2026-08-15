@@ -1,4 +1,4 @@
-.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
 .nav-btn { width: 80rpx; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: 24rpx; color: var(--fg); }
 .nav-btn-hover { background: var(--surface-2); }
 .nav-btn .iconfont { font-size: 42rpx; }

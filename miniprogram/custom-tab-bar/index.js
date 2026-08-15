@@ -16,6 +16,8 @@ Component({
     onSelect(e) {
       const index = e.currentTarget.dataset.index;
       const item = this.data.list[index];
+      // 立即更新选中高亮，避免切换时选中态滞后造成晃动
+      this.setData({ selected: index });
       wx.switchTab({ url: item.pagePath });
     }
   }

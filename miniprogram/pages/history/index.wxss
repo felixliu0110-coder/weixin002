@@ -1,4 +1,4 @@
-.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
 .masonry { display: grid; grid-template-columns: 1fr 1fr; column-gap: 28rpx; row-gap: 40rpx; }
 .empty-state { display: flex; flex-direction: column; align-items: center; gap: 20rpx; padding: 80rpx 32rpx; text-align: center; }
 .es-ic { width: 84rpx; height: 84rpx; border-radius: 28rpx; background: var(--surface-2); color: var(--fg-2); display: flex; align-items: center; justify-content: center; }
