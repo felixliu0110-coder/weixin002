@@ -20,7 +20,7 @@ Component({
     onBack() {
       if (this.data.backRoute) {
         const url = this.data.backRoute;
-        const tabRoutes = ["/pages/home/index", "/pages/tryon-select/index", "/pages/history/index", "/pages/profile/index"];
+        const tabRoutes = ["/pages/home/index", "/pages/tryon-select/index", "/pages/favorites/index", "/pages/profile/index"];
         if (tabRoutes.includes(url)) {
           wx.switchTab({ url });
         } else {

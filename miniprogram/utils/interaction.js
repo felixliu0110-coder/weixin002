@@ -1,7 +1,7 @@
 /* 交互封装（迁移自 weixin002/assets/proto.js） */
 const wxApi = typeof wx !== "undefined" ? wx : (global.__wx || {});
 
-const TAB_ROUTES = ["/pages/home/index", "/pages/tryon-select/index", "/pages/history/index", "/pages/profile/index"];
+const TAB_ROUTES = ["/pages/home/index", "/pages/tryon-select/index", "/pages/favorites/index", "/pages/profile/index"];
 
 function toast(msg, ms) {
   if (!wxApi.showToast) return;
