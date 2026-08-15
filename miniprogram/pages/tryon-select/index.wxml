@@ -17,14 +17,14 @@
         wx:for="{{templates}}"
         wx:key="id"
         data="{{item}}"
-        selected="{{selected.includes(item.id)}}"
+        selected="{{item.selected}}"
         bindtap="toggleGarment"
       />
     </view>
   </view>
 
   <view class="footer-bar">
-    <btn type="primary" disabled="{{selected.length === 0}}" bindtap="startTryon">{{buttonText}}</btn>
+    <btn type="primary" disabled="{{selectedCount === 0}}" bindtap="startTryon">{{buttonText}}</btn>
   </view>
 
   <sheet visible="{{uploadVisible}}" bind:cancel="closeUpload">

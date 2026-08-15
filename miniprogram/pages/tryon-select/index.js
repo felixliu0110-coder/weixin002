@@ -9,13 +9,15 @@ Page({
     ],
     tab: "lib",
     templates: [],
-    selected: [],
+    selectedCount: 0,
     buttonText: "开始试穿",
     uploadVisible: false
   },
   onLoad() {
     api.getGarmentTemplates().then((templates) => {
-      this.setData({ templates });
+      this.setData({
+        templates: templates.map((t) => Object.assign({}, t, { selected: false }))
+      });
     });
   },
   onShow() {
@@ -35,17 +37,20 @@ Page({
   toggleGarment(e) {
     const id = e.detail.id;
     const name = e.detail.name;
-    const selected = this.data.selected.includes(id)
-      ? this.data.selected.filter((x) => x !== id)
-      : [...this.data.selected, id];
+    const templates = this.data.templates.map((t) =>
+      t.id === id ? Object.assign({}, t, { selected: !t.selected }) : t
+    );
+    const count = templates.filter((t) => t.selected).length;
+    const chosen = templates.find((t) => t.id === id);
     this.setData({
-      selected,
-      buttonText: selected.length > 0 ? "开始试穿（已选 " + selected.length + " 件）" : "开始试穿"
+      templates,
+      selectedCount: count,
+      buttonText: count > 0 ? "开始试穿（已选 " + count + " 件）" : "开始试穿"
     });
-    toast(selected.includes(id) ? "已选择「" + name + "」" : "已取消选择");
+    toast(chosen.selected ? "已选择「" + name + "」" : "已取消选择");
   },
   startTryon() {
-    if (this.data.selected.length === 0) {
+    if (this.data.selectedCount === 0) {
       toast("请先选择一件衣物");
       return;
     }
