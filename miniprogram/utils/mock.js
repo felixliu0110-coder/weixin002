@@ -36,8 +36,11 @@ const homeTemplates = [
 ];
 
 const history = [
-  { id: "r1", garmentName: "粉色连衣裙", date: "2026-08-15", image: "/assets/img/p07-result.png", aiTagged: true },
-  { id: "r2", garmentName: "蓝色衬衫", date: "2026-08-14", image: "/assets/img/p13-1.png", aiTagged: true }
+  { id: "r1", garmentName: "针织连衣裙", date: "8月14日", image: "/assets/img/p13-1.png", aiTagged: true },
+  { id: "r2", garmentName: "蓝色衬衫", date: "8月13日", image: "/assets/img/p13-2.png", aiTagged: true },
+  { id: "r3", garmentName: "白色T恤", date: "8月12日", image: "/assets/img/p13-3.png", aiTagged: true },
+  { id: "r4", garmentName: "牛仔裤·平铺", date: "8月12日", image: "/assets/img/p13-4.png", aiTagged: true, contain: true },
+  { id: "r5", garmentName: "牛仔裤休闲裤", date: "8月11日", image: "/assets/img/p13-5.png", aiTagged: true }
 ];
 
 module.exports = {

@@ -1,0 +1,12 @@
+.wx-page { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.field-label { display: block; font-size: 26rpx; color: var(--fg-2); margin: 4rpx 4rpx 16rpx; }
+.textarea { width: 100%; min-height: 220rpx; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); font-size: 28rpx; line-height: 1.65; color: var(--fg); padding: 26rpx 28rpx; }
+.submit-btn { margin-top: 28rpx; width: 100%; }
+.form-success { display: flex; align-items: center; gap: 10rpx; font-size: 25rpx; color: #2F7D5C; margin-top: 20rpx; }
+.form-success .iconfont { font-size: 28rpx; }
+.sec-hd { display: flex; align-items: baseline; margin: 44rpx 4rpx 24rpx; }
+.sec-title { font-size: 34rpx; font-weight: 600; }
+.about-list { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); padding: 12rpx 32rpx; }
+.about-item { padding: 24rpx 0; font-size: 27rpx; line-height: 1.65; color: var(--fg-2); }
+.about-item + .about-item { border-top: 1px solid var(--border-soft); }
+.ab-title { display: block; font-size: 26rpx; color: var(--fg); font-weight: 600; margin-bottom: 4rpx; }

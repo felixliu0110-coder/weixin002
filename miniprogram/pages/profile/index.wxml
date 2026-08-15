@@ -1,4 +1,58 @@
 <view class="wx-page">
-  <nav-bar title="我的"></nav-bar>
-  <view class="content"><text>profile placeholder</text></view>
+  <nav-bar brand="我的">
+    <view slot="right" class="nav-btn" hover-class="nav-btn-hover" bindtap="onSettings">
+      <text class="iconfont icon-settings"></text>
+    </view>
+  </nav-bar>
+
+  <view class="content">
+    <view class="profile-head">
+      <view class="profile-avatar">云</view>
+      <view class="profile-copy">
+        <view class="profile-name">小云</view>
+        <view class="profile-sub">专属数字人已就绪 · 今天想怎么穿？</view>
+      </view>
+    </view>
+
+    <view class="quota-pill">
+      <text class="iconfont icon-star"></text>
+      今日剩余 <text class="mono">{{quota.dailyFree}}</text> 次免费试穿
+    </view>
+
+    <view class="row-list mt-16">
+      <view class="row" hover-class="row-hover" bindtap="goAvatar">
+        <view class="ri-ic"><text class="iconfont icon-avatar"></text></view>
+        <view class="ri-main"><view class="ri-title">我的数字人</view><view class="ri-sub">查看、编辑或删除</view></view>
+        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+      </view>
+      <view class="row" hover-class="row-hover" bindtap="goHistory">
+        <view class="ri-ic"><text class="iconfont icon-photo"></text></view>
+        <view class="ri-main"><view class="ri-title">试穿记录</view><view class="ri-sub">历史效果图 · 示例数据</view></view>
+        <view class="ri-end"><view class="ri-badge">12</view><text class="iconfont icon-chevron-right"></text></view>
+      </view>
+      <view class="row" hover-class="row-hover" bindtap="onQuota">
+        <view class="ri-ic"><text class="iconfont icon-star"></text></view>
+        <view class="ri-main"><view class="ri-title">今日剩余次数</view><view class="ri-sub">每日 0 点重置 · 失败自动退回</view></view>
+        <view class="ri-end">剩余 {{quota.dailyFree}} 次<text class="iconfont icon-chevron-right"></text></view>
+      </view>
+      <view class="row" hover-class="row-hover" bindtap="goPrivacy">
+        <view class="ri-ic neu"><text class="iconfont icon-shield-check"></text></view>
+        <view class="ri-main"><view class="ri-title">隐私与数据管理</view><view class="ri-sub">查看已授权数据、导出与删除</view></view>
+        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+      </view>
+      <view class="row" hover-class="row-hover" bindtap="goFeedback">
+        <view class="ri-ic neu"><text class="iconfont icon-feedback"></text></view>
+        <view class="ri-main"><view class="ri-title">意见反馈</view><view class="ri-sub">帮助我们把产品做得更好</view></view>
+        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+      </view>
+    </view>
+
+    <view class="card quota-note">
+      <view class="quota-head">
+        <text class="hint">今日额度使用</text>
+        <text class="mono quota-num">1 / {{quota.dailyFree}}</text>
+      </view>
+      <view class="quota-meter"><view class="quota-fill"></view></view>
+    </view>
+  </view>
 </view>

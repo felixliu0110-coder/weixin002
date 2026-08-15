@@ -1,0 +1,9 @@
+.record { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-card); }
+.record-hover { transform: scale(0.98); }
+.r-img { position: relative; }
+.r-img image { width: 100%; height: 430rpx; }
+.r-img image.contain { object-fit: contain; }
+.r-ai { position: absolute; top: 16rpx; right: 16rpx; background: rgba(31,29,27,0.72); color: var(--accent-on); font-size: 20rpx; padding: 6rpx 16rpx; border-radius: 999rpx; }
+.r-meta { padding: 18rpx 22rpx 22rpx; }
+.r-name { font-size: 27rpx; font-weight: 600; }
+.r-date { font-size: 22rpx; color: var(--fg-2); margin-top: 6rpx; }

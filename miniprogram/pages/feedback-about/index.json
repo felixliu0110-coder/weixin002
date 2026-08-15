@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/index",
+    "btn": "/components/btn/index",
+    "tab-bar": "/custom-tab-bar/index"
+  },
+  "navigationBarTitleText": "关于我们"
+}

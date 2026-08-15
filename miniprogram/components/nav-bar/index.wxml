@@ -5,7 +5,8 @@
         <text class="iconfont icon-back"></text>
       </view>
     </view>
-    <view class="nav-title">{{title}}</view>
+    <view wx:if="{{brand}}" class="nav-brand">{{brand}}</view>
+    <view wx:else class="nav-title">{{title}}</view>
     <view class="nav-right"><slot name="right"></slot></view>
   </view>
 </view>

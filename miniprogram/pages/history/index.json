@@ -1,4 +1,7 @@
 {
-  "usingComponents": { "nav-bar": "/components/nav-bar/index" },
-  "navigationBarTitleText": "收藏"
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/index",
+    "record-item": "/components/record-item/index"
+  },
+  "navigationBarTitleText": "试穿记录"
 }

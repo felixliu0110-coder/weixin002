@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/index",
+    "btn": "/components/btn/index",
+    "sheet": "/components/sheet/index",
+    "tab-bar": "/custom-tab-bar/index"
+  },
+  "navigationBarTitleText": "隐私与数据管理"
+}

@@ -2,7 +2,8 @@ Component({
   properties: {
     title: { type: String, value: "" },
     showBack: { type: Boolean, value: false },
-    backRoute: { type: String, value: "" }
+    backRoute: { type: String, value: "" },
+    brand: { type: String, value: "" }
   },
   data: { statusBarHeight: 20, navHeight: 44 },
   lifetimes: {

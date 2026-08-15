@@ -1,0 +1,63 @@
+<view class="wx-page">
+  <nav-bar title="隐私与数据管理" showBack="{{true}}"></nav-bar>
+
+  <view class="content">
+    <view class="subtitle">所有数据加密存储，不用于任何第三方模型训练。</view>
+
+    <view class="row-list">
+      <view class="row" hover-class="row-hover" bindtap="onDataInfo">
+        <view class="ri-ic neu"><text class="iconfont icon-shield-check"></text></view>
+        <view class="ri-main"><view class="ri-title">已授权数据</view><view class="ri-sub">人脸照片、身体参数</view></view>
+        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+      </view>
+      <view class="row" hover-class="row-hover" bindtap="onExport">
+        <view class="ri-ic neu"><text class="iconfont icon-export"></text></view>
+        <view class="ri-main"><view class="ri-title">导出我的数据</view><view class="ri-sub">含照片、身材参数与试穿记录</view></view>
+        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+      </view>
+      <view class="row" hover-class="row-hover" bindtap="openDel">
+        <view class="ri-ic"><text class="iconfont icon-camera"></text></view>
+        <view class="ri-main"><view class="ri-title">删除人脸照片</view><view class="ri-sub">敏感个人信息 · 单独删除</view></view>
+        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+      </view>
+      <view class="row" hover-class="row-hover" bindtap="openDel">
+        <view class="ri-ic"><text class="iconfont icon-avatar"></text></view>
+        <view class="ri-main"><view class="ri-title">删除数字人及关联数据</view><view class="ri-sub">数字人、照片与生成记录</view></view>
+        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+      </view>
+      <view class="row" hover-class="row-hover" bindtap="openRevoke">
+        <view class="ri-ic"><text class="iconfont icon-shield"></text></view>
+        <view class="ri-main"><view class="ri-title">撤回隐私授权</view><view class="ri-sub">停止照片与身体数据的使用</view></view>
+        <view class="ri-end"><text class="iconfont icon-chevron-right"></text></view>
+      </view>
+    </view>
+
+    <view class="danger-hint">删除操作不可恢复，请谨慎操作</view>
+  </view>
+
+  <tab-bar selected="{{3}}" navMode="{{true}}" pill="{{true}}"></tab-bar>
+
+  <sheet visible="{{delVisible}}" bind:cancel="closeDel">
+    <view class="sheet-head">
+      <view class="grab"></view>
+      <text class="sheet-title">确认删除</text>
+      <text class="sheet-desc">删除操作不可恢复：将同时移除数字人、照片与生成记录，异步清理 7 天内完成。</text>
+    </view>
+    <view slot="actions">
+      <btn class="sheet-action" type="secondary" bindtap="closeDel">取消</btn>
+      <btn class="sheet-action" type="danger" bindtap="confirmDel">确认删除</btn>
+    </view>
+  </sheet>
+
+  <sheet visible="{{revokeVisible}}" bind:cancel="closeRevoke">
+    <view class="sheet-head">
+      <view class="grab"></view>
+      <text class="sheet-title">撤回隐私授权</text>
+      <text class="sheet-desc">撤回后将停止人脸照片与身体数据的使用，相关数据将异步清理；部分功能将不可用。</text>
+    </view>
+    <view slot="actions">
+      <btn class="sheet-action" type="secondary" bindtap="closeRevoke">取消</btn>
+      <btn class="sheet-action" type="primary" bindtap="confirmRevoke">确认撤回</btn>
+    </view>
+  </sheet>
+</view>
