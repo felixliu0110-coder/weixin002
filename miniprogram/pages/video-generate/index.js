@@ -53,13 +53,22 @@ Page({
       return;
     }
 
-    // 调用云函数提交视频生成任务（mode 供云函数后续升级区分图/视频任务，当前兼容忽略）
-    api.submitAiTryon({
-      avatarViewId,
-      garmentIds,
-      garmentNames,
-      mode: "video"
-    }).then((res) => {
+    // 视频生成前并行确保四视图就绪（四视图为内部素材，供视频链路使用；失败不阻塞提交）
+    const pending = wx.getStorageSync("aiTryonPending") || {};
+    const garmentImages = result.garments && result.garments.length
+      ? result.garments.map((g) => g.image)
+      : (pending.garmentImages || []);
+    Promise.all(garments.map((g, i) => api.ensureGarmentViews(g.id, g.name, garmentImages[i] || g.image)))
+      .catch(() => null)
+      .then(() => api.submitAiTryon({
+        avatarViewId,
+        garmentIds,
+        garmentNames,
+        mode: "video",
+        tryonImage: result.tryonImage || "",
+        tryonImageUrl: result.tryonImageUrl || ""
+      }))
+      .then((res) => {
       // 云函数异常返回 { error } 而非抛异常：同样进入失败态，不静默回退
       if (res && res.error && !res.taskId) {
         this.setData({ generating: false, error: true, errorMsg: "生成失败：" + res.error });
@@ -69,13 +78,13 @@ Page({
       this._pollCount = 0;
       this.setData({ stageText: "生成 180° 转身视频" });
       this.poll();
-    }).catch((err) => {
+      }).catch((err) => {
       this.setData({
         generating: false,
         error: true,
         errorMsg: (err && err.message) || "提交失败，请检查网络后重试"
       });
-    });
+      });
   },
 
   poll() {

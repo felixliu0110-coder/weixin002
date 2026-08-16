@@ -5,12 +5,23 @@ const CACHE_TTL_MS = 7 * 24 * 3600 * 1000;      // 成功结果复用有效期 7
 const FAILED_TTL_MS = 7 * 24 * 3600 * 1000;     // 失败记录保留 7 天
 const SUCCESS_TTL_MS = 30 * 24 * 3600 * 1000;   // 成功记录保留 30 天
 
-function buildTryonCacheKey({ openid, avatarViewId, garmentIds }) {
+function buildTryonCacheKey({ openid, avatarViewId, garmentIds, kind }) {
   const sorted = (garmentIds || []).slice().sort().join(",");
-  const raw = [openid || "", avatarViewId || "", sorted, "ai_video"].join("|");
+  const raw = [openid || "", avatarViewId || "", sorted, kind || "ai_image"].join("|");
   return crypto.createHash("sha1").update(raw).digest("hex");
 }
 
+/* 图片任务缓存命中：必须有真实效果图与用户归属，7 天内复用（视频为可选后续步骤） */
+function isImageCacheHit(doc, now) {
+  return !!doc &&
+    doc.status === "success" &&
+    !!doc.tryon_image &&
+    !!doc.user_id &&
+    typeof doc.createdAt === "number" &&
+    now - doc.createdAt < CACHE_TTL_MS;
+}
+
+/* 视频任务缓存命中：必须有真实视频与用户归属，7 天内复用 */
 function isCacheHit(doc, now) {
   return !!doc &&
     doc.status === "success" &&
@@ -32,4 +43,4 @@ function isCleanupCandidate(doc, now) {
   return false;
 }
 
-module.exports = { buildTryonCacheKey, isCacheHit, isCleanupCandidate, CACHE_TTL_MS, FAILED_TTL_MS, SUCCESS_TTL_MS };
+module.exports = { buildTryonCacheKey, isImageCacheHit, isCacheHit, isCleanupCandidate, CACHE_TTL_MS, FAILED_TTL_MS, SUCCESS_TTL_MS };

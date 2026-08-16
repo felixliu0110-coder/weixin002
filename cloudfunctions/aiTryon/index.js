@@ -1,7 +1,7 @@
 const cloud = require("wx-server-sdk");
 const { getAigc } = require("./aigc");
 const { buildTryonVideoPrompt } = require("./tryonVideo");
-const { buildTryonCacheKey, isCacheHit } = require("./tryonCache");
+const { buildTryonCacheKey, isImageCacheHit, isCacheHit } = require("./tryonCache");
 const { saveRemoteImage } = require("./storage");
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
@@ -12,13 +12,35 @@ function fmtErr(e) {
   return (e && e.code) ? e.code + ": " + detail : detail;
 }
 
-/* 试穿完成写记录（task_id 去重；占位视频不写，避免污染真实记录） */
+/* 试穿完成写记录：
+   - 图片任务（有图无视频）：新增一条图片记录；
+   - 视频任务（有视频）：优先更新同一 task 或同一穿搭组合（image_cache_key）的图片记录补上视频，避免记录重复；
+   占位视频不写，避免污染真实记录。 */
 async function saveTryonResult(task) {
   try {
-    if (!task || !task.tryon_video || task.tryon_video.indexOf("placeholder") >= 0) return false;
-    const dup = await db.collection("tryon_results").where({ task_id: task._id }).limit(1).get();
-    if (dup.data.length > 0) return false;
-    await db.collection("tryon_results").add({
+    if (!task || (!task.tryon_image && !task.tryon_video)) return false;
+    if (task.tryon_video && task.tryon_video.indexOf("placeholder") >= 0) return false;
+    const coll = db.collection("tryon_results");
+    // 同 task 记录
+    const dup = await coll.where({ task_id: task._id }).limit(1).get();
+    if (dup.data.length > 0) {
+      if (task.tryon_video && !dup.data[0].tryon_video) {
+        await coll.doc(dup.data[0]._id).update({ data: { tryon_video: task.tryon_video, updated_at: Date.now() } });
+      }
+      return true;
+    }
+    // 视频任务：尝试补到同组合的图片记录（图片任务先完成，视频后补）
+    if (task.tryon_video) {
+      const imageKey = task.image_cache_key || "";
+      if (imageKey) {
+        const img = await coll.where({ cache_key: imageKey }).limit(1).get();
+        if (img.data.length > 0) {
+          await coll.doc(img.data[0]._id).update({ data: { tryon_video: task.tryon_video, updated_at: Date.now() } });
+          return true;
+        }
+      }
+    }
+    await coll.add({
       data: {
         _openid: task._openid || task.user_id,
         user_id: task.user_id,
@@ -26,8 +48,9 @@ async function saveTryonResult(task) {
         avatar_view_id: task.avatar_view_id,
         garment_id: (task.garment_ids || [])[0],
         garment_name: task.garment_name || "AI 试穿",
-        tryon_image: task.tryon_image,
-        tryon_video: task.tryon_video,
+        tryon_image: task.tryon_image || "",
+        tryon_video: task.tryon_video || "",
+        cache_key: task.cache_key || "",
         ai_tagged: true,
         createdAt: Date.now()
       }
@@ -74,57 +97,116 @@ async function sendSubscribe(openid, garmentName) {
 
 async function submit(event, openid) {
   const { avatarViewId, garmentIds, garmentNames } = event;
+  const mode = event.mode === "video" ? "video" : "image";
   const t0 = Date.now();
-  console.log("aiTryon submit entry", "openid=" + (openid ? "set" : "EMPTY"), "avatarViewId=" + (avatarViewId || "none"), "garmentCount=" + ((garmentIds || []).length));
+  console.log("aiTryon submit entry", "openid=" + (openid ? "set" : "EMPTY"), "mode=" + mode, "avatarViewId=" + (avatarViewId || "none"), "garmentCount=" + ((garmentIds || []).length));
   if (!avatarViewId || !garmentIds || garmentIds.length === 0) {
     return { ok: false, error: "avatarViewId/garmentIds 必填" };
   }
   const av = await db.collection("avatar_views").doc(avatarViewId).get();
   const profile = av.data.profile_snapshot || {};
   const garmentName = (garmentNames && garmentNames[0]) || "所选衣物";
-  const cacheKey = buildTryonCacheKey({ openid, avatarViewId, garmentIds });
   const aigc = getAigc();
   const videoPrompt = buildTryonVideoPrompt(profile, garmentName);
+  const cacheKey = buildTryonCacheKey({ openid, avatarViewId, garmentIds, kind: mode === "video" ? "ai_video" : "ai_image" });
 
-  // 复用：同一用户+数字人+衣物组合 7 天内成功结果，不重复调用 Agnes
+  // 缓存复用（图片/视频分开）：同一用户+数字人+衣物组合 7 天内成功结果不重复调用 Agnes
   const prev = await db.collection("tryon_tasks")
     .where({ cache_key: cacheKey })
     .orderBy("createdAt", "desc")
     .limit(5)
     .get();
-  const hit = prev.data.find((d) => isCacheHit(d, Date.now()));
-  if (hit) {
-    console.log("aiTryon cache hit", "taskId=" + hit._id, "cacheKey=" + cacheKey.slice(0, 8), "costMs=" + (Date.now() - t0));
-    return {
-      ok: true, taskId: hit._id, status: "success", cached: true,
-      tryonImage: hit.tryon_image, tryonVideo: hit.tryon_video, garmentName
-    };
+  if (mode === "video") {
+    const hit = prev.data.find((d) => isCacheHit(d, Date.now()));
+    if (hit) {
+      console.log("aiTryon video cache hit", "taskId=" + hit._id, "cacheKey=" + cacheKey.slice(0, 8), "costMs=" + (Date.now() - t0));
+      return {
+        ok: true, taskId: hit._id, status: "success", cached: true,
+        tryonImage: hit.tryon_image, tryonImageUrl: hit.tryon_image_url || "", tryonVideo: hit.tryon_video, garmentName
+      };
+    }
+  } else {
+    const hit = prev.data.find((d) => isImageCacheHit(d, Date.now()));
+    if (hit) {
+      console.log("aiTryon image cache hit", "taskId=" + hit._id, "cacheKey=" + cacheKey.slice(0, 8), "costMs=" + (Date.now() - t0));
+      return {
+        ok: true, taskId: hit._id, status: "success", cached: true,
+        tryonImage: hit.tryon_image, tryonImageUrl: hit.tryon_image_url || "", tryonVideo: "", garmentName
+      };
+    }
   }
 
-  const task = {
+  const base = {
     _openid: openid,
     user_id: openid,
     avatar_view_id: avatarViewId,
     garment_ids: garmentIds,
     garment_name: garmentName,
     cache_key: cacheKey,
-    type: "ai_video",
-    stage: "video",
-    status: "processing",
     retry_count: 0,
     createdAt: Date.now(),
     updated_at: Date.now()
   };
+
+  // ---- 视频模式：直接用已生成的效果图创建视频任务，不重新生图 ----
+  if (mode === "video") {
+    const imageUrl = event.tryonImageUrl || event.tryonImage || "";
+    if (!imageUrl) return { ok: false, error: "视频生成缺少效果图，请先完成穿搭图片" };
+    const task = Object.assign({}, base, {
+      type: "ai_video",
+      stage: "video",
+      status: "processing",
+      tryon_image: event.tryonImage || "",
+      tryon_image_url: imageUrl,
+      image_cache_key: buildTryonCacheKey({ openid, avatarViewId, garmentIds, kind: "ai_image" })
+    });
+    const addRes = await db.collection("tryon_tasks").add({ data: task });
+    const taskId = addRes._id;
+    let vidRes = null;
+    let lastErr = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        vidRes = await aigc.generateVideo({ imageUrl, prompt: videoPrompt, durationSec: 5 });
+        lastErr = null;
+        break;
+      } catch (e) {
+        lastErr = e;
+        await db.collection("tryon_tasks").doc(taskId).update({ data: { retry_count: attempt + 1, updated_at: Date.now() } });
+        console.log("aiTryon video task create fail", "taskId=" + taskId, "attempt=" + (attempt + 1), "error=" + fmtErr(e));
+      }
+    }
+    if (lastErr) {
+      await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "failed", error: fmtErr(lastErr), updated_at: Date.now() } });
+      console.log("aiTryon video submit fail", "taskId=" + taskId, "error=" + fmtErr(lastErr), "costMs=" + (Date.now() - t0));
+      return { ok: false, taskId, error: fmtErr(lastErr) };
+    }
+    const update = { stage: "video", updated_at: Date.now() };
+    if (vidRes.videoTaskId) {
+      update.video_task_id = vidRes.videoTaskId;
+      update.provider = vidRes.provider || "agnes";
+    } else {
+      update.status = "success";
+      update.tryon_video = vidRes.videoUrl;
+      update.provider = vidRes.provider || "mock";
+    }
+    await db.collection("tryon_tasks").doc(taskId).update({ data: update });
+    console.log("aiTryon video submit ok", "taskId=" + taskId, "status=" + (update.status || "processing"), "costMs=" + (Date.now() - t0));
+    return { ok: true, taskId, status: update.status || "processing", tryonImage: event.tryonImage || "", tryonImageUrl: imageUrl };
+  }
+
+  // ---- 图片模式：只生成穿搭效果图，视频由用户后续在结果页选择生成 ----
+  const task = Object.assign({}, base, { type: "ai_image", stage: "image", status: "processing" });
   const addRes = await db.collection("tryon_tasks").add({ data: task });
   const taskId = addRes._id;
-  // 生成（效果图 + 视频任务创建）：失败自动重试 1 次（FR-21）
   let lastErr = null;
   let imgRes = null;
-  let vidRes = null;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      imgRes = await aigc.generateImages({ prompt: "同人物穿着" + garmentName + "的照片级效果图", refImages: [], count: 1 });
-      vidRes = await aigc.generateVideo({ imageUrl: imgRes.urls[0], prompt: videoPrompt, durationSec: 5 });
+      imgRes = await aigc.generateImages({
+        prompt: "同人物穿着" + garmentName + "的照片级效果图",
+        refImages: [],
+        count: 1
+      });
       lastErr = null;
       break;
     } catch (e) {
@@ -138,26 +220,18 @@ async function submit(event, openid) {
     console.log("aiTryon submit fail", "taskId=" + taskId, "error=" + fmtErr(lastErr), "costMs=" + (Date.now() - t0));
     return { ok: false, taskId, error: fmtErr(lastErr) };
   }
-  let tryonImage = imgRes.urls[0];
+  const rawUrl = imgRes.urls[0];
+  let tryonImage = rawUrl;
   try {
-    tryonImage = await saveRemoteImage(imgRes.urls[0], "tryon");
+    tryonImage = await saveRemoteImage(rawUrl, "tryon");
   } catch (e) {
     console.log("aiTryon storage save fail", "taskId=" + taskId, "error=" + e.message);
   }
-  const update = { stage: "video", tryon_image: tryonImage, updated_at: Date.now() };
-  if (vidRes.videoTaskId) {
-    // 异步视频服务（agnes）：创建任务后由 status 轮询完成
-    update.video_task_id = vidRes.videoTaskId;
-    update.provider = vidRes.provider || "agnes";
-  } else {
-    // 同步实现（mock）：直接落结果
-    update.status = "success";
-    update.tryon_video = vidRes.videoUrl;
-    update.provider = vidRes.provider || "mock";
-  }
+  const update = { stage: "image", status: "success", tryon_image: tryonImage, tryon_image_url: rawUrl, provider: imgRes.provider || "agnes", updated_at: Date.now() };
   await db.collection("tryon_tasks").doc(taskId).update({ data: update });
-  console.log("aiTryon submit ok", "taskId=" + taskId, "status=" + (update.status || "processing"), "costMs=" + (Date.now() - t0));
-  return { ok: true, taskId, status: update.status || "processing" };
+  await saveTryonResult(Object.assign({ _id: taskId }, task, update));
+  console.log("aiTryon image ok", "taskId=" + taskId, "status=success", "costMs=" + (Date.now() - t0));
+  return { ok: true, taskId, status: "success", tryonImage, tryonImageUrl: rawUrl, garmentName };
 }
 
 async function status(event) {
@@ -205,7 +279,11 @@ async function status(event) {
     }
   }
   console.log("aiTryon status", "taskId=" + event.taskId, "status=" + d.status, "costMs=" + (Date.now() - t0));
-  return { ok: true, taskId: event.taskId, status: d.status, stage: d.stage, tryonImage: d.tryon_image, tryonVideo: d.tryon_video, error: d.error };
+  return {
+    ok: true, taskId: event.taskId, status: d.status, stage: d.stage,
+    tryonImage: d.tryon_image, tryonImageUrl: d.tryon_image_url || "",
+    tryonVideo: d.tryon_video, error: d.error
+  };
 }
 
 exports.main = async (event) => {

@@ -86,15 +86,19 @@ async function mockEnsureGarmentViews(garmentId, garmentName) {
 
 async function mockSubmitAiTryon(params) {
   const taskId = "task-ai-" + Date.now();
-  aiTryonTasks[taskId] = {
-    taskId,
-    status: "processing",
-    stage: "garment_views",
-    poll: 0,
-    tryonImage: "/assets/img/p07-result.jpg",
-    tryonVideo: "/assets/video/mock-turn.mp4"
-  };
-  return { taskId, status: "processing" };
+  if (params.mode === "video") {
+    aiTryonTasks[taskId] = {
+      taskId,
+      status: "processing",
+      stage: "video",
+      poll: 0,
+      tryonImage: params.tryonImage || "/assets/img/p07-result.jpg",
+      tryonVideo: "/assets/video/mock-turn.mp4"
+    };
+    return { taskId, status: "processing" };
+  }
+  // 图片模式：mock 立即出图（与真实云函数一致：图片即完成，视频由用户后续选择生成）
+  return { taskId, status: "success", stage: "image", tryonImage: "/assets/img/p07-result.jpg", tryonImageUrl: "", tryonVideo: "" };
 }
 
 async function mockGetAiTryonStatus(taskId) {
@@ -103,14 +107,13 @@ async function mockGetAiTryonStatus(taskId) {
     return {
       taskId,
       status: "processing",
-      stage: "garment_views",
+      stage: "video",
       tryonImage: "/assets/img/p07-result.jpg",
       tryonVideo: "/assets/video/mock-turn.mp4"
     };
   }
   t.poll = (t.poll || 0) + 1;
-  if (t.poll === 1) return { taskId, status: "processing", stage: "garment_views" };
-  if (t.poll === 2) return { taskId, status: "processing", stage: "video" };
+  if (t.poll < 2) return { taskId, status: "processing", stage: "video" };
   t.status = "success";
   return { taskId, status: "success", stage: "video", tryonImage: t.tryonImage, tryonVideo: t.tryonVideo };
 }

@@ -40,15 +40,18 @@ test("mock AI 接口可用且返回占位素材", async () => {
   assert.strictEqual(gv.status, "ready");
   const cached = await mock.ensureGarmentViews("g-tee", "白色基础T恤");
   assert.strictEqual(cached.cached, true);
+  // 图片模式：提交即出图完成（视频由用户后续选择生成）
   const t = await mock.submitAiTryon({ avatarViewId: "av-1", garmentIds: ["g-tee"] });
-  assert.strictEqual(t.status, "processing");
-  const s1 = await mock.getAiTryonStatus(t.taskId);
-  assert.strictEqual(s1.stage, "garment_views");
-  const s2 = await mock.getAiTryonStatus(t.taskId);
-  assert.strictEqual(s2.stage, "video");
-  const s3 = await mock.getAiTryonStatus(t.taskId);
-  assert.strictEqual(s3.status, "success");
-  assert.ok(s3.tryonVideo.includes(".mp4"));
+  assert.strictEqual(t.status, "success");
+  assert.ok(t.tryonImage.includes("/assets/img/p07-result.jpg"));
+  // 视频模式：提交后轮询至完成
+  const tv = await mock.submitAiTryon({ avatarViewId: "av-1", garmentIds: ["g-tee"], mode: "video" });
+  assert.strictEqual(tv.status, "processing");
+  const s1 = await mock.getAiTryonStatus(tv.taskId);
+  assert.strictEqual(s1.stage, "video");
+  const s2 = await mock.getAiTryonStatus(tv.taskId);
+  assert.strictEqual(s2.status, "success");
+  assert.ok(s2.tryonVideo.includes(".mp4"));
   // 删除联动：删除模板衣物后四视图缓存被清理
   const before = await mock.ensureGarmentViews("g-del-test", "测试衣物");
   assert.strictEqual(before.cached, false);

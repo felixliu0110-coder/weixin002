@@ -21,7 +21,7 @@ Page({
       this.taskId = existing.taskId;
       this._pollCount = 0;
       this._pollStartedAt = Date.now();
-      this.setData({ submitting: false, stageText: "生成衣物四视图" });
+      this.setData({ submitting: false, stageText: "合成试穿效果图" });
       this.poll();
       return;
     }
@@ -34,21 +34,13 @@ Page({
     // 挂到实例：生成完成时 animateTo100 需要用 pending 构造单件衣物清单（供结果页保存模板）
     this._pending = pending;
     const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
-    const items = (pending.garmentIds || []).map((id, i) => ({
-      id,
-      name: (pending.garmentNames || [])[i],
-      image: (pending.garmentImages || [])[i]
-    }));
 
-    // 先预处理所有衣物的四视图
-    Promise.all(items.map((g) => api.ensureGarmentViews(g.id, g.name, g.image)))
-      .then(() => {
-        return api.submitAiTryon({
-          avatarViewId,
-          garmentIds: pending.garmentIds,
-          garmentNames: pending.garmentNames
-        });
-      })
+    // 图片任务直接提交：云函数只生成穿搭效果图（视频由结果页选择生成，不再阻塞出图）
+    api.submitAiTryon({
+      avatarViewId,
+      garmentIds: pending.garmentIds,
+      garmentNames: pending.garmentNames
+    })
       .then((res) => {
         // 云函数异常时返回 { ok:false, error } 而非抛异常：同样进入失败态
         if (res && res.error && !res.taskId) {
@@ -68,7 +60,12 @@ Page({
         this.taskId = res.taskId;
         this._pollCount = 0;
         this._pollStartedAt = Date.now();
-        this.setData({ submitting: false, stageText: "生成衣物四视图" });
+        this.setData({ submitting: false, stageText: "合成试穿效果图" });
+        // 图片任务提交即出图完成：无需轮询，直接进入完成动画
+        if (res.status === "success" && res.tryonImage) {
+          this.animateTo100(res);
+          return;
+        }
         this.poll();
       })
       .catch((err) => {
@@ -88,7 +85,7 @@ Page({
         return;
       }
       this.setData({
-        stageText: st.stage === "garment_views" ? "预处理衣物视图" : "合成试穿效果图"
+        stageText: "合成试穿效果图"
       });
       if (st.status !== "success") {
         if (Date.now() - this._pollStartedAt > POLL_MAX_MS) {
@@ -119,7 +116,7 @@ Page({
       this.clearTimers();
       this._pollCount = 0;
       this._pollStartedAt = Date.now();
-      this.setData({ error: false, errorMsg: "", percent: 0, stageText: "生成衣物四视图", submitting: false });
+      this.setData({ error: false, errorMsg: "", percent: 0, stageText: "合成试穿效果图", submitting: false });
       this.poll();
     }
   },
@@ -144,6 +141,7 @@ Page({
           this._frameTimer = null;
           wx.setStorageSync("aiTryonResult", {
             tryonImage: st.tryonImage || "/assets/img/p07-result.jpg",
+            tryonImageUrl: st.tryonImageUrl || "",
             tryonVideo: st.tryonVideo || "",
             garmentName: this.data.garmentName,
             garments: pending.garmentIds ? pending.garmentIds.map((id, i) => ({
