@@ -3,7 +3,8 @@ Component({
     type: { type: String, value: "primary" },
     size: { type: String, value: "normal" },
     disabled: { type: Boolean, value: false },
-    loading: { type: Boolean, value: false }
+    loading: { type: Boolean, value: false },
+    openType: { type: String, value: "" }
   },
   methods: {
     onTap(e) {

@@ -3,6 +3,7 @@
   hover-class="btn-hover"
   disabled="{{disabled || loading}}"
   loading="{{loading}}"
+  open-type="{{openType}}"
   catchtap="onTap"
 >
   <slot></slot>

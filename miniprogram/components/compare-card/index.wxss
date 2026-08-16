@@ -1,7 +1,10 @@
 .compare-card { position: relative; }
 .c-img { border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-soft); background: var(--surface); box-shadow: var(--shadow-card); position: relative; }
 .c-img image { width: 100%; height: 640rpx; }
+.c-ai { position: absolute; top: 20rpx; left: 20rpx; padding: 6rpx 16rpx; border-radius: 999rpx; background: rgba(31, 29, 27, 0.55); color: #FFFFFF; font-size: 20rpx; line-height: 1.4; }
 .sel-dot { position: absolute; top: 24rpx; right: 24rpx; width: 60rpx; height: 60rpx; border-radius: 50%; border: 3rpx solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; box-shadow: 0 4rpx 16rpx rgba(70,52,40,0.18); }
+/* 视觉尺寸 60rpx，触控热区扩大到 104rpx（≥88rpx 触控标准） */
+.sel-dot::after { content: ""; position: absolute; left: -22rpx; top: -22rpx; right: -22rpx; bottom: -22rpx; }
 .dot-img { width: 32rpx; height: 32rpx; opacity: 0; }
 .sel-dot.on { background: var(--accent); border-color: var(--accent); }
 .sel-dot.on .dot-img { opacity: 1; }

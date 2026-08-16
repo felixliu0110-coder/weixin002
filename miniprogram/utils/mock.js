@@ -1,5 +1,4 @@
-/* 原型示例数据，标注示例标记；带模拟延迟。真实接口就绪后由 api.js 替换。 */
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+/* 原型示例数据，标注示例标记。真实接口就绪后由 api.js 替换。 */
 
 const avatarProfile = {
   id: "avatar-demo",
