@@ -16,9 +16,10 @@ test("buildTryonCacheKey 不同组合生成不同 key", () => {
 
 test("isCacheHit 仅接受 7 天内成功任务", () => {
   const now = Date.now();
-  assert.ok(isCacheHit({ status: "success", createdAt: now - 1000 }, now));
-  assert.ok(!isCacheHit({ status: "failed", createdAt: now - 1000 }, now));
-  assert.ok(!isCacheHit({ status: "success", createdAt: now - CACHE_TTL_MS - 1 }, now));
+  assert.ok(isCacheHit({ status: "success", tryon_video: "https://x/v.mp4", createdAt: now - 1000 }, now));
+  assert.ok(!isCacheHit({ status: "success", tryon_video: "", createdAt: now - 1000 }, now));
+  assert.ok(!isCacheHit({ status: "failed", tryon_video: "https://x/v.mp4", createdAt: now - 1000 }, now));
+  assert.ok(!isCacheHit({ status: "success", tryon_video: "https://x/v.mp4", createdAt: now - CACHE_TTL_MS - 1 }, now));
 });
 
 test("isCleanupCandidate 按失败/成功宽限期判断", () => {

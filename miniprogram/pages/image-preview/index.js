@@ -32,6 +32,11 @@ Page({
         garmentNames: [g.name]
       });
     }).then((res) => {
+      if (res && res.error) {
+        this._submitting = false;
+        toast("生成失败：" + res.error);
+        return;
+      }
       wx.setStorageSync("aiTryonTask", { taskId: res.taskId, garmentName: g.name });
       this._submitting = false;
       navigate("/pages/tryon-progress/index");

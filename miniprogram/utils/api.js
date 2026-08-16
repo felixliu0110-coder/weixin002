@@ -230,10 +230,16 @@ module.exports = {
     try {
       const res = await wx.cloud.callFunction({ name: "aiTryon", data: Object.assign({ action: "submit" }, params) });
       const r = res.result;
-      if (!r.ok || isMockResult(r)) return mock.submitAiTryon(params);
+      if (!r.ok || isMockResult(r)) {
+        const m = await mock.submitAiTryon(params);
+        m.error = r.error || "AI 生成服务暂不可用，请稍后重试";
+        return m;
+      }
       return r;
     } catch (e) {
-      return mock.submitAiTryon(params);
+      const m = await mock.submitAiTryon(params);
+      m.error = (e && (e.errMsg || e.message)) || "云函数调用失败";
+      return m;
     }
   },
 

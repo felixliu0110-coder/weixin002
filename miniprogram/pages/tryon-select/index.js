@@ -187,6 +187,11 @@ Page({
         });
       })
       .then((res) => {
+        if (res && res.error) {
+          this._submitting = false;
+          toast("生成失败：" + res.error);
+          return;
+        }
         const names = items.map((g) => g.name).join("、");
         wx.setStorageSync("aiTryonTask", { taskId: res.taskId, garmentName: names });
         this._submitting = false;
