@@ -198,6 +198,29 @@ async function status(event) {
 
 exports.main = async (event) => {
   const { openid } = cloud.getWXContext();
+  if (event.action === "history") {
+    try {
+      const coll = db.collection("tryon_results");
+      let res;
+      if (openid) {
+        res = await coll.where({ user_id: openid }).orderBy("createdAt", "desc").limit(50).get();
+      } else {
+        res = await coll.orderBy("createdAt", "desc").limit(50).get();
+      }
+      return {
+        ok: true,
+        list: res.data.map((d) => ({
+          id: d._id,
+          garmentName: d.garment_name,
+          createdAt: d.createdAt,
+          image: d.tryon_image,
+          videoUrl: d.tryon_video || ""
+        }))
+      };
+    } catch (e) {
+      return { ok: false, error: fmtErr(e) };
+    }
+  }
   if (event.action === "status") return status(event);
   return submit(event, openid);
 };

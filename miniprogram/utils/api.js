@@ -115,10 +115,12 @@ module.exports = {
   async getHistory() {
     if (!cloudReady()) return mock.getHistory();
     try {
-      const res = await db().collection("tryon_results").orderBy("createdAt", "desc").limit(50).get();
-      if (res.data.length === 0) return mock.getHistory();
-      return res.data.map((d) => ({
-        id: d._id,
+      // 由云函数管理权限读取（云函数写入的记录无客户端 _openid 归属，直接读库会因权限读不到）
+      const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "history" } });
+      const r = res.result;
+      if (!r || !r.ok || !r.list || r.list.length === 0) return mock.getHistory();
+      return r.list.map((d) => ({
+        id: d.id,
         garmentName: d.garmentName,
         date: fmtDate(d.createdAt),
         image: d.image,
