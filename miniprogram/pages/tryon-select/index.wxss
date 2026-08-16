@@ -1,9 +1,10 @@
 .wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
 .manage-btn { font-size: 26rpx; color: #7A5A4E; padding: 10rpx 16rpx; }
 .manage-hover { opacity: 0.8; }
-.delete-bar { flex: 0 0 auto; padding: 20rpx 0 calc(20rpx + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border-soft); display: flex; gap: 20rpx; justify-content: center; }
-.delete-bar-btn { display: inline-flex; align-items: center; justify-content: center; width: auto; min-width: 180rpx; padding: 0 28rpx; }
-.delete-btn-sm { display: inline-flex; align-items: center; justify-content: center; gap: 8rpx; width: auto; min-width: 200rpx; padding: 0 28rpx; }
+.delete-bar { flex: 0 0 auto; padding: 20rpx 24rpx calc(20rpx + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border-soft); display: flex; gap: 20rpx; }
+.delete-bar-btn, .delete-btn-sm { flex: 1; min-width: 0; }
+.delete-bar-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0 28rpx; }
+.delete-btn-sm { display: inline-flex; align-items: center; justify-content: center; gap: 8rpx; padding: 0 28rpx; }
 .cat-tabs { display: flex; gap: 16rpx; margin-bottom: 32rpx; flex-wrap: wrap; }
 .cat-tab { display: inline-flex; align-items: center; justify-content: center; min-height: 72rpx; padding: 0 30rpx; border-radius: 999rpx; border: 1px solid var(--border); background: var(--surface); color: var(--fg-2); font-size: 26rpx; }
 .cat-tab.on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); font-weight: 600; }
