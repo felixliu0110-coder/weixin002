@@ -143,6 +143,7 @@ module.exports = {
 
   // 模板衣物（含用户保存的）暂走本地模拟，等用户确认云上数据范围后接入
   saveToTemplates: mock.saveToTemplates,
+  recognizeGarment: mock.recognizeGarment,
 
   async getQuota() {
     if (!cloudReady()) return mock.getQuota();

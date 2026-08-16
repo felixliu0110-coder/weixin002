@@ -83,11 +83,16 @@ module.exports = {
     const item = {
       id: "t-user-" + Date.now(),
       name: params.name || "我的保存",
-      category: params.category || "上装",
+      category: params.category || "其他",
       image: params.image || "/assets/img/p07-result.jpg"
     };
     templates.push(item);
     return { ok: true, id: item.id };
+  },
+  async recognizeGarment() {
+    // 模拟识别：真实能力需接入图像分类 AI（暂缓项）
+    await delay(500);
+    return { category: "连衣裙", name: "粉色针织连衣裙" };
   },
   async getQuota() { await delay(200); return JSON.parse(JSON.stringify(quota)); },
   async getUserInfo() { await delay(200); return JSON.parse(JSON.stringify(userInfo)); },

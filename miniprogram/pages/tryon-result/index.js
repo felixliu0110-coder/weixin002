@@ -2,7 +2,15 @@ const { toast } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
 Page({
-  data: { angle: "正面", collectVisible: false, templateVisible: false },
+  data: {
+    angle: "正面",
+    collectVisible: false,
+    templateVisible: false,
+    tplName: "",
+    tplCategory: "连衣裙",
+    tplRecognized: "连衣裙",
+    categories: ["衬衫", "卫衣", "T恤", "外套", "牛仔裤", "休闲裤", "半身裙", "连衣裙", "运动鞋", "休闲鞋", "棒球帽", "草帽", "其他"]
+  },
   onAngle(e) {
     const angle = e.detail.label;
     this.setData({ angle });
@@ -26,17 +34,33 @@ Page({
       toast("已收藏");
     });
   },
-  onSaveTemplate() { this.setData({ templateVisible: true }); },
+  onSaveTemplate() {
+    // 自动识别衣物类型（当前为模拟识别）
+    api.recognizeGarment().then((res) => {
+      this.setData({
+        templateVisible: true,
+        tplRecognized: res.category,
+        tplCategory: res.category,
+        tplName: res.name
+      });
+    });
+  },
   closeTemplate() { this.setData({ templateVisible: false }); },
-  confirmSaveTemplate(e) {
-    const category = e.currentTarget.dataset.category;
+  onTplName(e) { this.setData({ tplName: e.detail.value }); },
+  onTplCategory(e) { this.setData({ tplCategory: e.currentTarget.dataset.cat }); },
+  confirmSaveTemplate() {
+    const name = (this.data.tplName || "").trim();
+    if (!name) {
+      toast("请输入衣物名称");
+      return;
+    }
     this.setData({ templateVisible: false });
     api.saveToTemplates({
-      category,
-      name: "粉色针织连衣裙",
+      category: this.data.tplCategory,
+      name,
       image: "/assets/img/p07-result.jpg"
     }).then(() => {
-      toast("已保存到模板（" + category + "）");
+      toast("已保存到模板（" + this.data.tplCategory + "）");
     });
   },
   onShare() { toast("分享卡片已生成，含「AI 生成效果，仅供参考」标识"); }
