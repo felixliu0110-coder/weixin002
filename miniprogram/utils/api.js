@@ -118,7 +118,8 @@ module.exports = {
       // 由云函数管理权限读取（云函数写入的记录无客户端 _openid 归属，直接读库会因权限读不到）
       const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "history" } });
       const r = res.result;
-      if (!r || !r.ok || !r.list || r.list.length === 0) return mock.getHistory();
+      if (!r || !r.ok) return mock.getHistory();
+      if (!r.list || r.list.length === 0) return [];   // 确实无记录 → 空态，不再显示示例
       return r.list.map((d) => ({
         id: d.id,
         garmentName: d.garmentName,

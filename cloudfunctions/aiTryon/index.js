@@ -206,12 +206,9 @@ exports.main = async (event) => {
   if (event.action === "history") {
     try {
       const coll = db.collection("tryon_results");
-      let res;
-      if (openid) {
-        res = await coll.where({ user_id: openid }).orderBy("createdAt", "desc").limit(50).get();
-      } else {
-        res = await coll.orderBy("createdAt", "desc").limit(50).get();
-      }
+      // 单用户阶段：直接取最新记录（测试环境记录无 user_id 归属，按身份过滤会查不到）；
+      // 正式多用户时恢复 where({ user_id: openid }) 过滤
+      const res = await coll.orderBy("createdAt", "desc").limit(50).get();
       console.log("aiTryon history query", "openid=" + (openid ? "set" : "EMPTY"), "count=" + res.data.length);
       return {
         ok: true,
