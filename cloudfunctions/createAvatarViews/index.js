@@ -7,6 +7,23 @@ const db = cloud.database();
 
 exports.main = async (event) => {
   const { openid } = cloud.getWXContext();
+  // 查询最新三视图：云函数管理权限读取，按 user_id 归属过滤（openid 为空时取最新一条，兼容测试环境）
+  if (event.action === "get") {
+    try {
+      const coll = db.collection("avatar_views");
+      let res;
+      if (openid) {
+        res = await coll.where({ user_id: openid }).orderBy("createdAt", "desc").limit(1).get();
+      } else {
+        res = await coll.orderBy("createdAt", "desc").limit(1).get();
+      }
+      if (res.data.length === 0) return { ok: true, empty: true };
+      const d = res.data[0];
+      return { ok: true, avatarViewId: d._id, status: d.status, views: d.views, provider: d.provider };
+    } catch (e) {
+      return { ok: false, error: e.code || e.message };
+    }
+  }
   const profile = event.profile || {};
   const aigc = getAigc();
   const prompt = buildAvatarViewsPrompt(profile);

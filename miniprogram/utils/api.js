@@ -195,12 +195,11 @@ module.exports = {
   async getAvatarViews() {
     if (!cloudReady()) return mock.getAvatarViews();
     try {
-      const res = await db().collection("avatar_views").orderBy("createdAt", "desc").limit(10).get();
-      if (res.data.length === 0) return mock.getAvatarViews();
-      // 跳过历史 mock/占位记录（未配置 Key 时代写库的假数据），取第一条真实生成
-      const real = res.data.find((d) => !isMockResult(d.views));
-      if (!real) return mock.getAvatarViews();
-      return { status: real.status, views: real.views, isExample: false };
+      // 由云函数管理权限读取最新三视图（不依赖客户端 _openid 权限匹配）
+      const res = await wx.cloud.callFunction({ name: "createAvatarViews", data: { action: "get" } });
+      const r = res.result;
+      if (!r || !r.ok || r.empty || isMockResult(r.views)) return mock.getAvatarViews();
+      return { status: r.status, views: r.views, isExample: false };
     } catch (e) {
       return mock.getAvatarViews();
     }
