@@ -34,6 +34,16 @@ async function saveTryonResult(task) {
 }
 
 /* 订阅消息通知（需配置环境变量 SUBSCRIBE_TMPL_ID；字段名以申请的模板为准） */
+function fmtTime(ts) {
+  // 云函数默认 UTC，按中国时区 UTC+8 格式化：2026年8月16日 22:30
+  const d = new Date(ts + 8 * 3600 * 1000);
+  const iso = d.toISOString();
+  const y = iso.slice(0, 4);
+  const mo = parseInt(iso.slice(5, 7), 10);
+  const da = parseInt(iso.slice(8, 10), 10);
+  return y + "年" + mo + "月" + da + "日 " + iso.slice(11, 16);
+}
+
 async function sendSubscribe(openid, garmentName) {
   const tmplId = process.env.SUBSCRIBE_TMPL_ID;
   if (!tmplId || !openid) return;
@@ -43,8 +53,8 @@ async function sendSubscribe(openid, garmentName) {
       templateId: tmplId,
       page: "pages/tryon-result/index",
       data: {
-        thing1: { value: (garmentName || "AI 试穿").slice(0, 20) },
-        thing2: { value: "AI 试穿生成完成" }
+        thing1: { value: ("AI试穿「" + (garmentName || "所选衣物") + "」已生成").slice(0, 20) },
+        time1: { value: fmtTime(Date.now()) }
       }
     });
     console.log("aiTryon subscribe sent", "openid=" + openid);
