@@ -7,19 +7,19 @@
       <view class="ring-hole"></view>
       <view class="ring-num mono">{{percent}}%</view>
     </view>
-    <view class="gen-title">正在为你试穿针织连衣裙...</view>
-    <view class="gen-sub">以你的 3D 数字人为底图生成照片级效果</view>
+    <view class="gen-title">正在为你试穿{{garmentName}}...</view>
+    <view class="gen-sub">AI 三视图 + 衣物四视图 → 180° 转身视频</view>
 
     <view class="gen-cards">
       <view class="gen-card">
-        <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-clock-deep.png" /></view>
-        <view class="gc-label">排队中</view>
-        <view class="gc-val">第 2 位（示例）</view>
+        <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-star-deep.png" /></view>
+        <view class="gc-label">当前阶段</view>
+        <view class="gc-val">{{stageText}}</view>
       </view>
       <view class="gen-card">
-        <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-star-deep.png" /></view>
+        <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-clock-deep.png" /></view>
         <view class="gc-label">预计耗时</view>
-        <view class="gc-val">15 秒</view>
+        <view class="gc-val">15 秒（示例）</view>
       </view>
     </view>
 
