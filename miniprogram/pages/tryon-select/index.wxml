@@ -86,11 +86,15 @@
     <btn class="footer-main" type="primary" disabled="{{selectedCount === 0}}" bindtap="startTryon">{{buttonText}}</btn>
   </view>
   <view wx:if="{{tab === 'lib' && viewMode === 'home' && manageMode}}" class="delete-bar">
-    <btn class="delete-btn" type="danger" disabled="{{delCount === 0}}" bindtap="onDelete">删除所选（{{delCount}}）</btn>
+    <btn class="delete-btn" type="danger" disabled="{{delCount === 0}}" bindtap="onDelete">
+      <image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-trash-white.png" />删除所选（{{delCount}}）
+    </btn>
   </view>
   <view wx:if="{{tab === 'lib' && viewMode === 'select'}}" class="footer-bar">
     <btn wx:if="{{!libManageMode}}" class="footer-main" type="primary" disabled="{{libSelectedCount === 0}}" bindtap="confirmAdd">加入穿搭（{{libSelectedCount}}）</btn>
-    <btn wx:if="{{libManageMode}}" class="delete-btn" type="danger" disabled="{{libDelCount === 0}}" bindtap="confirmDelLib">删除所选（{{libDelCount}}）</btn>
+    <btn wx:if="{{libManageMode}}" class="delete-btn" type="danger" disabled="{{libDelCount === 0}}" bindtap="confirmDelLib">
+      <image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-trash-white.png" />删除所选（{{libDelCount}}）
+    </btn>
   </view>
 
   <sheet visible="{{uploadVisible}}" bind:cancel="closeUpload">

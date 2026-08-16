@@ -1,8 +1,8 @@
 .wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
 .manage-btn { font-size: 26rpx; color: #7A5A4E; padding: 10rpx 16rpx; }
 .manage-hover { opacity: 0.8; }
-.delete-bar { flex: 0 0 auto; padding: 16rpx 0 calc(16rpx + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border-soft); }
-.delete-btn { display: block; width: 100%; }
+.delete-bar { flex: 0 0 auto; padding: 20rpx 0 calc(20rpx + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border-soft); display: flex; justify-content: center; }
+.delete-btn { display: inline-flex; align-items: center; justify-content: center; gap: 12rpx; width: auto; min-width: 340rpx; padding: 0 48rpx; }
 .cat-tabs { display: flex; gap: 16rpx; margin-bottom: 32rpx; flex-wrap: wrap; }
 .cat-tab { display: inline-flex; align-items: center; justify-content: center; min-height: 72rpx; padding: 0 30rpx; border-radius: 999rpx; border: 1px solid var(--border); background: var(--surface); color: var(--fg-2); font-size: 26rpx; }
 .cat-tab.on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); font-weight: 600; }

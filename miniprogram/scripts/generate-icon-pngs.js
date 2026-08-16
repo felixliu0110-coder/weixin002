@@ -41,7 +41,8 @@ const NEED = {
   "icon-settings": ["dark"],
   "icon-ruler": ["active"],
   "icon-rotate": ["active"],
-  "icon-search": ["gray"]
+  "icon-search": ["gray"],
+  "icon-trash": ["white"]
 };
 
 (async () => {
