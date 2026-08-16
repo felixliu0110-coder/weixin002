@@ -13,24 +13,29 @@ function fmtErr(e) {
 
 /* 试穿完成写记录（task_id 去重；占位视频不写，避免污染真实记录） */
 async function saveTryonResult(task) {
-  if (!task || !task.tryon_video || task.tryon_video.indexOf("placeholder") >= 0) return false;
-  const dup = await db.collection("tryon_results").where({ task_id: task._id }).limit(1).get();
-  if (dup.data.length > 0) return false;
-  await db.collection("tryon_results").add({
-    data: {
-      _openid: task._openid || task.user_id,
-      user_id: task.user_id,
-      task_id: task._id,
-      avatar_view_id: task.avatar_view_id,
-      garment_id: (task.garment_ids || [])[0],
-      garment_name: task.garment_name || "AI 试穿",
-      tryon_image: task.tryon_image,
-      tryon_video: task.tryon_video,
-      ai_tagged: true,
-      createdAt: Date.now()
-    }
-  });
-  return true;
+  try {
+    if (!task || !task.tryon_video || task.tryon_video.indexOf("placeholder") >= 0) return false;
+    const dup = await db.collection("tryon_results").where({ task_id: task._id }).limit(1).get();
+    if (dup.data.length > 0) return false;
+    await db.collection("tryon_results").add({
+      data: {
+        _openid: task._openid || task.user_id,
+        user_id: task.user_id,
+        task_id: task._id,
+        avatar_view_id: task.avatar_view_id,
+        garment_id: (task.garment_ids || [])[0],
+        garment_name: task.garment_name || "AI 试穿",
+        tryon_image: task.tryon_image,
+        tryon_video: task.tryon_video,
+        ai_tagged: true,
+        createdAt: Date.now()
+      }
+    });
+    return true;
+  } catch (e) {
+    console.log("saveTryonResult fail", "taskId=" + (task && task._id), "error=" + fmtErr(e));
+    return false;
+  }
 }
 
 /* 订阅消息通知（需配置环境变量 SUBSCRIBE_TMPL_ID；字段名以申请的模板为准） */
