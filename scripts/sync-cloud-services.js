@@ -10,6 +10,7 @@ const SHARED_FILES = [
   "aigc-mock.js",
   "avatarViews.js",
   "garmentViews.js",
+  "tryonCache.js",
   "tryonVideo.js"
 ];
 // 已废弃的共享模块：从各云函数目录清理，避免随部署带上旧实现

@@ -4,12 +4,14 @@ cloudfunctions/*/aigc-agnes.js
 cloudfunctions/*/aigc-mock.js
 cloudfunctions/*/avatarViews.js
 cloudfunctions/*/garmentViews.js
+cloudfunctions/*/tryonCache.js
 cloudfunctions/*/tryonVideo.js
 !cloudfunctions/services/aigc.js
 !cloudfunctions/services/aigc-agnes.js
 !cloudfunctions/services/aigc-mock.js
 !cloudfunctions/services/avatarViews.js
 !cloudfunctions/services/garmentViews.js
+!cloudfunctions/services/tryonCache.js
 !cloudfunctions/services/tryonVideo.js
 node_modules/
 docs/qa/edge-profile/
