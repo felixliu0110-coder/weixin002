@@ -7,6 +7,13 @@ function cloudReady() {
   return typeof wx !== "undefined" && wx.cloud && config.cloudEnv && config.cloudEnv.trim() !== "";
 }
 
+function isMockResult(r) {
+  // 云函数未配置 AIGC Key 时返回占位 URL（provider=mock / placeholder），前端回退本地素材
+  if (!r) return true;
+  const s = JSON.stringify(r);
+  return r.provider === "mock" || s.indexOf("placeholder.example.com") >= 0;
+}
+
 function db() {
   return wx.cloud.database();
 }
@@ -172,7 +179,7 @@ module.exports = {
     try {
       const res = await wx.cloud.callFunction({ name: "createAvatarViews", data: { profile } });
       const r = res.result;
-      if (!r.ok) return mock.createAvatarViews(profile);
+      if (!r.ok || isMockResult(r)) return mock.createAvatarViews(profile);
       return r;
     } catch (e) {
       return mock.createAvatarViews(profile);
@@ -185,6 +192,7 @@ module.exports = {
       const res = await db().collection("avatar_views").orderBy("createdAt", "desc").limit(1).get();
       if (res.data.length === 0) return mock.getAvatarViews();
       const d = res.data[0];
+      if (isMockResult(d.views)) return mock.getAvatarViews();
       return { status: d.status, views: d.views, isExample: false };
     } catch (e) {
       return mock.getAvatarViews();
@@ -199,7 +207,7 @@ module.exports = {
         data: { garmentId, garmentName, garmentImage }
       });
       const r = res.result;
-      if (!r.ok) return mock.ensureGarmentViews(garmentId, garmentName);
+      if (!r.ok || isMockResult(r)) return mock.ensureGarmentViews(garmentId, garmentName);
       return r;
     } catch (e) {
       return mock.ensureGarmentViews(garmentId, garmentName);
@@ -211,7 +219,7 @@ module.exports = {
     try {
       const res = await wx.cloud.callFunction({ name: "aiTryon", data: Object.assign({ action: "submit" }, params) });
       const r = res.result;
-      if (!r.ok) return mock.submitAiTryon(params);
+      if (!r.ok || isMockResult(r)) return mock.submitAiTryon(params);
       return r;
     } catch (e) {
       return mock.submitAiTryon(params);
@@ -222,7 +230,9 @@ module.exports = {
     if (!cloudReady()) return mock.getAiTryonStatus(taskId);
     try {
       const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "status", taskId } });
-      return res.result;
+      const r = res.result;
+      if (!r.ok || isMockResult(r)) return mock.getAiTryonStatus(taskId);
+      return r;
     } catch (e) {
       return mock.getAiTryonStatus(taskId);
     }
@@ -280,5 +290,6 @@ module.exports = {
     } catch (e) {
       return mock.deleteUserData();
     }
-  }
+  },
+  isMockResult
 };
