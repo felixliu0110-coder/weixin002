@@ -42,7 +42,7 @@ const homeTemplates = [
 ];
 
 let history = [
-  { id: "r1", garmentName: "针织连衣裙", date: "8月14日", image: "/assets/img/p13-1.jpg", aiTagged: true },
+  { id: "r1", garmentName: "针织连衣裙", date: "8月14日", image: "/assets/img/p13-1.jpg", aiTagged: true, videoUrl: "/assets/video/mock-turn.mp4" },
   { id: "r2", garmentName: "蓝色衬衫", date: "8月13日", image: "/assets/img/p13-2.jpg", aiTagged: true },
   { id: "r3", garmentName: "白色T恤", date: "8月12日", image: "/assets/img/p13-3.jpg", aiTagged: true },
   { id: "r4", garmentName: "牛仔裤·平铺", date: "8月12日", image: "/assets/img/p13-4.jpg", aiTagged: true, contain: true },
@@ -50,7 +50,7 @@ let history = [
 ];
 
 let favorites = [
-  { id: "f1", garmentName: "粉色针织连衣裙", date: "8月15日", image: "/assets/img/p07-result.jpg", aiTagged: true },
+  { id: "f1", garmentName: "粉色针织连衣裙", date: "8月15日", image: "/assets/img/p07-result.jpg", aiTagged: true, videoUrl: "/assets/video/mock-turn.mp4" },
   { id: "f2", garmentName: "蓝色衬衫搭配", date: "8月14日", image: "/assets/img/p14-right.jpg", aiTagged: true }
 ];
 
@@ -60,6 +60,61 @@ const userInfo = {
   wechatBound: true,
   phoneBound: false
 };
+
+const avatarViews = {
+  status: "ready",
+  views: { composite: "/assets/img/p05-avatar.jpg" },
+  provider: "mock",
+  isExample: true
+};
+
+let garmentViewsCache = {};
+let aiTryonTasks = {};
+
+async function mockCreateAvatarViews(profile) {
+  // mock：立即生成，三视图占位用原型数字人图
+  return { avatarViewId: "av-mock-" + Date.now(), status: "ready", views: avatarViews.views };
+}
+
+async function mockEnsureGarmentViews(garmentId, garmentName) {
+  if (garmentViewsCache[garmentId] && garmentViewsCache[garmentId].status === "ready") {
+    return { ok: true, cached: true, status: "ready", views: garmentViewsCache[garmentId].views };
+  }
+  const views = { composite: "/assets/img/p06-tee.jpg" };
+  garmentViewsCache[garmentId] = { status: "ready", views };
+  return { ok: true, cached: false, status: "ready", views };
+}
+
+async function mockSubmitAiTryon(params) {
+  const taskId = "task-ai-" + Date.now();
+  aiTryonTasks[taskId] = {
+    taskId,
+    status: "processing",
+    stage: "garment_views",
+    poll: 0,
+    tryonImage: "/assets/img/p07-result.jpg",
+    tryonVideo: "/assets/video/mock-turn.mp4"
+  };
+  return { taskId, status: "processing" };
+}
+
+async function mockGetAiTryonStatus(taskId) {
+  const t = aiTryonTasks[taskId];
+  if (!t) {
+    return {
+      taskId,
+      status: "processing",
+      stage: "garment_views",
+      tryonImage: "/assets/img/p07-result.jpg",
+      tryonVideo: "/assets/video/mock-turn.mp4"
+    };
+  }
+  t.poll = (t.poll || 0) + 1;
+  if (t.poll === 1) return { taskId, status: "processing", stage: "garment_views" };
+  if (t.poll === 2) return { taskId, status: "processing", stage: "video" };
+  t.status = "success";
+  return { taskId, status: "success", stage: "video", tryonImage: t.tryonImage, tryonVideo: t.tryonVideo };
+}
 
 module.exports = {
   getAvatarProfile() { return Promise.resolve(JSON.parse(JSON.stringify(avatarProfile))); },
@@ -97,6 +152,9 @@ module.exports = {
     if (kind === "favorites") favorites = favorites.filter((i) => !ids.includes(i.id));
     if (kind === "myTemplates") myTemplates = myTemplates.filter((i) => !ids.includes(i.id));
     if (kind === "library") garmentLibrary = garmentLibrary.filter((i) => !ids.includes(i.id));
+    if (kind === "library" || kind === "myTemplates") {
+      ids.forEach((id) => { delete garmentViewsCache[id]; });
+    }
     return { ok: true };
   },
   async saveToTemplates(params) {
@@ -126,6 +184,23 @@ module.exports = {
       garmentName: result.garmentName || "新收藏试穿",
       date: "刚刚",
       image: result.image || "/assets/img/p07-result.jpg",
+      aiTagged: true
+    };
+    favorites.unshift(item);
+    return { ok: true, id: item.id };
+  },
+  getAvatarViews() { return Promise.resolve(JSON.parse(JSON.stringify(avatarViews))); },
+  createAvatarViews: mockCreateAvatarViews,
+  ensureGarmentViews: mockEnsureGarmentViews,
+  submitAiTryon: mockSubmitAiTryon,
+  getAiTryonStatus: mockGetAiTryonStatus,
+  async saveAiResult(result) {
+    const item = {
+      id: "f-ai-" + Date.now(),
+      garmentName: result.garmentName || "AI 试穿",
+      date: "刚刚",
+      image: result.tryonImage || "/assets/img/p07-result.jpg",
+      videoUrl: result.tryonVideo || "/assets/video/mock-turn.mp4",
       aiTagged: true
     };
     favorites.unshift(item);

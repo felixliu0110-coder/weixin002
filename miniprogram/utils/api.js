@@ -111,7 +111,8 @@ module.exports = {
         garmentName: d.garmentName,
         date: fmtDate(d.createdAt),
         image: d.image,
-        aiTagged: true
+        aiTagged: true,
+        videoUrl: d.videoUrl || ""
       }));
     } catch (e) {
       return mock.getHistory();
@@ -128,7 +129,8 @@ module.exports = {
         garmentName: d.garmentName,
         date: fmtDate(d.createdAt),
         image: d.image,
-        aiTagged: true
+        aiTagged: true,
+        videoUrl: d.videoUrl || ""
       }));
     } catch (e) {
       return mock.getFavorites();
@@ -162,6 +164,84 @@ module.exports = {
       return { userId: doc._openid, dailyFree: doc.dailyFree, used: doc.used, isExample: false };
     } catch (e) {
       return mock.getQuota();
+    }
+  },
+
+  async createAvatarViews(profile) {
+    if (!cloudReady()) return mock.createAvatarViews(profile);
+    try {
+      const res = await wx.cloud.callFunction({ name: "createAvatarViews", data: { profile } });
+      const r = res.result;
+      if (!r.ok) return mock.createAvatarViews(profile);
+      return r;
+    } catch (e) {
+      return mock.createAvatarViews(profile);
+    }
+  },
+
+  async getAvatarViews() {
+    if (!cloudReady()) return mock.getAvatarViews();
+    try {
+      const res = await db().collection("avatar_views").orderBy("createdAt", "desc").limit(1).get();
+      if (res.data.length === 0) return mock.getAvatarViews();
+      const d = res.data[0];
+      return { status: d.status, views: d.views, isExample: false };
+    } catch (e) {
+      return mock.getAvatarViews();
+    }
+  },
+
+  async ensureGarmentViews(garmentId, garmentName, garmentImage) {
+    if (!cloudReady()) return mock.ensureGarmentViews(garmentId, garmentName);
+    try {
+      const res = await wx.cloud.callFunction({
+        name: "ensureGarmentViews",
+        data: { garmentId, garmentName, garmentImage }
+      });
+      const r = res.result;
+      if (!r.ok) return mock.ensureGarmentViews(garmentId, garmentName);
+      return r;
+    } catch (e) {
+      return mock.ensureGarmentViews(garmentId, garmentName);
+    }
+  },
+
+  async submitAiTryon(params) {
+    if (!cloudReady()) return mock.submitAiTryon(params);
+    try {
+      const res = await wx.cloud.callFunction({ name: "aiTryon", data: Object.assign({ action: "submit" }, params) });
+      const r = res.result;
+      if (!r.ok) return mock.submitAiTryon(params);
+      return r;
+    } catch (e) {
+      return mock.submitAiTryon(params);
+    }
+  },
+
+  async getAiTryonStatus(taskId) {
+    if (!cloudReady()) return mock.getAiTryonStatus(taskId);
+    try {
+      const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "status", taskId } });
+      return res.result;
+    } catch (e) {
+      return mock.getAiTryonStatus(taskId);
+    }
+  },
+
+  async saveAiResult(result) {
+    if (!cloudReady()) return mock.saveAiResult(result);
+    try {
+      const item = {
+        garmentName: result.garmentName || "AI 试穿",
+        image: result.tryonImage || "/assets/img/p07-result.jpg",
+        videoUrl: result.tryonVideo || "",
+        aiTagged: true,
+        createdAt: Date.now()
+      };
+      const res = await db().collection("favorites").add({ data: item });
+      return { ok: true, id: res._id };
+    } catch (e) {
+      return mock.saveAiResult(result);
     }
   },
 

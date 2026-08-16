@@ -32,3 +32,27 @@ test("submitTryon 生成任务并在默认策略下成功", async () => {
   assert.strictEqual(task.status, "success");
   assert.ok(task.resultUrls.length > 0);
 });
+
+test("mock AI 接口可用且返回占位素材", async () => {
+  const views = await mock.getAvatarViews();
+  assert.ok(views.views.composite.includes("/assets/img/p05-avatar.jpg"));
+  const gv = await mock.ensureGarmentViews("g-tee", "白色基础T恤");
+  assert.strictEqual(gv.status, "ready");
+  const cached = await mock.ensureGarmentViews("g-tee", "白色基础T恤");
+  assert.strictEqual(cached.cached, true);
+  const t = await mock.submitAiTryon({ avatarViewId: "av-1", garmentIds: ["g-tee"] });
+  assert.strictEqual(t.status, "processing");
+  const s1 = await mock.getAiTryonStatus(t.taskId);
+  assert.strictEqual(s1.stage, "garment_views");
+  const s2 = await mock.getAiTryonStatus(t.taskId);
+  assert.strictEqual(s2.stage, "video");
+  const s3 = await mock.getAiTryonStatus(t.taskId);
+  assert.strictEqual(s3.status, "success");
+  assert.ok(s3.tryonVideo.includes(".mp4"));
+  // 删除联动：删除模板衣物后四视图缓存被清理
+  const before = await mock.ensureGarmentViews("g-del-test", "测试衣物");
+  assert.strictEqual(before.cached, false);
+  await mock.deleteItems("library", ["g-del-test"]);
+  const after = await mock.ensureGarmentViews("g-del-test", "测试衣物");
+  assert.strictEqual(after.cached, false);
+});
