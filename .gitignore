@@ -1,2 +1,7 @@
-cloudfunctions/*/services/
+cloudfunctions/*/aigc.js
+cloudfunctions/*/aigc-mock.js
+cloudfunctions/*/aigc-jimeng.js
+cloudfunctions/*/avatarViews.js
+cloudfunctions/*/garmentViews.js
+cloudfunctions/*/tryonVideo.js
 node_modules/

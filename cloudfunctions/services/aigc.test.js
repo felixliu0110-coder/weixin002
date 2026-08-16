@@ -1,8 +1,8 @@
 const test = require("node:test");
 const assert = require("node:assert");
 const { getAigc } = require("./aigc");
-const mock = require("./aigc/mock");
-const jimeng = require("./aigc/jimeng");
+const mock = require("./aigc-mock");
+const jimeng = require("./aigc-jimeng");
 
 test("未配置 Key 时 getAigc 返回 mock", () => {
   delete process.env.JIMENG_API_KEY;

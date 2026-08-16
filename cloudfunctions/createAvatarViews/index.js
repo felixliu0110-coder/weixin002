@@ -1,6 +1,6 @@
 const cloud = require("wx-server-sdk");
-const { getAigc } = require("./services/aigc");
-const { buildAvatarViewsPrompt } = require("./services/templates/avatarViews");
+const { getAigc } = require("./aigc");
+const { buildAvatarViewsPrompt } = require("./avatarViews");
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();

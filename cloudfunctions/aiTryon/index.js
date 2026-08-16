@@ -1,6 +1,6 @@
 const cloud = require("wx-server-sdk");
-const { getAigc } = require("./services/aigc");
-const { buildTryonVideoPrompt } = require("./services/templates/tryonVideo");
+const { getAigc } = require("./aigc");
+const { buildTryonVideoPrompt } = require("./tryonVideo");
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();

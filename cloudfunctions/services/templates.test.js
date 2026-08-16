@@ -1,8 +1,8 @@
 const test = require("node:test");
 const assert = require("node:assert");
-const { buildAvatarViewsPrompt } = require("./templates/avatarViews");
-const { buildGarmentViewsPrompt } = require("./templates/garmentViews");
-const { buildTryonVideoPrompt } = require("./templates/tryonVideo");
+const { buildAvatarViewsPrompt } = require("./avatarViews");
+const { buildGarmentViewsPrompt } = require("./garmentViews");
+const { buildTryonVideoPrompt } = require("./tryonVideo");
 
 const profile = {
   heightCm: 165, weightKg: 50, shoeSize: 38,
