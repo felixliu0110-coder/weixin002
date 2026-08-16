@@ -20,15 +20,15 @@ Page({
   },
   animateTo100() {
     this._startTimer = setTimeout(() => {
-      this._timer = setInterval(() => {
+      this._frameTimer = setInterval(() => {
         const p = this.data.percent + 1;
         this.setData({ percent: p });
         if (p >= 100) {
-          clearInterval(this._timer);
+          clearInterval(this._frameTimer);
           toast("数字人已生成");
           this._navTimer = setTimeout(() => navigate("/pages/avatar-3d/index"), 1200);
         }
-      }, 30);
+      }, 10);
     }, 300);
   },
   retry() {
@@ -36,7 +36,7 @@ Page({
     this.run();
   },
   onUnload() {
-    if (this._timer) clearInterval(this._timer);
+    if (this._frameTimer) clearInterval(this._frameTimer);
     if (this._startTimer) clearTimeout(this._startTimer);
     if (this._navTimer) clearTimeout(this._navTimer);
   }

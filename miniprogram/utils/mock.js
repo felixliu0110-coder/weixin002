@@ -62,22 +62,20 @@ const userInfo = {
 };
 
 module.exports = {
-  async getAvatarProfile() { await delay(400); return JSON.parse(JSON.stringify(avatarProfile)); },
-  async saveAvatarProfile(data) { await delay(300); Object.assign(avatarProfile, data); return { ok: true }; },
-  async getGarmentTemplates() { await delay(400); return JSON.parse(JSON.stringify(garmentLibrary)); },
-  async getGarmentLibrary() { await delay(300); return JSON.parse(JSON.stringify(garmentLibrary)); },
-  async getMyTemplates() { await delay(300); return JSON.parse(JSON.stringify(myTemplates)); },
+  getAvatarProfile() { return Promise.resolve(JSON.parse(JSON.stringify(avatarProfile))); },
+  saveAvatarProfile(data) { Object.assign(avatarProfile, data); return Promise.resolve({ ok: true }); },
+  getGarmentTemplates() { return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary))); },
+  getGarmentLibrary() { return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary))); },
+  getMyTemplates() { return Promise.resolve(JSON.parse(JSON.stringify(myTemplates))); },
   async addToMyTemplates(ids) {
-    await delay(300);
     const items = garmentLibrary.filter(
       (i) => ids.includes(i.id) && !myTemplates.some((m) => m.id === i.id)
     );
     myTemplates = myTemplates.concat(items);
     return { ok: true, count: items.length };
   },
-  async getHomeTemplates() { await delay(300); return JSON.parse(JSON.stringify(homeTemplates)); },
+  getHomeTemplates() { return Promise.resolve(JSON.parse(JSON.stringify(homeTemplates))); },
   async uploadGarment(imagePath, params) {
-    await delay(600);
     const item = {
       id: "g-upload-" + Date.now(),
       image: imagePath,
@@ -89,14 +87,12 @@ module.exports = {
     return item;
   },
   async submitTryon(params) {
-    await delay(900);
     return { taskId: "task-" + Date.now(), status: "success", pose: params.pose || "front", resultUrls: ["/assets/img/p07-result.jpg"] };
   },
-  async getTryonStatus(taskId) { await delay(300); return { taskId, status: "success" }; },
-  async getHistory() { await delay(400); return JSON.parse(JSON.stringify(history)); },
-  async getFavorites() { await delay(300); return JSON.parse(JSON.stringify(favorites)); },
+  getTryonStatus(taskId) { return Promise.resolve({ taskId, status: "success" }); },
+  getHistory() { return Promise.resolve(JSON.parse(JSON.stringify(history))); },
+  getFavorites() { return Promise.resolve(JSON.parse(JSON.stringify(favorites))); },
   async deleteItems(kind, ids) {
-    await delay(300);
     if (kind === "history") history = history.filter((i) => !ids.includes(i.id));
     if (kind === "favorites") favorites = favorites.filter((i) => !ids.includes(i.id));
     if (kind === "myTemplates") myTemplates = myTemplates.filter((i) => !ids.includes(i.id));
@@ -104,7 +100,6 @@ module.exports = {
     return { ok: true };
   },
   async saveToTemplates(params) {
-    await delay(300);
     const item = {
       id: "t-user-" + Date.now(),
       name: params.name || "我的保存",
@@ -116,19 +111,16 @@ module.exports = {
   },
   async recognizeGarment() {
     // 模拟识别：真实能力需接入图像分类 AI（暂缓项）
-    await delay(500);
     return { category: "连衣裙", name: "粉色针织连衣裙" };
   },
-  async getQuota() { await delay(200); return JSON.parse(JSON.stringify(quota)); },
-  async getUserInfo() { await delay(200); return JSON.parse(JSON.stringify(userInfo)); },
+  getQuota() { return Promise.resolve(JSON.parse(JSON.stringify(quota))); },
+  getUserInfo() { return Promise.resolve(JSON.parse(JSON.stringify(userInfo))); },
   async saveUserInfo(data) {
-    await delay(300);
     if (data.nickname) userInfo.nickname = data.nickname;
     return JSON.parse(JSON.stringify(userInfo));
   },
-  async logout() { await delay(300); return { ok: true }; },
+  async logout() { return { ok: true }; },
   async saveResult(result) {
-    await delay(300);
     const item = {
       id: "f-" + Date.now(),
       garmentName: result.garmentName || "新收藏试穿",
@@ -139,5 +131,5 @@ module.exports = {
     favorites.unshift(item);
     return { ok: true, id: item.id };
   },
-  async deleteUserData() { await delay(500); return { ok: true }; }
+  async deleteUserData() { return { ok: true }; }
 };

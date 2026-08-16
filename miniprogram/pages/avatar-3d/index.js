@@ -55,19 +55,25 @@ Page({
     if (!this.renderer) return;
     const t = e.touches;
     const view = this.renderer.view;
-    if (t.length === 1 && this._touches && this._touches.length === 1) {
-      const dx = t[0].clientX - this._touches[0].clientX;
-      const dy = t[0].clientY - this._touches[0].clientY;
-      view.rotateY = (view.rotateY + dx * 0.6 + 360) % 360;
-      view.rotateX = Math.max(-20, Math.min(20, view.rotateX + dy * 0.3));
-      this.renderer.render();
-    } else if (t.length === 2 && this._touches && this._touches.length === 2) {
-      const d0 = dist(this._touches[0], this._touches[1]);
-      const d1 = dist(t[0], t[1]);
-      view.zoom = Math.max(0.8, Math.min(1.6, view.zoom * (d1 / Math.max(d0, 1))));
-      this.renderer.render();
-    }
-    this._touches = t;
+    // 节流：每帧最多渲染一次，避免触摸事件高频触发 setData
+    if (this._rafPending) return;
+    this._rafPending = true;
+    this._animFrame = setTimeout(() => {
+      this._rafPending = false;
+      if (t.length === 1 && this._touches && this._touches.length === 1) {
+        const dx = t[0].clientX - this._touches[0].clientX;
+        const dy = t[0].clientY - this._touches[0].clientY;
+        view.rotateY = (view.rotateY + dx * 0.6 + 360) % 360;
+        view.rotateX = Math.max(-20, Math.min(20, view.rotateX + dy * 0.3));
+        this.renderer.render();
+      } else if (t.length === 2 && this._touches && this._touches.length === 2) {
+        const d0 = dist(this._touches[0], this._touches[1]);
+        const d1 = dist(t[0], t[1]);
+        view.zoom = Math.max(0.8, Math.min(1.6, view.zoom * (d1 / Math.max(d0, 1))));
+        this.renderer.render();
+      }
+      this._touches = t;
+    }, 16);
   },
   onTouchEnd(e) {
     this._touches = e.touches || [];
@@ -110,6 +116,8 @@ Page({
   },
   onUnload() {
     if (this._autoTimer) clearInterval(this._autoTimer);
+    if (this._animFrame) clearTimeout(this._animFrame);
+    this._rafPending = false;
     if (this.renderer) this.renderer.destroy();
   }
 });

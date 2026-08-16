@@ -1,4 +1,5 @@
 const { toast, navigate } = require("../../utils/interaction");
+const api = require("../../utils/api");
 
 Page({
   data: {
