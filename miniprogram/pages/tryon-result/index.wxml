@@ -38,20 +38,10 @@
         <text class="action-hint">发送给好友</text>
         <button class="share-btn" open-type="share" style="position:absolute;inset:0;opacity:0"></button>
       </view>
-    </view>
-
-    <!-- 视频生成入口 -->
-    <view class="video-generate-section">
-      <view class="vg-head">
-        <text class="vg-title">360° 动态试穿</text>
-        <text class="vg-sub">生成转身视频，查看动态效果</text>
-      </view>
-      <view class="vg-card" bindtap="goToVideoGenerate">
-        <image class="vg-poster" src="{{result.tryonImage}}" mode="aspectFill" />
-        <view class="vg-overlay">
-          <image class="vg-play-icon" src="/assets/icons/svg/ic-play.svg" mode="aspectFit" />
-          <text class="vg-play-text">生成动态视频</text>
-        </view>
+      <view class="action-item action-video" hover-class="action-hover" bindtap="goToVideoGenerate">
+        <image class="action-icon" src="/assets/icons/svg/ic-play.svg" mode="aspectFit" />
+        <text class="action-label">{{result.tryonVideo ? '观看动态视频' : '生成动态视频'}}</text>
+        <text class="action-hint">{{result.tryonVideo ? '360° 转身效果' : 'AI 生成转身动画'}}</text>
       </view>
     </view>
   </view>
