@@ -1,16 +1,30 @@
 <view class="wx-page">
   <nav-bar title="试穿生成中" showBack="{{true}}"></nav-bar>
 
-  <view class="content big-hero-center">
-    <!-- 提交任务阶段：显示 loading 而非进度环 -->
+  <view class="content gen-layout">
+    <!-- 提交任务阶段 -->
     <block wx:if="{{submitting && !error}}">
-      <view class="ring-wrap">
-        <view class="ring" style="--p: 0;"></view>
-        <view class="ring-hole"></view>
-        <view class="ring-num mono">...</view>
+      <view class="pulse-wrap">
+        <view class="pulse-dot"></view>
+        <view class="pulse-dot d2"></view>
+        <view class="pulse-dot d3"></view>
       </view>
-      <view class="gen-title">正在提交任务...</view>
+      <view class="gen-title">正在提交任务</view>
       <view class="gen-sub">AI 预处理衣物视图并创建生成任务</view>
+
+      <view class="gen-cards">
+        <view class="gen-card">
+          <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-star-deep.png" /></view>
+          <view class="gc-label">当前阶段</view>
+          <view class="gc-val">提交中</view>
+        </view>
+        <view class="gen-card">
+          <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-clock-deep.png" /></view>
+          <view class="gc-label">预计耗时</view>
+          <view class="gc-val">约 15 秒</view>
+        </view>
+      </view>
+
       <view class="hint center mt-20">请稍候，即将开始生成</view>
     </block>
 
@@ -19,7 +33,7 @@
       <view class="ring-wrap">
         <view class="ring" style="--p: {{percent}};"></view>
         <view class="ring-hole"></view>
-        <view class="ring-num mono">{{percent}}%</view>
+        <view class="ring-num mono">{{percent}}<text class="pct">%</text></view>
       </view>
       <view class="gen-title">正在为你试穿{{garmentName}}...</view>
       <view class="gen-sub">AI 三视图 + 衣物四视图 → 试穿效果图</view>
@@ -33,7 +47,7 @@
         <view class="gen-card">
           <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-clock-deep.png" /></view>
           <view class="gc-label">预计耗时</view>
-          <view class="gc-val">15 秒（示例）</view>
+          <view class="gc-val">约 15 秒</view>
         </view>
       </view>
 
