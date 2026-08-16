@@ -21,7 +21,7 @@
             data-cat="{{item}}"
             bindtap="onCatCard"
           >
-            <text class="cat-emoji">{{catEmojis[item]}}</text>
+            <image class="cat-icon" src="{{catIcons[item]}}" mode="aspectFit" />
             <text class="cat-name">{{item}}</text>
             <text class="cat-count">{{catCounts[item] || 0}} 件</text>
           </view>

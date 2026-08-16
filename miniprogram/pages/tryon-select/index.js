@@ -10,7 +10,7 @@ Page({
     tab: "lib",
     viewMode: "home", // home: 分类入口+我的模板；select: 分类内选择衣物
     categories: ["上衣", "裤子", "头饰", "鞋子", "其他"],
-    catEmojis: { "上衣": "👕", "裤子": "👖", "头饰": "🧢", "鞋子": "👟", "其他": "📦" },
+    catIcons: { "上衣": "/assets/icons/svg/cat-top.svg", "裤子": "/assets/icons/svg/cat-pants.svg", "头饰": "/assets/icons/svg/cat-hat.svg", "鞋子": "/assets/icons/svg/cat-shoes.svg", "其他": "/assets/icons/svg/cat-other.svg" },
     curCategory: "上衣",
     garmentLibrary: [],
     libItems: [],
