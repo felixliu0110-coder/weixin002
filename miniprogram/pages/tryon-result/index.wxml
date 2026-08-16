@@ -3,24 +3,24 @@
 
   <view class="content">
     <view class="photo-card">
-      <image src="/assets/img/p07-result.jpg" mode="widthFix" />
+      <video
+        wx:if="{{result.tryonVideo}}"
+        class="result-video"
+        src="{{result.tryonVideo}}"
+        controls
+        objectFit="cover"
+        poster="{{result.tryonImage}}"
+      ></video>
+      <image wx:else src="{{result.tryonImage}}" mode="widthFix" />
       <view class="badge-ai"><image class="ic-img" style="width:24rpx;height:24rpx" src="/assets/icons/png/icon-star-white.png" />AI 生成</view>
       <view class="wm">AI 生成效果，仅供参考</view>
     </view>
 
-    <view class="angle-row">
-      <chip label="正面" selected="{{angle === '正面'}}" bindchange="onAngle" />
-      <chip label="侧面" selected="{{angle === '侧面'}}" bindchange="onAngle" />
-      <chip label="背面" selected="{{angle === '背面'}}" bindchange="onAngle" />
-    </view>
-
     <card class="result-meta">
       <view class="rm-copy">
-        <view class="rm-title">粉色针织连衣裙</view>
-        <view class="rm-sub">按你的身材（168cm / 55kg）生成，默认正面全身，可选侧面 / 背面。</view>
-        <view class="rm-hint">尺码建议仅供参考</view>
+        <view class="rm-title">{{result.garmentName}}</view>
+        <view class="rm-sub">按你的身材生成，AI 180° 转身视频，默认正面起转。</view>
       </view>
-      <view class="rm-tag">建议 M</view>
     </card>
 
     <view class="action-row">

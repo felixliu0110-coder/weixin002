@@ -32,3 +32,4 @@
 .cat-chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); font-weight: 600; }
 .cat-chip-hover { opacity: 0.85; }
 .action-row .iconfont { font-size: 32rpx; margin-right: 8rpx; }
+.result-video { width: 100%; border-radius: 24rpx; display: block; background: #000000; }

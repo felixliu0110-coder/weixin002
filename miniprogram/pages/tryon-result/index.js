@@ -8,7 +8,14 @@ Page({
     templateVisible: false,
     tplName: "",
     tplCategory: "",
-    categories: ["上衣", "裤子", "头饰", "鞋子", "其他"]
+    categories: ["上衣", "裤子", "头饰", "鞋子", "其他"],
+    result: { tryonImage: "/assets/img/p07-result.jpg", tryonVideo: "", garmentName: "AI 试穿" }
+  },
+  onLoad() {
+    const r = wx.getStorageSync("aiTryonResult") || {};
+    this.setData({
+      result: Object.assign({ tryonImage: "/assets/img/p07-result.jpg", tryonVideo: "", garmentName: "AI 试穿" }, r)
+    });
   },
   onAngle(e) {
     const angle = e.detail.label;
@@ -21,7 +28,12 @@ Page({
     if (this._collecting) return;
     this._collecting = true;
     this.setData({ collectVisible: false });
-    api.saveResult({ saved: true }).then(() => {
+    api.saveAiResult({
+      garmentName: this.data.result.garmentName,
+      tryonImage: this.data.result.tryonImage,
+      tryonVideo: this.data.result.tryonVideo,
+      saved: true
+    }).then(() => {
       toast("已收藏并保存到相册");
     });
   },
@@ -29,14 +41,19 @@ Page({
     if (this._collecting) return;
     this._collecting = true;
     this.setData({ collectVisible: false });
-    api.saveResult({ saved: true }).then(() => {
+    api.saveAiResult({
+      garmentName: this.data.result.garmentName,
+      tryonImage: this.data.result.tryonImage,
+      tryonVideo: this.data.result.tryonVideo,
+      saved: true
+    }).then(() => {
       toast("已收藏");
     });
   },
   onSaveTemplate() {
     this.setData({
       templateVisible: true,
-      tplName: "粉色针织连衣裙"
+      tplName: this.data.result.garmentName
     });
   },
   closeTemplate() { this.setData({ templateVisible: false }); },
