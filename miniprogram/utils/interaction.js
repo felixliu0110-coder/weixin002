@@ -13,10 +13,32 @@ function toast(msg, ms) {
 function requestSubscribe() {
   const tmplId = (config && config.subscribeTmplId) || "";
   if (!tmplId || typeof wx === "undefined" || typeof wx.requestSubscribeMessage !== "function") {
+    console.warn("requestSubscribe skipped", "tmplId=" + (tmplId ? "set" : "empty"), "hasApi=" + (typeof wx !== "undefined" && typeof wx.requestSubscribeMessage === "function"));
+    if (!tmplId) {
+      toast("订阅未配置：config.js 模板 ID 为空", 2600);
+    } else if (typeof wx === "undefined" || typeof wx.requestSubscribeMessage !== "function") {
+      toast("订阅 API 不可用", 2600);
+    }
     return Promise.resolve();
   }
   return new Promise((resolve) => {
-    wx.requestSubscribeMessage({ tmplIds: [tmplId], success: resolve, fail: resolve });
+    wx.requestSubscribeMessage({
+      tmplIds: [tmplId],
+      success: (res) => {
+        console.log("requestSubscribe ok", JSON.stringify(res));
+        resolve(res);
+      },
+      fail: (err) => {
+        const code = err && err.errCode;
+        console.warn("requestSubscribe fail", JSON.stringify(err));
+        let msg = "订阅授权失败（" + (code || "未知") + "）";
+        if (code === 20001) msg = "订阅模板 ID 无效，请检查配置";
+        else if (code === 20003) msg = "当前账号无订阅消息权限";
+        else if (code === 20013) msg = "你曾拒绝订阅，请重新授权";
+        toast(msg, 2600);
+        resolve(err);
+      }
+    });
   });
 }
 

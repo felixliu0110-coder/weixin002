@@ -258,11 +258,17 @@ Page({
   openUpload() { this.setData({ uploadVisible: true }); },
   closeUpload() { this.setData({ uploadVisible: false }); },
   pickPhoto(e) {
-    this.setData({
-      uploadVisible: false,
-      infoVisible: true,
-      uploadName: "",
-      uploadCategory: "上衣"
+    const sourceType = e.currentTarget.dataset.mode === "camera" ? ["camera"] : ["album"];
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ["image"],
+      sourceType,
+      success: (res) => {
+        const f = res.tempFiles && res.tempFiles[0];
+        if (!f) return;
+        this._uploadTempPath = f.tempFilePath;
+        this.setData({ uploadVisible: false, infoVisible: true, uploadName: "", uploadCategory: "上衣" });
+      }
     });
   },
   closeInfo() { this.setData({ infoVisible: false }); },
@@ -274,17 +280,42 @@ Page({
       toast("请输入衣物名称");
       return;
     }
+    if (!this._uploadTempPath) {
+      toast("请先选择衣物图片");
+      return;
+    }
     if (this._picking) return;
     this._picking = true;
     this.setData({ infoVisible: false });
-    api.uploadGarment("temp", { name, category: this.data.uploadCategory }).then((garment) => {
+    wx.showLoading({ title: "上传中", mask: true });
+    let uploadedFileID = "";
+    wx.cloud.uploadFile({
+      cloudPath: "garments/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + ".jpg",
+      filePath: this._uploadTempPath
+    }).then((up) => {
+      uploadedFileID = up.fileID;
+      return wx.cloud.callFunction({ name: "uploadGarment", data: { fileID: up.fileID } });
+    }).then((res) => {
+      const r = res.result;
+      if (!r || !r.ok) throw new Error((r && r.error) || "内容检测失败，请重试");
+      if (!r.pass) {
+        this._picking = false;
+        wx.hideLoading();
+        toast(r.reason || "图片内容违规，请更换后重试", 2600);
+        return;
+      }
+      return api.uploadGarment(uploadedFileID, { name, category: this.data.uploadCategory });
+    }).then((garment) => {
+      if (!garment) return;
       this._picking = false;
+      wx.hideLoading();
       wx.setStorageSync("uploadedGarment", garment);
       toast("已上传「" + name + "」");
       setTimeout(() => navigate("/pages/image-preview/index"), 600);
     }).catch(() => {
       // 失败必须重置标记，否则上传按钮永久失效
       this._picking = false;
+      wx.hideLoading();
       toast("上传失败，请重试");
     });
   }
