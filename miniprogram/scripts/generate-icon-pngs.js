@@ -37,11 +37,12 @@ const NEED = {
   "icon-photo": ["deep"],
   "icon-back": ["dark"],
   "icon-feedback": ["gray"],
-  "icon-upload": ["white"],
+  "icon-upload": ["white", "gray"],
   "icon-settings": ["dark"],
   "icon-ruler": ["active"],
   "icon-rotate": ["active"],
   "icon-search": ["gray"],
+  "icon-save": ["gray"],
   "icon-trash": ["white"]
 };
 

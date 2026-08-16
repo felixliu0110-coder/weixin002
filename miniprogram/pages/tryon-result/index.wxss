@@ -12,13 +12,15 @@
 .rm-sub { font-size: 25rpx; color: var(--fg-2); margin-top: 8rpx; line-height: 1.55; }
 .rm-hint { font-size: 24rpx; color: var(--fg-2); margin-top: 8rpx; }
 .rm-tag { flex: 0 0 auto; background: var(--tag-bg); color: var(--fg-2); font-size: 24rpx; font-weight: 600; border-radius: 999rpx; padding: 10rpx 22rpx; }
-.action-row { display: flex; gap: 20rpx; margin-top: 28rpx; }
+.action-row { display: flex; gap: 24rpx; margin-top: 28rpx; }
 .action-btn { display: block; flex: 1; }
 .sheet-head { display: flex; flex-direction: column; gap: 8rpx; }
 .grab { width: 80rpx; height: 8rpx; border-radius: 4rpx; background: var(--border); margin: 0 auto 20rpx; }
 .sheet-title { font-size: 34rpx; font-weight: 600; }
 .sheet-desc { font-size: 26rpx; color: var(--fg-2); line-height: 1.65; margin-top: 12rpx; }
 .sheet-action { display: block; flex: 1; }
+.template-actions { display: flex; flex-direction: column; gap: 24rpx; }
+.template-actions .sheet-action { width: 100%; }
 .collect-actions { display: flex; flex-direction: column; gap: 24rpx; }
 .collect-btn { display: block; width: 100%; }
 .tpl-form { margin-top: 28rpx; }

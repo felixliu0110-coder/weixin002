@@ -25,8 +25,8 @@
 
     <view class="action-row">
       <btn class="action-btn" type="secondary" bindtap="onCollect"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-heart-gray.png" />收藏</btn>
-      <btn class="action-btn" type="secondary" bindtap="onSaveTemplate"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-hanger-gray.png" />存模板</btn>
-      <btn class="action-btn" type="dark" bindtap="onShare"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-upload-white.png" />分享</btn>
+      <btn class="action-btn" type="secondary" bindtap="onSaveTemplate"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-save-gray.png" />保存模板</btn>
+      <btn class="action-btn" type="secondary" bindtap="onShare"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-upload-gray.png" />分享</btn>
     </view>
   </view>
 
@@ -71,8 +71,10 @@
       </view>
     </view>
     <view slot="actions">
-      <btn class="sheet-action" type="secondary" bindtap="closeTemplate">取消</btn>
-      <btn class="sheet-action" type="primary" bindtap="confirmSaveTemplate">保存</btn>
+      <view class="template-actions">
+        <btn class="sheet-action" type="primary" bindtap="confirmSaveTemplate">保存</btn>
+        <btn class="sheet-action" type="secondary" bindtap="closeTemplate">取消</btn>
+      </view>
     </view>
   </sheet>
 </view>
