@@ -73,6 +73,18 @@ Page({
     toast(this.data.editTitle + "已改为 " + this.data.editValue + (this.data.editUnit || ""));
   },
   next() {
+    api.saveAvatarProfile({
+      bustCm: this.data.bust,
+      waistCm: this.data.waist,
+      hipCm: this.data.hip,
+      legLengthCm: this.data.leg,
+      neckLengthCm: this.data.neck,
+      shoulderCm: this.data.shoulder,
+      armLengthCm: this.data.arm,
+      shoeSize: this.data.shoe,
+      skinTone: this.data.skin,
+      estimate: this.data.estimate
+    });
     navigate("/pages/photo-upload/index");
   }
 });

@@ -19,7 +19,10 @@ Page({
     toast(mode === "album" ? "已模拟从相册选择照片" : "已模拟拍照上传");
   },
   generate() {
-    // 原型 data-nav=09-privacy-auth.html；隐私授权页在批 4 实现
+    api.saveAvatarProfile({
+      facePhoto: this.data.faceState === "done" ? "mock-face" : "",
+      bodyPhoto: this.data.bodyState === "done" ? "mock-body" : ""
+    });
     navigate("/pages/privacy-auth/index");
   }
 });
