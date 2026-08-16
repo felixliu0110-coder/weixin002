@@ -1,8 +1,11 @@
 .wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
 .avatar-stage { border-radius: 48rpx; overflow: hidden; border: 1px solid var(--border-soft); background: linear-gradient(180deg, var(--surface-2), var(--border-soft)); box-shadow: var(--shadow-card); }
+.avatar-canvas { width: 100%; height: 700rpx; display: block; }
 .avatar-img { width: 100%; height: 700rpx; }
 .stage-fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20rpx; min-height: 640rpx; color: var(--fg-2); font-size: 26rpx; }
 .stage-fallback .iconfont { font-size: 68rpx; color: var(--fg-2); }
+.fb-text { font-size: 26rpx; color: var(--fg-2); margin-top: 16rpx; }
+.fb-btn { display: block; width: 60%; margin-top: 28rpx; }
 .meas-hint { text-align: center; font-size: 24rpx; color: var(--fg-2); margin-top: 24rpx; }
 .circle-actions { display: flex; justify-content: center; gap: 60rpx; margin-top: 32rpx; }
 .circle-btn { position: relative; width: 128rpx; height: 128rpx; border-radius: 50%; background: var(--accent-soft); color: #7A5A4E; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-card); }

@@ -15,12 +15,12 @@ function rotateY(p, deg) {
 
 function projectPoint(p, view, opts) {
   const f = opts.f || 900;
-  const s0 = opts.height / (opts.heightCm * 1.22) * (view.zoom || 1);
+  const s0 = opts.height * 0.78 / opts.heightCm * (view.zoom || 1);
   let q = rotateY(p, view.rotateY || 0);
   q = rotateX(q, view.rotateX || 0);
   const zc = q[2] + f;
   const k = f / zc;
-  return [opts.width / 2 + q[0] * k * s0, opts.height / 2 + opts.height * 0.05 - q[1] * k * s0, q[2], k];
+  return [opts.width / 2 + q[0] * k * s0, opts.height * 0.86 - q[1] * k * s0, q[2], k];
 }
 
 class AvatarRenderer {
@@ -53,7 +53,7 @@ class AvatarRenderer {
     if (!this.ctx || !this.model) return;
     const { width: w, height: h, ctx, view } = this;
     const opts = { width: w, height: h, heightCm: this.model.body.heightCm, f: 900 };
-    const s = h / (this.model.body.heightCm * 1.22) * view.zoom;
+    const s = h * 0.78 / this.model.body.heightCm * view.zoom;
     ctx.clearRect(0, 0, w, h);
 
     // 地面阴影

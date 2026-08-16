@@ -3,13 +3,22 @@
 
   <view class="content">
     <view class="avatar-stage">
-      <image wx:if="{{!imgError}}" class="avatar-img" src="/assets/img/p05-avatar.jpg" mode="aspectFill" binderror="onImgError" />
+      <canvas
+        wx:if="{{!renderFailed}}"
+        id="avatarCanvas"
+        type="2d"
+        class="avatar-canvas"
+        bindtouchstart="onTouchStart"
+        catchtouchmove="onTouchMove"
+        bindtouchend="onTouchEnd"
+      ></canvas>
       <view wx:else class="stage-fallback">
-        <image class="ic-img" style="width:68rpx;height:68rpx" src="/assets/icons/png/icon-avatar-gray.png" />
-        <text>形象加载失败，请刷新重试</text>
+        <image class="avatar-img" src="/assets/img/p05-avatar.jpg" mode="aspectFill" />
+        <text class="fb-text">3D 渲染失败，已切换为预览图</text>
+        <btn class="fb-btn" type="secondary" size="sm" bindtap="retry">重新渲染</btn>
       </view>
     </view>
-    <view class="meas-hint">单指旋转 · 双指缩放 · 点按标注查看尺寸</view>
+    <view class="meas-hint">{{measureOn ? '标注模式：身高 / 肩宽 / 胸围 / 腰围 / 臀围 / 腿长' : '单指旋转 · 双指缩放 · 点按标注查看尺寸'}}</view>
 
     <view class="circle-actions">
       <view class="circle-btn" hover-class="circle-hover" bindtap="onRotate">
