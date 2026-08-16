@@ -150,3 +150,8 @@ npm test           # 单元测试（utils：api/mock/interaction）
 - 源文件统一 UTF-8；命名英文小写中划线、资源语义化。
 - `weixin002/` 只读参考；`node_modules` 仅开发依赖（svgtofont/fonteditor-core/puppeteer-core/sharp 等用于图标与校验脚本）。
 - 已知暂缓项：真实微信登录、AI 生成/3D 真实能力、内容安全、图片云存储（完整云开发方案 B）。
+
+## 12. 协作偏好（用户要求）
+
+- **不自动生成预览二维码**（`cli preview`）——节省 token；真机预览由用户自行在开发者工具「预览」扫码。
+- 云开发"哪些数据需要保存在云端"由用户后续决定，未主动提及时需在合适时机提醒。
