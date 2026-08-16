@@ -2,8 +2,6 @@
   <nav-bar title="对比视图" showBack="{{true}}"></nav-bar>
 
   <view class="content">
-    <view class="subtitle">选择一件衣服，先看上身效果。</view>
-
     <view class="compare-grid">
       <compare-card data="{{left}}" selected="{{selectedId === left.id}}" bindtap="onSelect" />
       <compare-card data="{{right}}" selected="{{selectedId === right.id}}" bindtap="onSelect" />

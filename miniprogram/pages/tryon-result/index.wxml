@@ -2,8 +2,6 @@
   <nav-bar title="今日穿搭灵感" showBack="{{true}}"></nav-bar>
 
   <view class="content">
-    <view class="subtitle">选择一件衣服，先看上身效果。</view>
-
     <view class="photo-card">
       <image src="/assets/img/p07-result.jpg" mode="widthFix" />
       <view class="badge-ai"><image class="ic-img" style="width:24rpx;height:24rpx" src="/assets/icons/png/icon-star-white.png" />AI 生成</view>
