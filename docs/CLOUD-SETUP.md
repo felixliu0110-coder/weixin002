@@ -32,7 +32,7 @@ module.exports = {
 
 ## 四、部署云函数（AI 试穿链路）
 
-项目含 4 个云函数：`createAvatarViews`（人物三视图）、`ensureGarmentViews`（衣物四视图）、`aiTryon`（试穿效果图+转身视频）、`onTryonComplete`（生成完成回调）。部署前先同步共享模块：
+项目含 5 个云函数：`createAvatarViews`（人物三视图）、`ensureGarmentViews`（衣物四视图）、`aiTryon`（试穿效果图+转身视频）、`onTryonComplete`（生成完成回调）、`cleanup`（每日定时清理过期任务）。部署前先同步共享模块：
 
 ```bash
 node scripts/sync-cloud-services.js
@@ -43,7 +43,7 @@ node scripts/sync-cloud-services.js
 开发者工具路径按本机安装位置调整（示例 `D:\刘小伟\微信web开发者工具\cli.bat`）：
 
 ```bash
-"D:\刘小伟\微信web开发者工具\cli.bat" cloud functions deploy --env cloud1-xxxx --names createAvatarViews ensureGarmentViews aiTryon onTryonComplete --project D:\weixin002 --remote-npm-install
+"D:\刘小伟\微信web开发者工具\cli.bat" cloud functions deploy --env cloud1-xxxx --names createAvatarViews ensureGarmentViews aiTryon onTryonComplete cleanup --project D:\weixin002 --remote-npm-install
 ```
 
 说明：
@@ -56,7 +56,26 @@ node scripts/sync-cloud-services.js
 1. 打开项目，左侧展开 `cloudfunctions/`；
 2. 对每个函数目录右键 →「上传并部署：云端安装依赖」。
 
-## 五、配置环境变量（API Key）
+## 五、定时清理与日志
+
+### 定时清理（cleanup）
+
+`cleanup` 云函数每天 **02:00** 自动触发，删除：
+
+- `tryon_tasks` 中失败超过 **7 天** 的记录；
+- `tryon_tasks` 中成功超过 **30 天** 的记录。
+
+防止任务表无限增长。手动触发可在云开发控制台选中该函数点「测试」（返回 `{ ok: true, removed }`）。
+
+### 云函数日志
+
+云函数已埋点关键日志（提交/命中缓存/完成/失败/耗时）。查看方式：云开发控制台 → 云函数 → 选中函数 → 「日志」；未开启时先按提示开启日志服务。配合 AI 工具（如 CloudBase MCP）可直接查询定位问题。
+
+### 数据库索引建议
+
+`tryon_tasks` 集合建议为 `cache_key` 建索引（复用查询 `where({ cache_key }) + orderBy(createdAt)`），避免数据量增长后查询变慢。
+
+## 六、配置环境变量（API Key）
 
 AI 生成服务（Agnes AIGC）的密钥通过云函数环境变量注入，未配置时自动回退 mock 占位：
 
@@ -67,14 +86,14 @@ AI 生成服务（Agnes AIGC）的密钥通过云函数环境变量注入，未�
 
 > `onTryonComplete` 不需要该 Key。`createAvatarViews`（人物三视图）、`ensureGarmentViews`（衣物四视图）、`aiTryon`（试穿效果图 + 转身视频）三个函数都需要配置。Key 配置后自动从 mock 切换为真实生成；其中 `aiTryon` 的视频为异步任务，前端会轮询到生成完成。
 
-## 六、说明
+## 七、说明
 
 - 衣物模板数据为内置资源（未上云），后续可迁入 `garments` 集合；
 - 图片目前使用本地资源；如需把用户上传/生成的图片存入云存储，属于完整接入方案，可后续升级；
 - AI 生成未配置 Key 时走 mock（返回占位 URL，前端自动回退本地素材）；配置 `AGNES_API_KEY` 后走真实 Agnes 生图/生视频。
 - Agnes 图生图/图生视频的参考图需要**公网可访问的 HTTPS URL**（微信云存储的 `cloud://` 文件 ID 需先转临时链接）；当前内置素材为本地资源，真实上传衣物接入云存储后需在调用前转链，属后续接入项。
 
-## 七、验证
+## 八、验证
 
 填好环境 ID、建好集合后，重新编译进入小程序：
 
