@@ -1,17 +1,8 @@
 const { toast, navigate } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
-const LIMITS = {
-  bust: { min: 70, max: 115 },
-  waist: { min: 50, max: 105 },
-  hip: { min: 75, max: 120 }
-};
-
 Page({
   data: {
-    bust: 88,
-    waist: 66,
-    hip: 92,
     estimate: true,
     leg: 96,
     skin: 55,
@@ -29,13 +20,11 @@ Page({
   },
   onLoad() {
     // 回填已保存档案：编辑场景必须看到当前值而非默认值
+    // （三围已在步骤1维护，此处不再回填/保存，避免两页写同一字段）
     api.getAvatarProfile().then((p) => {
       if (!p || p.isExample) return;
       const SKIN_TO_SLIDER = { light: 10, natural: 38, tan: 63, deep: 88 };
       const patch = {};
-      if (p.bustCm) patch.bust = p.bustCm;
-      if (p.waistCm) patch.waist = p.waistCm;
-      if (p.hipCm) patch.hip = p.hipCm;
       if (p.legLengthCm) patch.leg = p.legLengthCm;
       if (p.neckLengthCm) patch.neck = p.neckLengthCm;
       if (p.shoulderCm) patch.shoulder = p.shoulderCm;
@@ -50,14 +39,6 @@ Page({
     const on = e.detail.value;
     this.setData({ estimate: on });
     toast(on ? "缺省估算已开启" : "缺省估算已关闭，改为手动填写");
-  },
-  step(e) {
-    const kind = e.currentTarget.dataset.kind;
-    const delta = parseInt(e.currentTarget.dataset.delta, 10);
-    const limit = LIMITS[kind];
-    if (!limit) return; // 未配置上下限的字段不参与步进（防扩展时崩溃）
-    const next = Math.max(limit.min, Math.min(limit.max, this.data[kind] + delta));
-    this.setData({ [kind]: next });
   },
   onLeg(e) { this.setData({ leg: e.detail.value }); },
   onSkin(e) { this.setData({ skin: e.detail.value }); },
@@ -98,9 +79,6 @@ Page({
     const s = this.data.skin;
     const skinTone = s >= 76 ? "deep" : s >= 51 ? "tan" : s >= 26 ? "natural" : "light";
     api.saveAvatarProfile({
-      bustCm: this.data.bust,
-      waistCm: this.data.waist,
-      hipCm: this.data.hip,
       legLengthCm: this.data.leg,
       neckLengthCm: this.data.neck,
       shoulderCm: this.data.shoulder,

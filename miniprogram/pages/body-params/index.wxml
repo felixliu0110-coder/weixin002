@@ -3,40 +3,9 @@
 
   <view class="content">
     <view class="steps"><i class="on"></i><i class="on"></i><i></i></view>
-    <view class="subtitle">选填内容，按性别与身高体重估算，可逐项调整。</view>
+    <view class="subtitle">腿长、肤色与细节尺寸，均为选填，可逐项调整。</view>
 
-    <view class="sec-hd" style="margin-top:8rpx">
-      <text class="sec-title">三围</text>
-      <text class="hint">单位 cm · 示例</text>
-    </view>
-    <view class="num-cards">
-      <view class="num-card">
-        <text class="nc-name">胸围</text>
-        <text class="nc-val mono">{{bust}}<text class="unit">cm</text></text>
-        <view class="nc-step">
-          <view class="step-btn" hover-class="step-hover" data-kind="bust" data-delta="-1" bindtap="step"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-minus-gray.png" /></view>
-          <view class="step-btn" hover-class="step-hover" data-kind="bust" data-delta="1" bindtap="step"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-plus-gray.png" /></view>
-        </view>
-      </view>
-      <view class="num-card">
-        <text class="nc-name">腰围</text>
-        <text class="nc-val mono">{{waist}}<text class="unit">cm</text></text>
-        <view class="nc-step">
-          <view class="step-btn" hover-class="step-hover" data-kind="waist" data-delta="-1" bindtap="step"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-minus-gray.png" /></view>
-          <view class="step-btn" hover-class="step-hover" data-kind="waist" data-delta="1" bindtap="step"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-plus-gray.png" /></view>
-        </view>
-      </view>
-      <view class="num-card">
-        <text class="nc-name">臀围</text>
-        <text class="nc-val mono">{{hip}}<text class="unit">cm</text></text>
-        <view class="nc-step">
-          <view class="step-btn" hover-class="step-hover" data-kind="hip" data-delta="-1" bindtap="step"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-minus-gray.png" /></view>
-          <view class="step-btn" hover-class="step-hover" data-kind="hip" data-delta="1" bindtap="step"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-plus-gray.png" /></view>
-        </view>
-      </view>
-    </view>
-
-    <card class="card-gap">
+    <card>
       <view class="row-toggle">
         <view class="rt-main">
           <view class="rt-title">缺省估算</view>

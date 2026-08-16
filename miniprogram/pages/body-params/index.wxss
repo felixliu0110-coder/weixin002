@@ -1,20 +1,10 @@
 .wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
 .footer-half { display: block; flex: 1; }
-.card-gap { display: block; margin-top: 48rpx; }
-.num-card { padding: 18rpx 12rpx 14rpx; }
-.num-card .nc-name { font-size: 23rpx; }
-.num-card .nc-val { font-size: 32rpx; }
-.num-card .nc-step { margin-top: 8rpx; gap: 6rpx; }
-.num-card .nc-step .step-btn { width: 48rpx; height: 48rpx; }
-.num-card .nc-step .iconfont { font-size: 24rpx; }
 .sec-title { font-size: 34rpx; font-weight: 600; color: var(--fg); }
 .hint { font-size: 24rpx; color: var(--fg-2); }
 .label { font-size: 28rpx; color: var(--fg-2); }
 .val { font-size: 36rpx; font-weight: 700; color: var(--fg); }
 .val .unit { font-size: 26rpx; font-weight: 500; color: var(--fg-2); margin-left: 4rpx; }
-.nc-val .unit { font-size: 22rpx; font-weight: 500; color: var(--fg-2); }
-.step-hover { background: var(--accent-soft); border-color: var(--accent); }
-.chip-row .chip { min-width: 0; }
 .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20rpx; }
 .opt-card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 20rpx 20rpx 16rpx; display: flex; flex-direction: column; gap: 6rpx; box-shadow: var(--shadow-card); }
 .opt-hover { border-color: var(--accent); }
