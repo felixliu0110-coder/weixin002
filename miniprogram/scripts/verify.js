@@ -21,8 +21,12 @@ function walk(dir, exts, out) {
 
 // 1. app.json 页面注册 + 四件套
 const app = JSON.parse(fs.readFileSync(path.join(root, "app.json"), "utf8"));
-if (app.pages.length !== 19) {
-  errors.push(`app.json pages 数量 ${app.pages.length}，应为 19`);
+// 页面目录与 app.json 注册双向校验（新增页面无需再改硬编码数量）
+const realDirs = fs.readdirSync(path.join(root, "pages"))
+  .filter((d) => !d.startsWith(".") && fs.statSync(path.join(root, "pages", d)).isDirectory());
+for (const d of realDirs) {
+  const p = "pages/" + d + "/index";
+  if (!app.pages.includes(p)) errors.push(`页面目录未注册: ${p}`);
 }
 for (const p of app.pages) {
   for (const ext of ["wxml", "js", "wxss", "json"]) {
