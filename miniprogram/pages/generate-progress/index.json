@@ -1,6 +1,7 @@
 {
   "usingComponents": {
-    "nav-bar": "/components/nav-bar/index"
+    "nav-bar": "/components/nav-bar/index",
+    "btn": "/components/btn/index"
   },
   "navigationBarTitleText": "生成数字人"
 }

@@ -26,7 +26,7 @@
     <view class="action-row">
       <btn class="action-btn" type="secondary" bindtap="onCollect"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-heart-gray.png" />收藏</btn>
       <btn class="action-btn" type="secondary" bindtap="onSaveTemplate"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-save-gray.png" />保存模板</btn>
-      <btn class="action-btn" type="secondary" bindtap="onShare"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-upload-gray.png" />分享</btn>
+      <btn class="action-btn" type="secondary" open-type="share" bindtap="onShare"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-upload-gray.png" />分享</btn>
     </view>
   </view>
 

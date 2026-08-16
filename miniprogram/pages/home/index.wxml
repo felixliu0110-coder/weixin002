@@ -19,7 +19,7 @@
 
     <view class="quota-row">
       <image class="ic-img" style="width:30rpx;height:30rpx" src="/assets/icons/png/icon-star-deep.png" />
-      今日剩余 <text class="mono">{{quota.dailyFree}}</text> 次免费试穿
+      今日剩余 <text class="mono">{{quota.remaining}}</text> 次免费试穿
     </view>
 
     <view class="sec-hd">
@@ -35,7 +35,7 @@
 
     <view class="sec-hd sec-avatar">
       <text class="sec-title">我的数字人</text>
-      <text class="hint">已就绪</text>
+      <text class="hint">{{avatarReady ? '已就绪' : '未创建'}}</text>
     </view>
     <view class="avatar-row" hover-class="avatar-hover" bindtap="goAvatar">
       <view class="ar-img"><image src="/assets/img/p05-avatar.jpg" mode="aspectFill" /></view>

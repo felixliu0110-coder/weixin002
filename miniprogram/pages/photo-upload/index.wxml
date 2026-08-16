@@ -11,7 +11,7 @@
       icon="/assets/icons/png/icon-camera-white.png"
       state="{{faceState}}"
       stateText="跳过"
-      bindtap="openPhotoSheet"
+      bindtap="openFaceSheet"
     />
     <upload-card
       class="upload-gap"
@@ -20,7 +20,7 @@
       icon="/assets/icons/png/icon-avatar-white.png"
       state="{{bodyState}}"
       stateText="跳过"
-      bindtap="openPhotoSheet"
+      bindtap="openBodySheet"
     />
 
     <view class="step-note">不上传时使用按性别生成的默认形象；人脸照片属敏感个人信息，将单独授权、加密存储。中途退出会自动保存。</view>

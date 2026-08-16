@@ -27,6 +27,25 @@ Page({
     editMax: 15,
     editUnit: "cm"
   },
+  onLoad() {
+    // 回填已保存档案：编辑场景必须看到当前值而非默认值
+    api.getAvatarProfile().then((p) => {
+      if (!p || p.isExample) return;
+      const SKIN_TO_SLIDER = { light: 10, natural: 38, tan: 63, deep: 88 };
+      const patch = {};
+      if (p.bustCm) patch.bust = p.bustCm;
+      if (p.waistCm) patch.waist = p.waistCm;
+      if (p.hipCm) patch.hip = p.hipCm;
+      if (p.legLengthCm) patch.leg = p.legLengthCm;
+      if (p.neckLengthCm) patch.neck = p.neckLengthCm;
+      if (p.shoulderCm) patch.shoulder = p.shoulderCm;
+      if (p.armLengthCm) patch.arm = p.armLengthCm;
+      if (p.shoeSize) patch.shoe = p.shoeSize;
+      if (typeof p.estimate === "boolean") patch.estimate = p.estimate;
+      if (SKIN_TO_SLIDER[p.skinTone]) patch.skin = SKIN_TO_SLIDER[p.skinTone];
+      if (Object.keys(patch).length > 0) this.setData(patch);
+    });
+  },
   onEstimate(e) {
     const on = e.detail.value;
     this.setData({ estimate: on });
@@ -36,6 +55,7 @@ Page({
     const kind = e.currentTarget.dataset.kind;
     const delta = parseInt(e.currentTarget.dataset.delta, 10);
     const limit = LIMITS[kind];
+    if (!limit) return; // 未配置上下限的字段不参与步进（防扩展时崩溃）
     const next = Math.max(limit.min, Math.min(limit.max, this.data[kind] + delta));
     this.setData({ [kind]: next });
   },
@@ -74,6 +94,9 @@ Page({
     toast(this.data.editTitle + "已改为 " + this.data.editValue + (this.data.editUnit || ""));
   },
   next() {
+    // slider 0-100 → 数据模型约定的肤色字符串（mock/云档案 skinTone 均为字符串）
+    const s = this.data.skin;
+    const skinTone = s >= 76 ? "deep" : s >= 51 ? "tan" : s >= 26 ? "natural" : "light";
     api.saveAvatarProfile({
       bustCm: this.data.bust,
       waistCm: this.data.waist,
@@ -83,9 +106,12 @@ Page({
       shoulderCm: this.data.shoulder,
       armLengthCm: this.data.arm,
       shoeSize: this.data.shoe,
-      skinTone: this.data.skin,
+      skinTone,
       estimate: this.data.estimate
+    }).then(() => {
+      navigate("/pages/photo-upload/index");
+    }).catch(() => {
+      toast("保存失败，请重试");
     });
-    navigate("/pages/photo-upload/index");
   }
 });

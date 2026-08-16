@@ -17,7 +17,7 @@
 
     <view class="quota-pill">
       <image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-star-deep.png" />
-      今日剩余 <text class="mono">{{quota.dailyFree}}</text> 次免费试穿
+      今日剩余 <text class="mono">{{quota.remaining}}</text> 次免费试穿
     </view>
 
     <view class="row-list mt-16">
@@ -29,12 +29,12 @@
       <view class="row" hover-class="row-hover" bindtap="goHistory">
         <view class="ri-ic"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-photo-deep.png" /></view>
         <view class="ri-main"><view class="ri-title">试穿记录</view><view class="ri-sub">历史效果图 · 示例数据</view></view>
-        <view class="ri-end"><view class="ri-badge">12</view><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
+        <view class="ri-end"><view class="ri-badge">{{historyCount}}</view><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
       <view class="row" hover-class="row-hover" bindtap="onQuota">
         <view class="ri-ic"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-star-deep.png" /></view>
         <view class="ri-main"><view class="ri-title">今日剩余次数</view><view class="ri-sub">每日 0 点重置 · 失败自动退回</view></view>
-        <view class="ri-end">剩余 {{quota.dailyFree}} 次<image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
+        <view class="ri-end">剩余 {{quota.remaining}} 次<image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
       <view class="row" hover-class="row-hover" bindtap="goPrivacy">
         <view class="ri-ic neu"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-shield-check-gray.png" /></view>
@@ -51,9 +51,9 @@
     <view class="card quota-note">
       <view class="quota-head">
         <text class="hint">今日额度使用</text>
-        <text class="mono quota-num">1 / {{quota.dailyFree}}</text>
+        <text class="mono quota-num">{{quota.used}} / {{quota.dailyFree}}</text>
       </view>
-      <view class="quota-meter"><view class="quota-fill"></view></view>
+      <view class="quota-meter"><view class="quota-fill" style="width: {{quotaPercent}}%"></view></view>
     </view>
   </view>
 </view>

@@ -9,11 +9,7 @@ function toast(msg, ms) {
 }
 
 let lastNavTime = 0;
-function navigate(to) {
-  // 600ms 内防重复跳转（快速连点只执行一次）
-  const now = Date.now();
-  if (now - lastNavTime < 600) return;
-  lastNavTime = now;
+function doNavigate(to) {
   const url = to.startsWith("/") ? to : "/" + to;
   if (TAB_ROUTES.includes(url) && wxApi.switchTab) {
     wxApi.switchTab({ url });
@@ -21,13 +17,22 @@ function navigate(to) {
     wxApi.navigateTo({ url });
   }
 }
+function navigate(to) {
+  // 600ms 内防重复跳转（快速连点只执行一次）
+  const now = Date.now();
+  if (now - lastNavTime < 600) return;
+  lastNavTime = now;
+  doNavigate(to);
+}
 
 function navigateAfter(to, ms, msg) {
   const now = Date.now();
   if (now - lastNavTime < 600) return;
   lastNavTime = now;
   if (msg) toast(msg, Math.min(ms, 2400));
-  setTimeout(() => navigate(to), ms || 1800);
+  // 延迟到达后直接执行底层跳转，不再过 navigate 的防重复锁：
+  // 否则延迟期间用户的任何一次 navigate 都会与本次延迟跳转叠加成双重跳转
+  setTimeout(() => doNavigate(to), ms || 1800);
 }
 
 let lastReloadTime = 0;

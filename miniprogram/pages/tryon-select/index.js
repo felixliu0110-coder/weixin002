@@ -36,6 +36,9 @@ Page({
     if (typeof this.getTabBar === "function" && this.getTabBar()) {
       this.getTabBar().setData({ selected: 1, navMode: false, pill: false });
     }
+    // 从进度/预览页返回时重置防抖标记，允许重新提交/上传
+    this._submitting = false;
+    this._picking = false;
   },
   onTab(e) {
     const tab = e.detail.value;
@@ -173,22 +176,26 @@ Page({
     if (this._submitting) return;
     this._submitting = true;
     const items = this.data.myTemplates.filter((t) => t.selected);
-    const first = items[0];
     const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
-    api.ensureGarmentViews(first.id, first.name, first.image).then(() => {
-      return api.submitAiTryon({
-        avatarViewId,
-        garmentIds: items.map((g) => g.id),
-        garmentNames: items.map((g) => g.name)
+    // 每件选中衣物都要预生成四视图（此前只处理第一件，多件时后续衣物视图缺失）
+    Promise.all(items.map((g) => api.ensureGarmentViews(g.id, g.name, g.image)))
+      .then(() => {
+        return api.submitAiTryon({
+          avatarViewId,
+          garmentIds: items.map((g) => g.id),
+          garmentNames: items.map((g) => g.name)
+        });
+      })
+      .then((res) => {
+        const names = items.map((g) => g.name).join("、");
+        wx.setStorageSync("aiTryonTask", { taskId: res.taskId, garmentName: names });
+        this._submitting = false;
+        navigate("/pages/tryon-progress/index");
+      })
+      .catch(() => {
+        this._submitting = false;
+        toast("提交失败，请重试");
       });
-    }).then((res) => {
-      wx.setStorageSync("aiTryonTask", { taskId: res.taskId, garmentName: first.name });
-      this._submitting = false;
-      navigate("/pages/tryon-progress/index");
-    }).catch(() => {
-      this._submitting = false;
-      toast("提交失败，请重试");
-    });
   },
 
   /* ---------- 我的模板：管理删除 ---------- */
@@ -265,9 +272,14 @@ Page({
     this._picking = true;
     this.setData({ infoVisible: false });
     api.uploadGarment("temp", { name, category: this.data.uploadCategory }).then((garment) => {
+      this._picking = false;
       wx.setStorageSync("uploadedGarment", garment);
       toast("已上传「" + name + "」");
       setTimeout(() => navigate("/pages/image-preview/index"), 600);
+    }).catch(() => {
+      // 失败必须重置标记，否则上传按钮永久失效
+      this._picking = false;
+      toast("上传失败，请重试");
     });
   }
 });

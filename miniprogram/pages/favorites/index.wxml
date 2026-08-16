@@ -14,16 +14,18 @@
         wx:for="{{favorites}}"
         wx:key="id"
         data="{{item}}"
-        selected="{{manageMode && delSelected.includes(item.id)}}"
+        selected="{{manageMode && delSelectedMap[item.id]}}"
         bindtap="onItemTap"
         bind:longpress="onLongPress"
       />
     </view>
+
+    <view wx:if="{{favorites.length > 0}}" class="hint center mt-16">以上为 AI 生成效果，仅供参考</view>
   </view>
 
   <view wx:if="{{manageMode}}" class="delete-bar">
     <btn class="delete-btn" type="danger" bindtap="onDelete">
-      删除所选（{{delSelected.length}}）
+      删除所选（{{delCount}}）
     </btn>
   </view>
 </view>

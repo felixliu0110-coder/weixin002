@@ -2,13 +2,21 @@ const { toast, navigate } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
 Page({
-  data: { quota: { dailyFree: 3 }, user: { nickname: "小云" } },
+  data: { quota: { dailyFree: 3, used: 0, remaining: 3 }, quotaPercent: 0, historyCount: 0, user: { nickname: "小云" } },
   onLoad() {
     api.getQuota().then((quota) => {
-      this.setData({ quota });
+      const used = quota.used || 0;
+      const dailyFree = quota.dailyFree || 0;
+      const remaining = Math.max(0, dailyFree - used);
+      const quotaPercent = dailyFree > 0 ? Math.min(100, Math.round(used / dailyFree * 100)) : 0;
+      this.setData({ quota: Object.assign({}, quota, { used, remaining }), quotaPercent });
     });
     api.getUserInfo().then((user) => {
       this.setData({ user });
+    });
+    // 试穿记录数动态获取（原为硬编码 12）
+    api.getHistory().then((records) => {
+      this.setData({ historyCount: (records || []).length });
     });
   },
   onShow() {

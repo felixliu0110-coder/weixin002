@@ -287,9 +287,13 @@ module.exports = {
     try {
       for (const collName of ["avatar_profiles", "tryon_tasks", "tryon_results", "favorites", "quotas"]) {
         const coll = db().collection(collName);
-        const res = await coll.get();
-        for (const doc of res.data) {
-          await coll.doc(doc._id).remove();
+        // 小程序端单次 get 最多返回 20 条：分页循环直到清空，避免超过 20 条的数据残留
+        for (;;) {
+          const res = await coll.limit(20).get();
+          if (!res.data || res.data.length === 0) break;
+          for (const doc of res.data) {
+            await coll.doc(doc._id).remove();
+          }
         }
       }
       return { ok: true };

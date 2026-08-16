@@ -14,7 +14,7 @@
         wx:for="{{records}}"
         wx:key="id"
         data="{{item}}"
-        selected="{{manageMode && delSelected.includes(item.id)}}"
+        selected="{{manageMode && delSelectedMap[item.id]}}"
         bindtap="onItemTap"
         bind:longpress="onLongPress"
       />
@@ -25,7 +25,7 @@
 
   <view wx:if="{{manageMode}}" class="delete-bar">
     <btn class="delete-btn" type="danger" bindtap="onDelete">
-      删除所选（{{delSelected.length}}）
+      删除所选（{{delCount}}）
     </btn>
   </view>
 
