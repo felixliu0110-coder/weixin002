@@ -11,13 +11,11 @@
 
     <view class="sec-hd" style="margin-top:36rpx">
       <text class="sec-title">品类识别</text>
-      <text class="hint">可手动修正</text>
+      <text class="hint">已自动识别</text>
     </view>
-    <view class="chip-row">
-      <chip label="上装" selected="{{category === '上装'}}" bindchange="onCategory" />
-      <chip label="下装" selected="{{category === '下装'}}" bindchange="onCategory" />
-      <chip label="连衣裙" selected="{{category === '连衣裙'}}" bindchange="onCategory" />
-      <chip label="外套" selected="{{category === '外套'}}" bindchange="onCategory" />
+    <view class="cat-result">
+      <view class="rec-badge">{{category || '识别中...'}}</view>
+      <text class="cat-note">系统已自动识别衣物类型</text>
     </view>
 
     <view class="step-note">非衣物、多人合照或涉敏图片会被拦截，不会进入生成流程。</view>

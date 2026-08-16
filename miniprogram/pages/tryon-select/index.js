@@ -73,6 +73,15 @@ Page({
       this.toggleGarment(e);
     }
   },
+  onLongPress(e) {
+    if (!this.data.manageMode) {
+      const id = e.detail.id;
+      const templates = this.data.templates.map((t) =>
+        t.id === id ? Object.assign({}, t, { del: true }) : Object.assign({}, t, { del: false })
+      );
+      this.setData({ manageMode: true, templates, delCount: 1 });
+    }
+  },
   onDelete() {
     const ids = this.data.templates.filter((t) => t.del).map((t) => t.id);
     if (ids.length === 0) return;

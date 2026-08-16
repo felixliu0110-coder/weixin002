@@ -16,6 +16,7 @@
         data="{{item}}"
         selected="{{manageMode && delSelected.includes(item.id)}}"
         bindtap="onItemTap"
+        bind:longpress="onLongPress"
       />
     </view>
   </view>

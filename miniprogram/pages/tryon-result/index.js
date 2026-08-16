@@ -8,8 +8,7 @@ Page({
     templateVisible: false,
     tplName: "",
     tplCategory: "连衣裙",
-    tplRecognized: "连衣裙",
-    categories: ["衬衫", "卫衣", "T恤", "外套", "牛仔裤", "休闲裤", "半身裙", "连衣裙", "运动鞋", "休闲鞋", "棒球帽", "草帽", "其他"]
+    tplRecognized: "连衣裙"
   },
   onAngle(e) {
     const angle = e.detail.label;
@@ -47,7 +46,6 @@ Page({
   },
   closeTemplate() { this.setData({ templateVisible: false }); },
   onTplName(e) { this.setData({ tplName: e.detail.value }); },
-  onTplCategory(e) { this.setData({ tplCategory: e.currentTarget.dataset.cat }); },
   confirmSaveTemplate() {
     const name = (this.data.tplName || "").trim();
     if (!name) {

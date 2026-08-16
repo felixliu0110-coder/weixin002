@@ -6,6 +6,9 @@ Component({
   methods: {
     onTap() {
       this.triggerEvent("tap", { id: this.data.data.id, name: this.data.data.name });
+    },
+    onLongPress() {
+      this.triggerEvent("longpress", { id: this.data.data.id, name: this.data.data.name });
     }
   }
 });

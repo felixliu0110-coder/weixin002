@@ -31,6 +31,11 @@ Page({
       navigate("/pages/tryon-result/index");
     }
   },
+  onLongPress(e) {
+    if (!this.data.manageMode) {
+      this.setData({ manageMode: true, delSelected: [e.detail.id] });
+    }
+  },
   onDelete() {
     const ids = this.data.delSelected;
     if (ids.length === 0) return;

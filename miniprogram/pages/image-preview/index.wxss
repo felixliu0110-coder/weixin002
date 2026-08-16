@@ -6,3 +6,6 @@
 .hint { font-size: 24rpx; color: var(--fg-2); }
 .chip-row { display: flex; gap: 16rpx; flex-wrap: wrap; }
 .chip-row .chip { flex: 1; min-width: 0; }
+.cat-result { display: flex; flex-direction: column; gap: 14rpx; align-items: flex-start; }
+.rec-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 120rpx; height: 72rpx; padding: 0 32rpx; border-radius: 999rpx; background: var(--accent-soft); color: #7A5A4E; font-size: 28rpx; font-weight: 600; }
+.cat-note { font-size: 24rpx; color: var(--fg-2); }

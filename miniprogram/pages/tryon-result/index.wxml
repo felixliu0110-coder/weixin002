@@ -50,7 +50,6 @@
     <view class="sheet-head">
       <view class="grab"></view>
       <text class="sheet-title">保存到模板衣物</text>
-      <text class="sheet-desc">已自动识别为「{{tplRecognized}}」，可修改名称与类别</text>
     </view>
     <view class="tpl-form">
       <view class="tpl-field">
@@ -58,17 +57,10 @@
         <input class="tpl-input" value="{{tplName}}" bindinput="onTplName" placeholder="输入衣物名称" maxlength="20" />
       </view>
       <view class="tpl-field">
-        <text class="tpl-label">衣物类别</text>
-        <scroll-view scroll-x class="tpl-cats" enable-flex>
-          <view
-            wx:for="{{categories}}"
-            wx:key="*this"
-            class="tpl-cat {{tplCategory === item ? 'on' : ''}}"
-            hover-class="tpl-cat-hover"
-            data-cat="{{item}}"
-            bindtap="onTplCategory"
-          >{{item}}</view>
-        </scroll-view>
+        <view class="tpl-recognized">
+          <text class="tpl-label">自动识别</text>
+          <view class="rec-badge">{{tplRecognized}}</view>
+        </view>
       </view>
     </view>
     <view slot="actions">

@@ -2,11 +2,12 @@ const { toast, navigate } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
 Page({
-  data: { category: "下装" },
-  onCategory(e) {
-    const category = e.detail.label;
-    this.setData({ category });
-    toast("品类已修正为：" + category);
+  data: { category: "" },
+  onLoad() {
+    api.recognizeGarment().then((res) => {
+      this.setData({ category: res.category });
+      toast("已识别为「" + res.category + "」");
+    });
   },
   confirm() {
     if (this._submitting) return;
