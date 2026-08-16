@@ -21,12 +21,13 @@ exports.main = async (event) => {
     const prompt = buildGarmentViewsPrompt(garmentName);
     const res = await aigc.generateImages({ prompt, refImages: garmentImage ? [garmentImage] : [], count: 1 });
     const doc = {
+      _openid: openid,
       garment_id: garmentId,
       user_id: openid,
       views: { composite: res.urls[0] },
       provider: res.provider,
       status: "ready",
-      created_at: Date.now()
+      createdAt: Date.now()
     };
     const addRes = await db.collection("garment_views").add({ data: doc });
     return { ok: true, cached: false, garmentViewId: addRes._id, status: "ready", views: doc.views };

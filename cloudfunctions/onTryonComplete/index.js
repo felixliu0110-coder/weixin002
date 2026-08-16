@@ -12,6 +12,7 @@ exports.main = async (event) => {
     if (status === "success" && result) {
       await db.collection("tryon_results").add({
         data: {
+          _openid: task._openid || task.user_id,
           user_id: task.user_id,
           avatar_view_id: task.avatar_view_id,
           garment_id: (task.garment_ids || [])[0],
@@ -19,7 +20,7 @@ exports.main = async (event) => {
           tryon_image: result.tryonImage || task.tryon_image,
           tryon_video: result.tryonVideo || task.tryon_video,
           ai_tagged: true,
-          created_at: Date.now()
+          createdAt: Date.now()
         }
       });
     }

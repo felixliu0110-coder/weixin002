@@ -16,6 +16,7 @@ async function submit(event, openid) {
   const aigc = getAigc();
   const videoPrompt = buildTryonVideoPrompt(profile, garmentName);
   const task = {
+    _openid: openid,
     user_id: openid,
     avatar_view_id: avatarViewId,
     garment_ids: garmentIds,
@@ -23,7 +24,7 @@ async function submit(event, openid) {
     stage: "video",
     status: "processing",
     retry_count: 0,
-    created_at: Date.now(),
+    createdAt: Date.now(),
     updated_at: Date.now()
   };
   const addRes = await db.collection("tryon_tasks").add({ data: task });
