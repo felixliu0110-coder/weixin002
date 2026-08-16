@@ -81,4 +81,4 @@ if (errors.length) {
   console.error("VERIFY FAILED (" + errors.length + "):\n" + errors.join("\n"));
   process.exit(1);
 }
-console.log("VERIFY OK: 17 pages, " + navTargets.size + " nav targets, " + tabPaths.size + " tabs, all assets & icons resolved");
+console.log("VERIFY OK: " + app.pages.length + " pages, " + navTargets.size + " nav targets, " + tabPaths.size + " tabs, all assets & icons resolved");
