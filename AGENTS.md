@@ -4,7 +4,7 @@
 
 「我形我衣」是一款 AI 虚拟试穿微信小程序：用户录入身材参数并可选上传人脸/全身照创建 3D 数字人，再通过模板或上传衣物图片生成"自己穿着该衣物"的照片级效果图。
 
-当前仓库状态：**小程序工程已完成开发（18 个页面），处于迭代验收阶段**。
+当前仓库状态：**小程序工程已完成开发（19 个页面），处于迭代验收阶段**。
 
 - `weixin002/`：openDesign 导出的 HTML 高保真交互原型（17 屏 + 预览器），是设计与交互的唯一视觉来源，只读；
 - `miniprogram/`：微信小程序源码（18 个页面 + 公共组件 + 工具层）；
@@ -24,7 +24,7 @@ D:\weixin002\
    ├─ config.js                 # 云开发环境 ID 填写处（cloudEnv）
    ├─ custom-tab-bar\           # Tab 页框架注入的自定义 TabBar
    ├─ components\               # nav-bar/btn/card/chip/seg/switch/sheet/tabbar/upload-card/garment-item/record-item/compare-card
-   ├─ pages\                    # 18 个页面（login/home/basic-info/body-params/photo-upload/privacy-auth/generate-progress/avatar-3d/tryon-select/image-preview/tryon-progress/tryon-result/compare-view/history/profile/privacy-manage/feedback-about/favorites）
+   ├─ pages\                    # 19 个页面（login/home/basic-info/body-params/photo-upload/privacy-auth/generate-progress/avatar-3d/tryon-select/image-preview/tryon-progress/tryon-result/compare-view/history/profile/privacy-manage/feedback-about/favorites/account）
    ├─ utils\                    # interaction.js（跳转/Toast/弹层）、api.js（数据访问层）、mock.js（本地模拟）
    ├─ assets\                   # img（JPG 图片）、icons/png（彩色 PNG 图标）、icons-src（SVG 源）
    └─ scripts\                  # verify.js（静态校验）、generate-icon-pngs.js（PNG 图标生成）、auto-*.js（自动化诊断）等
@@ -69,6 +69,7 @@ D:\weixin002\
 | 14 | `pages/compare-view/index` | 对比视图 |
 | 15 | `pages/privacy-manage/index` | 隐私与数据管理 |
 | 16 | `pages/feedback-about/index` | 反馈与关于 |
+| 个人资料 | `pages/account/index` | 账户信息（微信/手机号绑定、个人 ID、退出登录），从「我的」头像进入 |
 
 ## 5. 设计系统（已迁移至 app.wxss）
 

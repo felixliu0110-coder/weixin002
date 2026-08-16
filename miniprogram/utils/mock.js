@@ -48,6 +48,13 @@ const favorites = [
   { id: "f2", garmentName: "蓝色衬衫搭配", date: "8月14日", image: "/assets/img/p14-right.jpg", aiTagged: true }
 ];
 
+const userInfo = {
+  nickname: "小云",
+  userId: "wx_e44ebc",
+  wechatBound: true,
+  phoneBound: false
+};
+
 module.exports = {
   async getAvatarProfile() { await delay(400); return JSON.parse(JSON.stringify(avatarProfile)); },
   async saveAvatarProfile(data) { await delay(300); Object.assign(avatarProfile, data); return { ok: true }; },
@@ -65,6 +72,8 @@ module.exports = {
   async getHistory() { await delay(400); return JSON.parse(JSON.stringify(history)); },
   async getFavorites() { await delay(300); return JSON.parse(JSON.stringify(favorites)); },
   async getQuota() { await delay(200); return JSON.parse(JSON.stringify(quota)); },
+  async getUserInfo() { await delay(200); return JSON.parse(JSON.stringify(userInfo)); },
+  async logout() { await delay(300); return { ok: true }; },
   async saveResult(result) {
     await delay(300);
     const item = {

@@ -17,7 +17,8 @@
     "pages/compare-view/index",
     "pages/privacy-manage/index",
     "pages/feedback-about/index",
-    "pages/privacy-auth/index"
+    "pages/privacy-auth/index",
+    "pages/account/index"
   ],
   "window": {
     "navigationStyle": "custom",

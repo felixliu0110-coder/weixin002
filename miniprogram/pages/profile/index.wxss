@@ -2,7 +2,9 @@
 .nav-btn { width: 80rpx; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: 24rpx; color: var(--fg); }
 .nav-btn-hover { background: var(--surface-2); }
 .nav-btn .iconfont { font-size: 42rpx; }
-.profile-head { display: flex; align-items: center; gap: 28rpx; padding: 32rpx 4rpx 36rpx; }
+.profile-head { display: flex; align-items: center; gap: 28rpx; padding: 32rpx 4rpx 36rpx; border-radius: var(--radius-md); }
+.profile-hover { background: var(--surface-2); }
+.profile-head .arrow { margin-left: auto; }
 .profile-avatar { flex: 0 0 124rpx; width: 124rpx; height: 124rpx; border-radius: 50%; background: var(--accent-tab); color: var(--accent-on); font-size: 48rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 .profile-copy { flex: 1; min-width: 0; }
 .profile-name { font-size: 40rpx; font-weight: 700; }

@@ -137,6 +137,10 @@ module.exports = {
     }
   },
 
+  // 账户信息暂走本地模拟（云上数据范围待用户确认后接入）
+  getUserInfo: mock.getUserInfo,
+  logout: mock.logout,
+
   async saveResult(result) {
     if (!cloudReady()) return mock.saveResult(result);
     try {

@@ -15,6 +15,7 @@ Page({
   },
   onSettings() { toast("设置（原型占位）"); },
   onQuota() { toast("每日免费 3 次 · 超出后付费解锁（V1 预留）"); },
+  goAccount() { navigate("/pages/account/index"); },
   goAvatar() { navigate("/pages/avatar-3d/index"); },
   goHistory() { navigate("/pages/history/index"); },
   goPrivacy() { navigate("/pages/privacy-manage/index"); },

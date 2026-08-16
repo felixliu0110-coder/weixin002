@@ -30,6 +30,18 @@ function navigateAfter(to, ms, msg) {
   setTimeout(() => navigate(to), ms || 1800);
 }
 
+let lastReloadTime = 0;
+function reLaunch(to) {
+  // 800ms 内防重复 reLaunch
+  const now = Date.now();
+  if (now - lastReloadTime < 800) return;
+  lastReloadTime = now;
+  const url = to.startsWith("/") ? to : "/" + to;
+  if (wxApi.reLaunch) {
+    wxApi.reLaunch({ url });
+  }
+}
+
 function getCurrentPage() {
   try {
     const pages = getCurrentPages();
@@ -62,8 +74,9 @@ module.exports = {
   toast,
   navigate,
   navigateAfter,
+  reLaunch,
   openSheet,
   closeSheet,
   ring,
-  __resetNavLock: () => { lastNavTime = 0; }
+  __resetNavLock: () => { lastNavTime = 0; lastReloadTime = 0; }
 };
