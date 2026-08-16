@@ -69,6 +69,7 @@ async function sendSubscribe(openid, garmentName) {
 async function submit(event, openid) {
   const { avatarViewId, garmentIds, garmentNames } = event;
   const t0 = Date.now();
+  console.log("aiTryon submit entry", "openid=" + (openid ? "set" : "EMPTY"), "avatarViewId=" + (avatarViewId || "none"), "garmentCount=" + ((garmentIds || []).length));
   if (!avatarViewId || !garmentIds || garmentIds.length === 0) {
     return { ok: false, error: "avatarViewId/garmentIds 必填" };
   }
