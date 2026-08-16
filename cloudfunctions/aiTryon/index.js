@@ -46,7 +46,8 @@ function fmtTime(ts) {
 
 async function sendSubscribe(openid, garmentName) {
   const tmplId = process.env.SUBSCRIBE_TMPL_ID;
-  if (!tmplId || !openid) return;
+  console.log("aiTryon subscribe attempt", "tmplId=" + (tmplId ? "set" : "EMPTY"), "openid=" + (openid ? "set" : "EMPTY"));
+  if (!tmplId || !openid) return false;
   try {
     await cloud.openapi.subscribeMessage.send({
       touser: openid,
@@ -58,8 +59,10 @@ async function sendSubscribe(openid, garmentName) {
       }
     });
     console.log("aiTryon subscribe sent", "openid=" + openid);
+    return true;
   } catch (e) {
     console.log("aiTryon subscribe fail", "error=" + ((e && (e.errMsg || e.message)) || e));
+    return false;
   }
 }
 
@@ -162,7 +165,6 @@ async function status(event) {
           d.status = "success";
           d.tryon_video = st.videoUrl;
           await saveTryonResult(Object.assign({ _id: event.taskId }, d));
-          await sendSubscribe(d.user_id, d.garment_name);
           console.log("aiTryon video completed", "taskId=" + event.taskId, "costMs=" + (Date.now() - t0));
         } else if (st.status === "failed") {
           const msg = st.error || "视频生成失败";
@@ -177,6 +179,16 @@ async function status(event) {
       } catch (e) {
         // 单次轮询失败不判死，保持 processing 让前端重试
       }
+    }
+  }
+  // 幂等补发订阅通知：成功且未通知过的任务，任意一次查询都会补发
+  if (d.status === "success" && d.tryon_video && !d.notified) {
+    const sent = await sendSubscribe(d.user_id, d.garment_name);
+    if (sent) {
+      await db.collection("tryon_tasks").doc(event.taskId).update({
+        data: { notified: true, updated_at: Date.now() }
+      });
+      d.notified = true;
     }
   }
   console.log("aiTryon status", "taskId=" + event.taskId, "status=" + d.status, "costMs=" + (Date.now() - t0));
