@@ -2,27 +2,35 @@
   <nav-bar title="生成数字人" showBack="{{true}}"></nav-bar>
 
   <view class="content big-hero-center">
-    <view class="ring-wrap">
-      <view class="ring" style="--p: {{percent}};"></view>
-      <view class="ring-hole"></view>
-      <view class="ring-num mono">{{percent}}%</view>
-    </view>
-    <view class="gen-title">正在生成你的专属数字人~</view>
-    <view class="gen-sub">根据身高体重与三围建立身体比例骨架</view>
-
-    <view class="gen-cards">
-      <view class="gen-card">
-        <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-clock-deep.png" /></view>
-        <view class="gc-label">排队中</view>
-        <view class="gc-val">第 1 位（示例）</view>
+    <block wx:if="{{!error}}">
+      <view class="ring-wrap">
+        <view class="ring" style="--p: {{percent}};"></view>
+        <view class="ring-hole"></view>
+        <view class="ring-num mono">{{percent}}%</view>
       </view>
-      <view class="gen-card">
-        <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-star-deep.png" /></view>
-        <view class="gc-label">预计还需</view>
-        <view class="gc-val">8 秒</view>
-      </view>
-    </view>
+      <view class="gen-title">正在生成你的专属数字人~</view>
+      <view class="gen-sub">根据身高体重与三围建立身体比例骨架</view>
 
-    <view class="hint center mt-20">生成期间可以离开，完成后会通知你</view>
+      <view class="gen-cards">
+        <view class="gen-card">
+          <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-star-deep.png" /></view>
+          <view class="gc-label">生成方式</view>
+          <view class="gc-val">参数化 · 免费版</view>
+        </view>
+        <view class="gen-card">
+          <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-clock-deep.png" /></view>
+          <view class="gc-label">预计还需</view>
+          <view class="gc-val">约 8 秒</view>
+        </view>
+      </view>
+
+      <view class="hint center mt-20">生成期间可以离开，完成后会通知你</view>
+    </block>
+
+    <block wx:else>
+      <view class="gen-title">生成失败</view>
+      <view class="gen-sub">数据或环境异常，请重试</view>
+      <btn class="retry-btn" type="primary" bindtap="retry">重新生成</btn>
+    </block>
   </view>
 </view>

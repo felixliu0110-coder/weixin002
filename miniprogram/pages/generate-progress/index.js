@@ -1,9 +1,24 @@
 const { toast, navigate } = require("../../utils/interaction");
+const api = require("../../utils/api");
+const provider = require("../../utils/avatar3d/provider");
 
 Page({
-  data: { percent: 0 },
-  onReady() {
-    // 定时器驱动：约 4 秒平滑走到 100%（requestAnimationFrame 在小程序逻辑层不可用）
+  data: { percent: 0, error: false },
+  onLoad() {
+    this.run();
+  },
+  async run() {
+    try {
+      const profile = await api.getAvatarProfile();
+      const model = await provider.generate(profile);
+      wx.setStorageSync("avatarModel", model);
+      await api.saveAvatarProfile({ modelVersion: model.version, status: "ready" });
+      this.animateTo100();
+    } catch (e) {
+      this.setData({ error: true });
+    }
+  },
+  animateTo100() {
     this._startTimer = setTimeout(() => {
       this._timer = setInterval(() => {
         const p = this.data.percent + 1;
@@ -13,8 +28,12 @@ Page({
           toast("数字人已生成");
           this._navTimer = setTimeout(() => navigate("/pages/avatar-3d/index"), 1200);
         }
-      }, 40);
+      }, 30);
     }, 300);
+  },
+  retry() {
+    this.setData({ percent: 0, error: false });
+    this.run();
   },
   onUnload() {
     if (this._timer) clearInterval(this._timer);

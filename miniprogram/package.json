@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "node --test utils/*.test.js",
+    "test": "node --test utils/*.test.js utils/avatar3d/*.test.js",
     "icons": "npx -y node@18 scripts/generate-icons.js"
   },
   "keywords": [],
