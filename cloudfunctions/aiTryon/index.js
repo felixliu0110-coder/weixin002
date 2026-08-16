@@ -1,6 +1,7 @@
 const cloud = require("wx-server-sdk");
 const { getAigc } = require("./aigc");
 const { buildTryonVideoPrompt } = require("./tryonVideo");
+const { buildTryonCacheKey, isCacheHit } = require("./tryonCache");
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -12,19 +13,38 @@ function fmtErr(e) {
 
 async function submit(event, openid) {
   const { avatarViewId, garmentIds, garmentNames } = event;
+  const t0 = Date.now();
   if (!avatarViewId || !garmentIds || garmentIds.length === 0) {
     return { ok: false, error: "avatarViewId/garmentIds 必填" };
   }
   const av = await db.collection("avatar_views").doc(avatarViewId).get();
   const profile = av.data.profile_snapshot || {};
   const garmentName = (garmentNames && garmentNames[0]) || "所选衣物";
+  const cacheKey = buildTryonCacheKey({ openid, avatarViewId, garmentIds });
   const aigc = getAigc();
   const videoPrompt = buildTryonVideoPrompt(profile, garmentName);
+
+  // 复用：同一用户+数字人+衣物组合 7 天内成功结果，不重复调用 Agnes
+  const prev = await db.collection("tryon_tasks")
+    .where({ cache_key: cacheKey })
+    .orderBy("createdAt", "desc")
+    .limit(5)
+    .get();
+  const hit = prev.data.find((d) => isCacheHit(d, Date.now()));
+  if (hit) {
+    console.log("aiTryon cache hit", "taskId=" + hit._id, "cacheKey=" + cacheKey.slice(0, 8), "costMs=" + (Date.now() - t0));
+    return {
+      ok: true, taskId: hit._id, status: "success", cached: true,
+      tryonImage: hit.tryon_image, tryonVideo: hit.tryon_video, garmentName
+    };
+  }
+
   const task = {
     _openid: openid,
     user_id: openid,
     avatar_view_id: avatarViewId,
     garment_ids: garmentIds,
+    cache_key: cacheKey,
     type: "ai_video",
     stage: "video",
     status: "processing",
@@ -50,14 +70,17 @@ async function submit(event, openid) {
       update.provider = vidRes.provider || "mock";
     }
     await db.collection("tryon_tasks").doc(taskId).update({ data: update });
+    console.log("aiTryon submit ok", "taskId=" + taskId, "status=" + (update.status || "processing"), "costMs=" + (Date.now() - t0));
     return { ok: true, taskId, status: update.status || "processing" };
   } catch (e) {
     await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "failed", error: fmtErr(e), updated_at: Date.now() } });
+    console.log("aiTryon submit fail", "taskId=" + taskId, "error=" + fmtErr(e), "costMs=" + (Date.now() - t0));
     return { ok: false, taskId, error: fmtErr(e) };
   }
 }
 
 async function status(event) {
+  const t0 = Date.now();
   const res = await db.collection("tryon_tasks").doc(event.taskId).get();
   const d = res.data;
   // 异步视频任务：生成中轮询；或已 success 但视频 URL 缺失（旧字段解析 bug）时补全
@@ -73,6 +96,7 @@ async function status(event) {
           });
           d.status = "success";
           d.tryon_video = st.videoUrl;
+          console.log("aiTryon video completed", "taskId=" + event.taskId, "costMs=" + (Date.now() - t0));
         } else if (st.status === "failed") {
           const msg = st.error || "视频生成失败";
           await db.collection("tryon_tasks").doc(event.taskId).update({
@@ -80,6 +104,7 @@ async function status(event) {
           });
           d.status = "failed";
           d.error = msg;
+          console.log("aiTryon video failed", "taskId=" + event.taskId, "error=" + msg, "costMs=" + (Date.now() - t0));
         }
         // queued / in_progress：保持 processing，前端继续轮询
       } catch (e) {
@@ -87,6 +112,7 @@ async function status(event) {
       }
     }
   }
+  console.log("aiTryon status", "taskId=" + event.taskId, "status=" + d.status, "costMs=" + (Date.now() - t0));
   return { ok: true, taskId: event.taskId, status: d.status, stage: d.stage, tryonImage: d.tryon_image, tryonVideo: d.tryon_video, error: d.error };
 }
 
