@@ -1,7 +1,7 @@
 {
   "usingComponents": {
     "nav-bar": "/components/nav-bar/index",
-    "tab-bar": "/components/tab-bar/index",
+    "tab-bar": "/components/tabbar/index",
     "btn": "/components/btn/index"
   },
   "navigationStyle": "custom"
