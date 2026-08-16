@@ -7,7 +7,10 @@
     data-index="{{index}}"
     catchtap="onSelect"
   >
-    <image class="tab-icon" src="{{selected === index ? item.iconActive : item.icon}}" mode="aspectFit" />
+    <view class="tab-icon-wrap">
+      <image wx:if="{{item.icon}}" class="tab-icon" src="{{selected === index ? item.iconActive : item.icon}}" mode="aspectFit" />
+    </view>
     <text class="tab-label">{{item.text}}</text>
+    <view class="tab-indicator"></view>
   </view>
 </view>
