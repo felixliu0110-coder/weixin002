@@ -59,6 +59,8 @@ Page({
   openUpload() { this.setData({ uploadVisible: true }); },
   closeUpload() { this.setData({ uploadVisible: false }); },
   pickPhoto(e) {
+    if (this._picking) return;
+    this._picking = true;
     const mode = e.currentTarget.dataset.mode;
     this.setData({ uploadVisible: false });
     toast(mode === "album" ? "已从相册选择衣物，进入预处理" : "已拍照上传，进入预处理");

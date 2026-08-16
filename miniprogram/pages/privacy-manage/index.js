@@ -11,6 +11,8 @@ Page({
   openDel() { this.setData({ delVisible: true }); },
   closeDel() { this.setData({ delVisible: false }); },
   confirmDel() {
+    if (this._deleting) return;
+    this._deleting = true;
     this.setData({ delVisible: false });
     api.deleteUserData().then(() => {
       toast("已提交删除，将在 7 天内完成清理");

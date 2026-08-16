@@ -8,7 +8,12 @@ function toast(msg, ms) {
   wxApi.showToast({ title: msg, icon: "none", duration: ms || 1900 });
 }
 
+let lastNavTime = 0;
 function navigate(to) {
+  // 600ms 内防重复跳转（快速连点只执行一次）
+  const now = Date.now();
+  if (now - lastNavTime < 600) return;
+  lastNavTime = now;
   const url = to.startsWith("/") ? to : "/" + to;
   if (TAB_ROUTES.includes(url) && wxApi.switchTab) {
     wxApi.switchTab({ url });
@@ -18,6 +23,9 @@ function navigate(to) {
 }
 
 function navigateAfter(to, ms, msg) {
+  const now = Date.now();
+  if (now - lastNavTime < 600) return;
+  lastNavTime = now;
   if (msg) toast(msg, Math.min(ms, 2400));
   setTimeout(() => navigate(to), ms || 1800);
 }
@@ -50,4 +58,12 @@ function ring(percent, duration, cb) {
   if (typeof cb === "function") setTimeout(cb, duration || 3000);
 }
 
-module.exports = { toast, navigate, navigateAfter, openSheet, closeSheet, ring };
+module.exports = {
+  toast,
+  navigate,
+  navigateAfter,
+  openSheet,
+  closeSheet,
+  ring,
+  __resetNavLock: () => { lastNavTime = 0; }
+};

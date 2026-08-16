@@ -11,12 +11,16 @@ Page({
   onCollect() { this.setData({ collectVisible: true }); },
   closeCollect() { this.setData({ collectVisible: false }); },
   collectYes() {
+    if (this._collecting) return;
+    this._collecting = true;
     this.setData({ collectVisible: false });
     api.saveResult({ saved: true }).then(() => {
       toast("已收藏并保存到相册");
     });
   },
   collectNo() {
+    if (this._collecting) return;
+    this._collecting = true;
     this.setData({ collectVisible: false });
     api.saveResult({ saved: true }).then(() => {
       toast("已收藏");

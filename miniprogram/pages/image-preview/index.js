@@ -9,6 +9,8 @@ Page({
     toast("品类已修正为：" + category);
   },
   confirm() {
+    if (this._submitting) return;
+    this._submitting = true;
     api.submitTryon({
       avatarId: "avatar-demo",
       garmentId: "g-demo",
