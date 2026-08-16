@@ -179,10 +179,16 @@ module.exports = {
     try {
       const res = await wx.cloud.callFunction({ name: "createAvatarViews", data: { profile } });
       const r = res.result;
-      if (!r.ok || isMockResult(r)) return mock.createAvatarViews(profile);
+      if (!r.ok || isMockResult(r)) {
+        const m = await mock.createAvatarViews(profile);
+        m.error = r.error || "云函数未返回真实 AI 结果";
+        return m;
+      }
       return r;
     } catch (e) {
-      return mock.createAvatarViews(profile);
+      const m = await mock.createAvatarViews(profile);
+      m.error = (e && (e.errMsg || e.message)) || "云函数调用失败";
+      return m;
     }
   },
 

@@ -29,7 +29,7 @@
 
     <block wx:else>
       <view class="gen-title">生成失败</view>
-      <view class="gen-sub">数据或环境异常，请重试</view>
+      <view class="gen-sub">{{errorMsg || '数据或环境异常，请重试'}}</view>
       <btn class="retry-btn" type="primary" bindtap="retry">重新生成</btn>
     </block>
   </view>

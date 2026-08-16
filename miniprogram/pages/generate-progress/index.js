@@ -10,6 +10,10 @@ Page({
     try {
       const profile = await api.getAvatarProfile();
       const av = await api.createAvatarViews(profile);
+      if (av && av.error) {
+        this.setData({ error: true, errorMsg: av.error });
+        return;
+      }
       if (av && av.avatarViewId) {
         wx.setStorageSync("avatarViewId", av.avatarViewId);
       } else {
@@ -17,7 +21,7 @@ Page({
       }
       this.animateTo100();
     } catch (e) {
-      this.setData({ error: true });
+      this.setData({ error: true, errorMsg: (e && e.message) || "未知错误" });
     }
   },
   animateTo100() {
