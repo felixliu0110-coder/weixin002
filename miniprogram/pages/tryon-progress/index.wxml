@@ -2,7 +2,20 @@
   <nav-bar title="试穿生成中" showBack="{{true}}"></nav-bar>
 
   <view class="content big-hero-center">
-    <block wx:if="{{!error}}">
+    <!-- 提交任务阶段：显示 loading 而非进度环 -->
+    <block wx:if="{{submitting && !error}}">
+      <view class="ring-wrap">
+        <view class="ring" style="--p: 0;"></view>
+        <view class="ring-hole"></view>
+        <view class="ring-num mono">...</view>
+      </view>
+      <view class="gen-title">正在提交任务...</view>
+      <view class="gen-sub">AI 预处理衣物视图并创建生成任务</view>
+      <view class="hint center mt-20">请稍候，即将开始生成</view>
+    </block>
+
+    <!-- 正常轮询阶段 -->
+    <block wx:if="{{!submitting && !error}}">
       <view class="ring-wrap">
         <view class="ring" style="--p: {{percent}};"></view>
         <view class="ring-hole"></view>
@@ -27,7 +40,8 @@
       <view class="hint center mt-20">生成完成后将通过微信消息通知你</view>
     </block>
 
-    <block wx:else>
+    <!-- 失败态 -->
+    <block wx:if="{{error}}">
       <view class="gen-title">生成失败</view>
       <view class="gen-sub">{{errorMsg || '生成异常，请重试'}}</view>
       <view class="err-actions">

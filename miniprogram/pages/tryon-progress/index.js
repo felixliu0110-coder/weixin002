@@ -3,15 +3,82 @@ const api = require("../../utils/api");
 const { nextPollInterval, POLL_MAX_MS } = require("../../utils/poll");
 
 Page({
-  data: { percent: 0, garmentName: "所选衣物", stageText: "生成衣物四视图", error: false, errorMsg: "" },
-  onLoad() {
-    const t = wx.getStorageSync("aiTryonTask") || {};
-    this.taskId = t.taskId || "task-ai-mock";
-    this._pollCount = 0;
-    this._pollStartedAt = Date.now();
-    this.setData({ garmentName: t.garmentName || "所选衣物" });
-    this.poll();
+  data: {
+    percent: 0,
+    garmentName: "所选衣物",
+    stageText: "提交任务中",
+    error: false,
+    errorMsg: "",
+    submitting: true // 提交阶段状态：先展示"提交中"，不阻塞上一页
   },
+  onLoad() {
+    const pending = wx.getStorageSync("aiTryonPending") || {};
+    this.setData({ garmentName: pending.displayName || "所选衣物" });
+
+    // 没有待提交任务：直接读取已有 taskId 开始轮询（从结果页返回等场景）
+    const existing = wx.getStorageSync("aiTryonTask") || {};
+    if (!pending.garmentIds && existing.taskId) {
+      this.taskId = existing.taskId;
+      this._pollCount = 0;
+      this._pollStartedAt = Date.now();
+      this.setData({ submitting: false, stageText: "生成衣物四视图" });
+      this.poll();
+      return;
+    }
+
+    // 正常流程：先提交任务，再轮询进度（提交在进度页内完成，点击"生成穿搭"立即跳转）
+    this.submitTask(pending);
+  },
+
+  submitTask(pending) {
+    const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
+    const items = (pending.garmentIds || []).map((id, i) => ({
+      id,
+      name: (pending.garmentNames || [])[i],
+      image: (pending.garmentImages || [])[i]
+    }));
+
+    // 先预处理所有衣物的四视图
+    Promise.all(items.map((g) => api.ensureGarmentViews(g.id, g.name, g.image)))
+      .then(() => {
+        return api.submitAiTryon({
+          avatarViewId,
+          garmentIds: pending.garmentIds,
+          garmentNames: pending.garmentNames
+        });
+      })
+      .then((res) => {
+        // 云函数异常时返回 { ok:false, error } 而非抛异常：同样进入失败态
+        if (res && res.error && !res.taskId) {
+          this.setData({
+            submitting: false,
+            error: true,
+            errorMsg: "生成失败：" + res.error
+          });
+          return;
+        }
+        // 提交成功：保存 taskId，清除 pending，进入轮询
+        wx.setStorageSync("aiTryonTask", {
+          taskId: res.taskId,
+          garmentName: pending.displayName || "所选衣物"
+        });
+        wx.removeStorageSync("aiTryonPending");
+        this.taskId = res.taskId;
+        this._pollCount = 0;
+        this._pollStartedAt = Date.now();
+        this.setData({ submitting: false, stageText: "生成衣物四视图" });
+        this.poll();
+      })
+      .catch((err) => {
+        // 提交失败：展示失败态，允许重试
+        this.setData({
+          submitting: false,
+          error: true,
+          errorMsg: (err && err.message) || "提交失败，请检查网络后重试"
+        });
+      });
+  },
+
   poll() {
     api.getAiTryonStatus(this.taskId).then((st) => {
       if (st.status === "failed") {
@@ -36,16 +103,29 @@ Page({
       this.setData({ error: true, errorMsg: "网络异常，无法获取生成进度" });
     });
   },
+
   retry() {
-    this.clearTimers();
-    this._pollCount = 0;
-    this._pollStartedAt = Date.now();
-    this.setData({ error: false, errorMsg: "", percent: 0, stageText: "生成衣物四视图" });
-    this.poll();
+    // 重试：读取 pending 重新提交，或继续轮询已有 task
+    const pending = wx.getStorageSync("aiTryonPending");
+    if (pending && pending.garmentIds) {
+      this.setData({ error: false, errorMsg: "", percent: 0, stageText: "提交任务中", submitting: true });
+      this.submitTask(pending);
+      return;
+    }
+    // 没有 pending 但有 taskId：重新轮询
+    if (this.taskId) {
+      this.clearTimers();
+      this._pollCount = 0;
+      this._pollStartedAt = Date.now();
+      this.setData({ error: false, errorMsg: "", percent: 0, stageText: "生成衣物四视图", submitting: false });
+      this.poll();
+    }
   },
+
   backToSelect() {
     navigate("/pages/tryon-select/index");
   },
+
   animateTo100(st) {
     this.clearTimers();
     this._startTimer = setTimeout(() => {
@@ -67,22 +147,26 @@ Page({
       }, 40);
     }, 300);
   },
+
   clearTimers() {
     if (this._frameTimer) { clearInterval(this._frameTimer); this._frameTimer = null; }
     if (this._startTimer) { clearTimeout(this._startTimer); this._startTimer = null; }
     if (this._navTimer) { clearTimeout(this._navTimer); this._navTimer = null; }
     if (this._pollTimer) { clearTimeout(this._pollTimer); this._pollTimer = null; }
   },
+
   onHide() {
     // 页面不可见时停止轮询/动画/跳转，避免后台持续请求与 setData
     this.clearTimers();
   },
+
   onShow() {
     // 回到页面：未完成则继续轮询进度
-    if (!this.data.error && this.data.percent < 100) {
+    if (!this.data.error && this.data.percent < 100 && !this.data.submitting) {
       this.poll();
     }
   },
+
   onUnload() {
     this.clearTimers();
   }

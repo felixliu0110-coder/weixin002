@@ -180,32 +180,19 @@ Page({
     if (this._submitting) return;
     this._submitting = true;
     const items = this.data.myTemplates.filter((t) => t.selected);
-    const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
-    // 每件选中衣物都要预生成四视图（此前只处理第一件，多件时后续衣物视图缺失）
-    requestSubscribe()
-      .then(() => Promise.all(items.map((g) => api.ensureGarmentViews(g.id, g.name, g.image))))
-      .then(() => {
-        return api.submitAiTryon({
-          avatarViewId,
-          garmentIds: items.map((g) => g.id),
-          garmentNames: items.map((g) => g.name)
-        });
-      })
-      .then((res) => {
-        if (res && res.error) {
-          this._submitting = false;
-          toast("生成失败：" + res.error);
-          return;
-        }
-        const names = items.map((g) => g.name).join("、");
-        wx.setStorageSync("aiTryonTask", { taskId: res.taskId, garmentName: names });
-        this._submitting = false;
-        navigate("/pages/tryon-progress/index");
-      })
-      .catch(() => {
-        this._submitting = false;
-        toast("提交失败，请重试");
+    const names = items.map((g) => g.name).join("、");
+    // 订阅消息授权需在用户点击的调用栈中请求（微信限制）；
+    // 授权完成后立即跳转进度页，实际的四视图预处理与任务提交由 tryon-progress 页内完成，本页不等待
+    requestSubscribe().then(() => {
+      wx.setStorageSync("aiTryonPending", {
+        garmentIds: items.map((g) => g.id),
+        garmentNames: items.map((g) => g.name),
+        garmentImages: items.map((g) => g.image),
+        displayName: names
       });
+      this._submitting = false;
+      navigate("/pages/tryon-progress/index");
+    });
   },
 
   /* ---------- 我的模板：管理删除 ---------- */
