@@ -12,6 +12,7 @@ const SHARED_FILES = [
   "garmentViews.js",
   "storage.js",
   "tryonCache.js",
+  "tryonImage.js",
   "tryonVideo.js"
 ];
 // 已废弃的共享模块：从各云函数目录清理，避免随部署带上旧实现

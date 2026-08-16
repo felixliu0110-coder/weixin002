@@ -24,7 +24,8 @@ exports.main = async (event) => {
       return { ok: true, cached: true, garmentViewId: cached.data[0]._id, status: "ready", views: cached.data[0].views };
     }
     const aigc = getAigc();
-    const prompt = buildGarmentViewsPrompt(garmentName);
+    // 原图传入提示词锚定：有参考图时要求四视图与原图款式完全一致
+    const prompt = buildGarmentViewsPrompt(garmentName, garmentImage ? 1 : 0);
     const res = await aigc.generateImages({ prompt, refImages: garmentImage ? [garmentImage] : [], count: 1 });
     let composite = res.urls[0];
     try {

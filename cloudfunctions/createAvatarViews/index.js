@@ -32,9 +32,11 @@ exports.main = async (event) => {
   }
   const profile = event.profile || {};
   const aigc = getAigc();
-  const prompt = buildAvatarViewsPrompt(profile);
+  const refImages = event.refImages || [];
+  // 参考图（用户照片）数量传入提示词：有参考图时锚定"面部发型与参考图一致"
+  const prompt = buildAvatarViewsPrompt(profile, refImages.length);
   try {
-    const res = await aigc.generateImages({ prompt, refImages: event.refImages || [], count: 1 });
+    const res = await aigc.generateImages({ prompt, refImages, count: 1 });
     let composite = res.urls[0];
     try {
       composite = await saveRemoteImage(res.urls[0], "avatar_views");

@@ -36,10 +36,12 @@ Page({
     const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
 
     // 图片任务直接提交：云函数只生成穿搭效果图（视频由结果页选择生成，不再阻塞出图）
+    // garmentImages 一并传给云函数作生图参考图（提示词锚定：人物三视图 + 衣物原图）
     api.submitAiTryon({
       avatarViewId,
       garmentIds: pending.garmentIds,
-      garmentNames: pending.garmentNames
+      garmentNames: pending.garmentNames,
+      garmentImages: pending.garmentImages || []
     })
       .then((res) => {
         // 云函数异常时返回 { ok:false, error } 而非抛异常：同样进入失败态

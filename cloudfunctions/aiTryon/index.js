@@ -1,6 +1,7 @@
 const cloud = require("wx-server-sdk");
 const { getAigc } = require("./aigc");
 const { buildTryonVideoPrompt } = require("./tryonVideo");
+const { buildTryonImagePrompt } = require("./tryonImage");
 const { buildTryonCacheKey, isImageCacheHit, isCacheHit } = require("./tryonCache");
 const { saveRemoteImage } = require("./storage");
 
@@ -10,6 +11,25 @@ const db = cloud.database();
 function fmtErr(e) {
   const detail = (e && e.message) ? e.message : String(e);
   return (e && e.code) ? e.code + ": " + detail : detail;
+}
+
+/* 生图参考图要求公网 HTTPS URL：cloud:// 的云存储文件批量换临时链接；
+   转换失败的单项跳过（降级为剩余参考图生成，不阻塞主流程） */
+async function toHttpsRefs(urls) {
+  const list = (urls || []).filter(Boolean);
+  const cloudIds = list.filter((u) => u.indexOf("cloud://") === 0);
+  if (cloudIds.length === 0) return list;
+  try {
+    const res = await cloud.getTempFile({ fileList: cloudIds });
+    const map = {};
+    for (const f of res.fileList || []) {
+      if (f.tempFileURL) map[f.fileID] = f.tempFileURL;
+    }
+    return list.map((u) => map[u] || (u.indexOf("cloud://") === 0 ? null : u)).filter(Boolean);
+  } catch (e) {
+    console.log("toHttpsRefs fail", "error=" + fmtErr(e));
+    return list.filter((u) => u.indexOf("cloud://") !== 0);
+  }
 }
 
 /* 试穿完成写记录：
@@ -198,13 +218,17 @@ async function submit(event, openid) {
   const task = Object.assign({}, base, { type: "ai_image", stage: "image", status: "processing" });
   const addRes = await db.collection("tryon_tasks").add({ data: task });
   const taskId = addRes._id;
+  // 参考图（与提示词锚定顺序一致）：第 1 张人物三视图 + 其后各衣物原图；cloud:// 批量换公网临时链接
+  const avatarComposite = (av.data.views && av.data.views.composite) || "";
+  const refImages = await toHttpsRefs([avatarComposite].concat(event.garmentImages || []));
+  const imagePrompt = buildTryonImagePrompt(profile, garmentNames, refImages.length);
   let lastErr = null;
   let imgRes = null;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       imgRes = await aigc.generateImages({
-        prompt: "同人物穿着" + garmentName + "的照片级效果图",
-        refImages: [],
+        prompt: imagePrompt,
+        refImages,
         count: 1
       });
       lastErr = null;
@@ -212,7 +236,7 @@ async function submit(event, openid) {
     } catch (e) {
       lastErr = e;
       await db.collection("tryon_tasks").doc(taskId).update({ data: { retry_count: attempt + 1, updated_at: Date.now() } });
-      console.log("aiTryon generate attempt fail", "taskId=" + taskId, "attempt=" + (attempt + 1), "error=" + fmtErr(e));
+      console.log("aiTryon generate attempt fail", "taskId=" + taskId, "attempt=" + (attempt + 1), "refCount=" + refImages.length, "error=" + fmtErr(e));
     }
   }
   if (lastErr) {
