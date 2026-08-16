@@ -155,6 +155,13 @@ module.exports = {
     // 模板衣物暂存本地（云上数据范围待定），历史/收藏在云模式下走云数据库
     if (kind === "myTemplates" || kind === "library" || !cloudReady()) return mock.deleteItems(kind, ids);
     try {
+      if (kind === "history") {
+        // 云函数删除（云函数写入的记录无客户端 _openid 归属，直接删会因权限失败；同时删云存储文件）
+        const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "deleteHistory", ids } });
+        const r = res.result;
+        if (!r || !r.ok) throw new Error((r && r.error) || "删除失败");
+        return { ok: true, removed: r.removed };
+      }
       const collName = { history: "tryon_results", favorites: "favorites", templates: "garments" }[kind];
       const coll = db().collection(collName);
       for (const id of ids) {

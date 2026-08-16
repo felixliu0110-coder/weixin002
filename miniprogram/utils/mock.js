@@ -132,7 +132,7 @@ module.exports = {
   async uploadGarment(imagePath, params) {
     const item = {
       id: "g-upload-" + Date.now(),
-      image: imagePath,
+      image: (params && params.fileID) || imagePath,
       name: (params && params.name) || "上传衣物",
       category: (params && params.category) || "其他",
       status: "ok"

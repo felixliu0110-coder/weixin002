@@ -13,9 +13,23 @@ Page({
       toast("请先阅读并同意《用户协议》和《隐私政策》");
       return;
     }
-    // 真实微信登录（wx.login/手机号快捷登录）待后端接口就绪后接入
+    // 真实微信登录：云函数获取微信身份（openid），存本地后进入
     const app = getApp();
-    if (app && app.globalData) app.globalData.loggedIn = true;
-    navigate("/pages/basic-info/index");
+    const enter = () => {
+      if (app && app.globalData) app.globalData.loggedIn = true;
+      navigate("/pages/basic-info/index");
+    };
+    if (wx.cloud && wx.cloud.callFunction) {
+      wx.cloud.callFunction({ name: "auth", data: { action: "login" } })
+        .then((res) => {
+          const r = res.result || {};
+          wx.setStorageSync("userOpenid", r.openid || "");
+          if (app && app.globalData) app.globalData.openid = r.openid || "";
+          enter();
+        })
+        .catch(() => enter()); // 云函数未部署/异常时回退本地进入（不阻塞演示）
+    } else {
+      enter();
+    }
   }
 });

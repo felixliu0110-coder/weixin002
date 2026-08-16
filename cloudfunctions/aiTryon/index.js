@@ -210,6 +210,24 @@ async function status(event) {
 
 exports.main = async (event) => {
   const { openid } = cloud.getWXContext();
+  if (event.action === "deleteHistory") {
+    const ids = event.ids || [];
+    let removed = 0;
+    for (const id of ids) {
+      try {
+        const doc = await db.collection("tryon_results").doc(id).get();
+        const image = doc.data && doc.data.tryon_image;
+        if (image && image.indexOf("cloud://") === 0) {
+          try { await cloud.deleteFile({ fileList: [image] }); } catch (e) { console.log("deleteFile fail", "error=" + e.message); }
+        }
+        await db.collection("tryon_results").doc(id).remove();
+        removed += 1;
+      } catch (e) {
+        console.log("deleteHistory item fail", "id=" + id, "error=" + fmtErr(e));
+      }
+    }
+    return { ok: true, removed };
+  }
   if (event.action === "history") {
     try {
       const coll = db.collection("tryon_results");
