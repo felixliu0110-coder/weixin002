@@ -52,16 +52,16 @@ Page({
         garmentLibrary: lib,
         libItems: lib.filter((i) => i.category === this.data.curCategory)
       });
+      this.computeCatCounts(lib);
     });
     api.getMyTemplates().then((my) => {
       this.setData({ myTemplates: my.map((t) => Object.assign({}, t, { selected: false, del: false })) });
-      this.computeCatCounts(my);
     });
   },
-  computeCatCounts(my) {
+  computeCatCounts(lib) {
     const counts = {};
     this.data.categories.forEach((c) => {
-      counts[c] = my.filter((i) => i.category === c).length;
+      counts[c] = lib.filter((i) => i.category === c).length;
     });
     this.setData({ catCounts: counts });
   },
