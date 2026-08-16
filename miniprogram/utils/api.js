@@ -189,11 +189,12 @@ module.exports = {
   async getAvatarViews() {
     if (!cloudReady()) return mock.getAvatarViews();
     try {
-      const res = await db().collection("avatar_views").orderBy("createdAt", "desc").limit(1).get();
+      const res = await db().collection("avatar_views").orderBy("createdAt", "desc").limit(10).get();
       if (res.data.length === 0) return mock.getAvatarViews();
-      const d = res.data[0];
-      if (isMockResult(d.views)) return mock.getAvatarViews();
-      return { status: d.status, views: d.views, isExample: false };
+      // 跳过历史 mock/占位记录（未配置 Key 时代写库的假数据），取第一条真实生成
+      const real = res.data.find((d) => !isMockResult(d.views));
+      if (!real) return mock.getAvatarViews();
+      return { status: real.status, views: real.views, isExample: false };
     } catch (e) {
       return mock.getAvatarViews();
     }
