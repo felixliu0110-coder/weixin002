@@ -170,7 +170,25 @@ Page({
       toast("请先选择一件衣物");
       return;
     }
-    navigate("/pages/tryon-progress/index");
+    if (this._submitting) return;
+    this._submitting = true;
+    const items = this.data.myTemplates.filter((t) => t.selected);
+    const first = items[0];
+    const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
+    api.ensureGarmentViews(first.id, first.name, first.image).then(() => {
+      return api.submitAiTryon({
+        avatarViewId,
+        garmentIds: items.map((g) => g.id),
+        garmentNames: items.map((g) => g.name)
+      });
+    }).then((res) => {
+      wx.setStorageSync("aiTryonTask", { taskId: res.taskId, garmentName: first.name });
+      this._submitting = false;
+      navigate("/pages/tryon-progress/index");
+    }).catch(() => {
+      this._submitting = false;
+      toast("提交失败，请重试");
+    });
   },
 
   /* ---------- 我的模板：管理删除 ---------- */

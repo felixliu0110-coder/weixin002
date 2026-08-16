@@ -12,12 +12,22 @@ Page({
   confirm() {
     if (this._submitting) return;
     this._submitting = true;
-    api.submitTryon({
-      avatarId: "avatar-demo",
-      garmentId: "g-demo",
-      pose: "front"
-    }).then(() => {
+    const g = this.data.garment;
+    const garmentId = (g && g.id) || "g-upload-" + Date.now();
+    const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
+    api.ensureGarmentViews(garmentId, g.name, g.image).then(() => {
+      return api.submitAiTryon({
+        avatarViewId,
+        garmentIds: [garmentId],
+        garmentNames: [g.name]
+      });
+    }).then((res) => {
+      wx.setStorageSync("aiTryonTask", { taskId: res.taskId, garmentName: g.name });
+      this._submitting = false;
       navigate("/pages/tryon-progress/index");
+    }).catch(() => {
+      this._submitting = false;
+      toast("提交失败，请重试");
     });
   }
 });
