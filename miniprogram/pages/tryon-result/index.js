@@ -7,8 +7,7 @@ Page({
     collectVisible: false,
     templateVisible: false,
     tplName: "",
-    tplCategory: "连衣裙",
-    tplRecognized: "连衣裙",
+    tplCategory: "",
     categories: ["上衣", "裤子", "头饰", "鞋子", "其他"]
   },
   onAngle(e) {
@@ -35,10 +34,8 @@ Page({
     });
   },
   onSaveTemplate() {
-    // 上传流程已填写衣物名称与分类；此处默认「其他」供用户调整
     this.setData({
       templateVisible: true,
-      tplCategory: "其他",
       tplName: "粉色针织连衣裙"
     });
   },
@@ -49,6 +46,10 @@ Page({
     const name = (this.data.tplName || "").trim();
     if (!name) {
       toast("请输入衣物名称");
+      return;
+    }
+    if (!this.data.tplCategory) {
+      toast("请选择衣物分类");
       return;
     }
     this.setData({ templateVisible: false });

@@ -19,7 +19,7 @@
 .sheet-title { font-size: 34rpx; font-weight: 600; }
 .sheet-desc { font-size: 26rpx; color: var(--fg-2); line-height: 1.65; margin-top: 12rpx; }
 .sheet-action { display: block; flex: 1; }
-.template-actions { display: flex; flex-direction: column; gap: 24rpx; }
+.template-actions { display: flex; flex-direction: column; gap: 24rpx; margin-top: 28rpx; }
 .template-actions .sheet-action { width: 100%; }
 .collect-actions { display: flex; flex-direction: column; gap: 24rpx; }
 .collect-btn { display: block; width: 100%; }
