@@ -15,6 +15,7 @@ function isCacheHit(doc, now) {
   return !!doc &&
     doc.status === "success" &&
     !!doc.tryon_video &&                       // 必须有真实视频链接，视频缺失的成功任务不参与复用
+    !!doc.user_id &&                           // 必须有用户归属（测试/无身份任务不参与复用，否则订阅通知无法发送）
     typeof doc.createdAt === "number" &&
     now - doc.createdAt < CACHE_TTL_MS;
 }
