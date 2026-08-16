@@ -1,6 +1,6 @@
 <view class="wx-page">
   <nav-bar title="试穿记录" showBack="{{true}}" backRoute="/pages/profile/index">
-    <view slot="right" class="manage-btn" hover-class="manage-hover" bindtap="toggleManage">{{manageMode ? '完成' : '管理'}}</view>
+    <view wx:if="{{manageMode}}" slot="right" class="manage-btn" hover-class="manage-hover" bindtap="toggleManage">完成</view>
   </nav-bar>
 
   <view class="content">
