@@ -12,7 +12,11 @@ const avatarProfile = {
   hipCm: 92,
   legLengthCm: 96,
   neckLengthCm: 9,
+  shoulderCm: 38,
+  armLengthCm: 55,
+  shoeSize: 38,
   skinTone: "light",
+  estimate: true,
   modelVersion: "v1-demo",
   status: "ready",
   isExample: true

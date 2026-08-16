@@ -36,6 +36,12 @@ module.exports = {
         waistCm: doc.waistCm,
         hipCm: doc.hipCm,
         legLengthCm: doc.legLengthCm,
+        neckLengthCm: doc.neckLengthCm,
+        shoulderCm: doc.shoulderCm,
+        armLengthCm: doc.armLengthCm,
+        shoeSize: doc.shoeSize,
+        skinTone: doc.skinTone,
+        estimate: doc.estimate,
         isExample: false
       };
     } catch (e) {

@@ -12,6 +12,15 @@ test("getAvatarProfile 返回 PRD 示例档案并含示例标记", async () => {
   assert.strictEqual(profile.isExample, true);
 });
 
+test("getAvatarProfile 含建模所需全部字段", async () => {
+  const profile = await mock.getAvatarProfile();
+  assert.ok(profile.neckLengthCm > 0);
+  assert.ok(profile.shoulderCm > 0);
+  assert.ok(profile.armLengthCm > 0);
+  assert.ok(profile.shoeSize > 0);
+  assert.strictEqual(typeof profile.skinTone, "string");
+});
+
 test("getQuota 返回每日 3 次示例额度", async () => {
   const quota = await mock.getQuota();
   assert.strictEqual(quota.dailyFree, 3);
