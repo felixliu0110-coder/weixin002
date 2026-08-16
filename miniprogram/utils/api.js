@@ -14,6 +14,10 @@ function isMockResult(r) {
   return r.provider === "mock" || s.indexOf("placeholder.example.com") >= 0;
 }
 
+function isPublicHttpUrl(url) {
+  return typeof url === "string" && /^https?:\/\//i.test(url);
+}
+
 function db() {
   return wx.cloud.database();
 }
@@ -206,7 +210,8 @@ module.exports = {
   },
 
   async ensureGarmentViews(garmentId, garmentName, garmentImage) {
-    if (!cloudReady()) return mock.ensureGarmentViews(garmentId, garmentName);
+    // 仅公网 HTTPS 图才调用云函数生成四视图；本地/临时路径直接回退 mock，避免白调 Agnes
+    if (!cloudReady() || !isPublicHttpUrl(garmentImage)) return mock.ensureGarmentViews(garmentId, garmentName);
     try {
       const res = await wx.cloud.callFunction({
         name: "ensureGarmentViews",
@@ -301,5 +306,6 @@ module.exports = {
       return mock.deleteUserData();
     }
   },
-  isMockResult
+  isMockResult,
+  isPublicHttpUrl
 };

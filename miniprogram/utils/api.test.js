@@ -17,3 +17,11 @@ test("isMockResult 识别云函数占位结果", () => {
   assert.strictEqual(api.isMockResult({ provider: "agnes", views: { composite: "https://cdn.example.com/real.jpg" } }), false);
   assert.strictEqual(api.isMockResult(null), true);
 });
+
+test("isPublicHttpUrl 仅接受公网 http(s) URL", () => {
+  assert.strictEqual(api.isPublicHttpUrl("https://platform-outputs.agnes-ai.space/a.png"), true);
+  assert.strictEqual(api.isPublicHttpUrl("http://example.com/a.png"), true);
+  assert.strictEqual(api.isPublicHttpUrl("/assets/img/p06-tee.jpg"), false);
+  assert.strictEqual(api.isPublicHttpUrl("cloud://env/a.png"), false);
+  assert.strictEqual(api.isPublicHttpUrl(""), false);
+});
