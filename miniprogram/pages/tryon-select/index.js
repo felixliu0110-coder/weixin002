@@ -116,7 +116,10 @@ Page({
   },
   confirmDelLib() {
     const ids = this.data.libItems.filter((t) => t.delLib).map((t) => t.id);
-    if (ids.length === 0) return;
+    if (ids.length === 0) {
+      toast("请先选择要删除的衣物");
+      return;
+    }
     wx.showModal({
       title: "删除模板衣物",
       content: `将删除 ${ids.length} 件模板衣物，删除后不可恢复。`,
@@ -199,7 +202,10 @@ Page({
   onDelete() {
     const ids = this.data.myTemplates.filter((t) => t.del).map((t) => t.id);
     const count = ids.length;
-    if (count === 0) return;
+    if (count === 0) {
+      toast("请先选择要删除的衣物");
+      return;
+    }
     wx.showModal({
       title: "删除模板衣物",
       content: `将删除 ${count} 件模板衣物，删除后不可恢复。`,

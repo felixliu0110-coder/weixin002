@@ -36,7 +36,10 @@ Page({
   },
   onDelete() {
     const ids = this.data.delSelected;
-    if (ids.length === 0) return;
+    if (ids.length === 0) {
+      toast("请先选择要删除的记录");
+      return;
+    }
     wx.showModal({
       title: "删除试穿记录",
       content: `将删除 ${ids.length} 条试穿记录，删除后不可恢复。`,

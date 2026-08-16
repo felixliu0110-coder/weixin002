@@ -38,7 +38,10 @@ Page({
   },
   onDelete() {
     const ids = this.data.delSelected;
-    if (ids.length === 0) return;
+    if (ids.length === 0) {
+      toast("请先选择要删除的收藏");
+      return;
+    }
     wx.showModal({
       title: "取消收藏",
       content: `将删除 ${ids.length} 条收藏，删除后不可恢复。`,

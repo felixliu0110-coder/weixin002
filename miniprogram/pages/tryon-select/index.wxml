@@ -86,13 +86,13 @@
     <btn class="footer-main" type="primary" disabled="{{selectedCount === 0}}" bindtap="startTryon">{{buttonText}}</btn>
   </view>
   <view wx:if="{{tab === 'lib' && viewMode === 'home' && manageMode}}" class="delete-bar">
-    <btn class="delete-btn-sm" type="danger" size="sm" disabled="{{delCount === 0}}" bindtap="onDelete">
+    <btn class="delete-btn-sm" type="danger" size="sm" bindtap="onDelete">
       <image class="ic-img" style="width:26rpx;height:26rpx" src="/assets/icons/png/icon-trash-white.png" />删除（{{delCount}}）
     </btn>
   </view>
   <view wx:if="{{tab === 'lib' && viewMode === 'select'}}" class="footer-bar">
     <btn wx:if="{{!libManageMode}}" class="footer-main" type="primary" disabled="{{libSelectedCount === 0}}" bindtap="confirmAdd">加入穿搭（{{libSelectedCount}}）</btn>
-    <btn wx:if="{{libManageMode}}" class="delete-btn-sm" type="danger" size="sm" disabled="{{libDelCount === 0}}" bindtap="confirmDelLib">
+    <btn wx:if="{{libManageMode}}" class="delete-btn-sm" type="danger" size="sm" bindtap="confirmDelLib">
       <image class="ic-img" style="width:26rpx;height:26rpx" src="/assets/icons/png/icon-trash-white.png" />删除（{{libDelCount}}）
     </btn>
   </view>
