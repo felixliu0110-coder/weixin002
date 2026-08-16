@@ -1,4 +1,4 @@
-<view class="tabbar {{navMode ? 'nav' : ''}} {{pill ? 'pill' : ''}}">
+<view class="tabbar">
   <view
     wx:for="{{list}}"
     wx:key="pagePath"
@@ -7,17 +7,7 @@
     data-index="{{index}}"
     catchtap="onSelect"
   >
-    <view class="tab-icon-wrap">
-      <!-- 主页：房子 -->
-      <view wx:if="{{item.text === '主页'}}" class="ic-home {{selected === index ? 'on' : ''}}"></view>
-      <!-- 试衣：衣架 -->
-      <view wx:if="{{item.text === '试衣'}}" class="ic-tryon {{selected === index ? 'on' : ''}}"></view>
-      <!-- 收藏：心形 -->
-      <view wx:if="{{item.text === '收藏'}}" class="ic-heart {{selected === index ? 'on' : ''}}"></view>
-      <!-- 我的：人形 -->
-      <view wx:if="{{item.text === '我的'}}" class="ic-profile {{selected === index ? 'on' : ''}}"></view>
-    </view>
+    <view class="tab-ic ic-{{item.type}}"></view>
     <text class="tab-label">{{item.text}}</text>
-    <view class="tab-indicator"></view>
   </view>
 </view>

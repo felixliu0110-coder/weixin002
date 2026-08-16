@@ -1,216 +1,69 @@
-/* ===== TabBar 组件 ===== */
+/* ===== TabBar 统一视觉（SVG 矢量图标，lucide 线条风格）===== */
 .tabbar {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-around;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
   border-top: 0.5px solid var(--border-soft);
-  padding: 12rpx 40rpx calc(12rpx + env(safe-area-inset-bottom));
+  padding: 10rpx 24rpx calc(10rpx + env(safe-area-inset-bottom));
   min-height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   position: relative;
   z-index: 60;
 }
 
-/* 单个 Tab */
 .tab {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding: 8rpx 0 4rpx;
-  position: relative;
-}
-
-/* 图标容器 */
-.tab-icon-wrap {
-  width: 56rpx;
-  height: 56rpx;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  position: relative;
+  gap: 6rpx;
+  padding: 6rpx 0;
 }
 
-/* ===== CSS 绘制图标（统一 2px 描边线条风格）===== */
+/* 图标：SVG data URI，48rpx 视觉尺寸，矢量渲染任意 DPR 不发虚 */
+.tab-ic {
+  width: 48rpx;
+  height: 48rpx;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
-/* 主页：房子 */
-.ic-home {
-  width: 44rpx;
-  height: 40rpx;
-  position: relative;
-}
-.ic-home::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 4rpx;
-  width: 36rpx;
-  height: 22rpx;
-  border: 2.5px solid var(--muted);
-  border-top: none;
-  border-radius: 0 0 6rpx 6rpx;
-  transition: border-color 0.25s ease;
-}
-.ic-home::after {
-  content: '';
-  position: absolute;
-  top: 2rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 22rpx solid transparent;
-  border-right: 22rpx solid transparent;
-  border-bottom: 18rpx solid var(--muted);
-  transition: border-bottom-color 0.25s ease;
-}
-.ic-home.on::before { border-color: var(--accent-text); }
-.ic-home.on::after { border-bottom-color: var(--accent-text); }
-
-/* 试衣：衣架 */
-.ic-tryon {
-  width: 44rpx;
-  height: 40rpx;
-  position: relative;
-}
-.ic-tryon::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 3px;
-  height: 10rpx;
-  background: var(--muted);
-  border-radius: 2rpx;
-  transition: background 0.25s ease;
-}
-.ic-tryon::after {
-  content: '';
-  position: absolute;
-  top: 8rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 36rpx;
-  height: 28rpx;
-  border: 2.5px solid var(--muted);
-  border-radius: 18rpx 18rpx 10rpx 10rpx;
-  border-top: 2.5px solid var(--muted);
-  transition: border-color 0.25s ease;
-}
-.ic-tryon.on::before { background: var(--accent-text); }
-.ic-tryon.on::after { border-color: var(--accent-text); }
-
-/* 收藏：心形 */
-.ic-heart {
-  width: 44rpx;
-  height: 40rpx;
-  position: relative;
-}
-.ic-heart::before,
-.ic-heart::after {
-  content: '';
-  position: absolute;
-  width: 20rpx;
-  height: 32rpx;
-  border: 2.5px solid var(--muted);
-  border-bottom: none;
-  border-radius: 20rpx 20rpx 0 0;
-  transition: border-color 0.25s ease;
-}
-.ic-heart::before {
-  left: 4rpx;
-  top: 4rpx;
-  transform: rotate(-45deg);
-  transform-origin: 100% 100%;
-}
-.ic-heart::after {
-  right: 4rpx;
-  top: 4rpx;
-  transform: rotate(45deg);
-  transform-origin: 0 100%;
-}
-.ic-heart.on::before,
-.ic-heart.on::after { border-color: var(--accent-text); }
-
-/* 我的：人形 */
-.ic-profile {
-  width: 44rpx;
-  height: 40rpx;
-  position: relative;
-}
-.ic-profile::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 16rpx;
-  height: 16rpx;
-  border: 2.5px solid var(--muted);
-  border-radius: 50%;
-  transition: border-color 0.25s ease;
-}
-.ic-profile::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 32rpx;
-  height: 18rpx;
-  border: 2.5px solid var(--muted);
-  border-bottom: none;
-  border-radius: 16rpx 16rpx 0 0;
-  transition: border-color 0.25s ease;
-}
-.ic-profile.on::before,
-.ic-profile.on::after { border-color: var(--accent-text); }
-
-/* 文字标签 */
+/* 文字：不加 letter-spacing（会让居中文本重心偏移）*/
 .tab-label {
-  font-size: 20rpx;
+  font-size: 21rpx;
   color: var(--muted);
-  margin-top: 10rpx;
-  transition: all 0.25s ease;
-  letter-spacing: 0.5rpx;
+  line-height: 1.2;
+  transition: color 0.25s ease;
 }
 
-/* 底部指示器（短横线） */
-.tab-indicator {
-  width: 0;
-  height: 4rpx;
-  border-radius: 2rpx;
-  background: var(--accent);
-  margin-top: 6rpx;
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+/* ===== 选中态：图标换色 + 微弹上浮，文字变色加粗 ===== */
+.tab.on .tab-ic {
+  transform: translateY(-2rpx) scale(1.06);
 }
-
-/* ===== 选中态 ===== */
 .tab.on .tab-label {
   color: var(--accent-text);
   font-weight: 600;
-  transform: translateY(-1rpx);
 }
 
-.tab.on .tab-indicator {
-  width: 32rpx;
-}
+.tab-hover { opacity: 0.7; }
 
-/* 点击反馈 */
-.tab-hover {
-  opacity: 0.7;
-}
+/* ===== 图标集（默认 muted #8F8378 / 选中 accent-text #7A5A4E）===== */
 
-/* ===== navMode 模式 ===== */
-.tabbar.nav .tab.on .tab-indicator {
-  background: var(--accent-deep);
-}
+/* 主页：房子 */
+.ic-home { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238F8378' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5'/%3E%3Cpath d='M5 9.5V21h14V9.5'/%3E%3Cpath d='M9 21v-6h6v6'/%3E%3C/svg%3E"); }
+.tab.on .ic-home { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A5A4E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5'/%3E%3Cpath d='M5 9.5V21h14V9.5'/%3E%3Cpath d='M9 21v-6h6v6'/%3E%3C/svg%3E"); }
 
-/* ===== pill 模式 ===== */
-.tabbar.pill .tab.on .tab-indicator {
-  background: var(--accent-strong);
-}
+/* 试衣：衣架 */
+.ic-hanger { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238F8378' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 6a2 2 0 1 1 2-2'/%3E%3Cpath d='M12 6 3.7 12.9a1.2 1.2 0 0 0 .8 2.1h15a1.2 1.2 0 0 0 .8-2.1L12 6Z'/%3E%3C/svg%3E"); }
+.tab.on .ic-hanger { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A5A4E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 6a2 2 0 1 1 2-2'/%3E%3Cpath d='M12 6 3.7 12.9a1.2 1.2 0 0 0 .8 2.1h15a1.2 1.2 0 0 0 .8-2.1L12 6Z'/%3E%3C/svg%3E"); }
+
+/* 收藏：心形 */
+.ic-heart { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238F8378' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/%3E%3C/svg%3E"); }
+.tab.on .ic-heart { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A5A4E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/%3E%3C/svg%3E"); }
+
+/* 我的：人形 */
+.ic-user { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238F8378' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E"); }
+.tab.on .ic-user { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A5A4E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E"); }
