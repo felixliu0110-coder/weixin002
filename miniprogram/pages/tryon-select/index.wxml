@@ -1,6 +1,7 @@
 <view class="wx-page">
   <nav-bar title="选择衣物" showBack="{{true}}" backRoute="/pages/home/index">
     <view wx:if="{{tab === 'lib' && viewMode === 'home'}}" slot="right" class="manage-btn" hover-class="manage-hover" bindtap="toggleManage">{{manageMode ? '完成' : '管理'}}</view>
+    <view wx:if="{{tab === 'lib' && viewMode === 'select'}}" slot="right" class="manage-btn" hover-class="manage-hover" bindtap="toggleLibManage">{{libManageMode ? '完成' : '管理'}}</view>
   </nav-bar>
 
   <view class="content">
@@ -10,7 +11,7 @@
     <block wx:if="{{tab === 'lib'}}">
       <!-- 分类入口 + 我的模板 -->
       <block wx:if="{{viewMode === 'home'}}">
-        <view class="hint">点击分类选择衣物，选中的衣物会加入「我的模板」</view>
+        <view class="hint">点击分类选择衣物，加入下面的「已选穿搭」</view>
         <view class="cat-cards">
           <view
             wx:for="{{categories}}"
@@ -27,10 +28,10 @@
         </view>
 
         <view class="sec-hd">
-          <text class="sec-title">我的模板衣物</text>
+          <text class="sec-title">已选穿搭衣物</text>
           <text class="hint">长按可删除</text>
         </view>
-        <view wx:if="{{myTemplates.length === 0 && !manageMode}}" class="cat-empty">还没有模板衣物，点击上方分类选择</view>
+        <view wx:if="{{myTemplates.length === 0 && !manageMode}}" class="cat-empty">还没选择衣物，点击上方分类挑选</view>
         <view class="garment-grid">
           <garment-item
             wx:for="{{myTemplates}}"
@@ -49,6 +50,7 @@
           <view class="back-link" hover-class="back-hover" bindtap="backHome">‹ 返回</view>
           <text class="select-title">选择「{{curCategory}}」衣物</text>
         </view>
+        <view class="hint">{{libManageMode ? '勾选要删除的模板衣物' : '点选衣物加入穿搭'}}</view>
         <view class="cat-tabs">
           <view
             wx:for="{{categories}}"
@@ -87,7 +89,8 @@
     <btn class="delete-btn" type="danger" disabled="{{delCount === 0}}" bindtap="onDelete">删除所选（{{delCount}}）</btn>
   </view>
   <view wx:if="{{tab === 'lib' && viewMode === 'select'}}" class="footer-bar">
-    <btn class="footer-main" type="primary" disabled="{{libSelectedCount === 0}}" bindtap="confirmAdd">加入模板（{{libSelectedCount}}）</btn>
+    <btn wx:if="{{!libManageMode}}" class="footer-main" type="primary" disabled="{{libSelectedCount === 0}}" bindtap="confirmAdd">加入穿搭（{{libSelectedCount}}）</btn>
+    <btn wx:if="{{libManageMode}}" class="delete-btn" type="danger" disabled="{{libDelCount === 0}}" bindtap="confirmDelLib">删除所选（{{libDelCount}}）</btn>
   </view>
 
   <sheet visible="{{uploadVisible}}" bind:cancel="closeUpload">

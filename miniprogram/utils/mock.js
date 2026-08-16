@@ -96,6 +96,7 @@ module.exports = {
     if (kind === "history") history = history.filter((i) => !ids.includes(i.id));
     if (kind === "favorites") favorites = favorites.filter((i) => !ids.includes(i.id));
     if (kind === "myTemplates") myTemplates = myTemplates.filter((i) => !ids.includes(i.id));
+    if (kind === "library") garmentLibrary = garmentLibrary.filter((i) => !ids.includes(i.id));
     return { ok: true };
   },
   async saveToTemplates(params) {
@@ -107,7 +108,6 @@ module.exports = {
       image: params.image || "/assets/img/p07-result.jpg"
     };
     garmentLibrary.push(item);
-    myTemplates.push(item);
     return { ok: true, id: item.id };
   },
   async recognizeGarment() {

@@ -15,6 +15,8 @@ Page({
     garmentLibrary: [],
     libItems: [],
     libSelectedCount: 0,
+    libManageMode: false,
+    libDelCount: 0,
     myTemplates: [],
     catCounts: {},
     selectedIds: [],
@@ -80,8 +82,10 @@ Page({
     this.setData({
       libItems: this.data.garmentLibrary
         .filter((i) => i.category === this.data.curCategory)
-        .map((t) => Object.assign({}, t, { selected: false })),
-      libSelectedCount: 0
+        .map((t) => Object.assign({}, t, { selected: false, delLib: false })),
+      libSelectedCount: 0,
+      libManageMode: false,
+      libDelCount: 0
     });
   },
   backHome() {
@@ -90,6 +94,13 @@ Page({
   },
   onLibSelect(e) {
     const id = e.detail.id;
+    if (this.data.libManageMode) {
+      const libItems = this.data.libItems.map((t) =>
+        t.id === id ? Object.assign({}, t, { delLib: !t.delLib }) : t
+      );
+      this.setData({ libItems, libDelCount: libItems.filter((t) => t.delLib).length });
+      return;
+    }
     const libItems = this.data.libItems.map((t) =>
       t.id === id ? Object.assign({}, t, { selected: !t.selected }) : t
     );
@@ -98,14 +109,38 @@ Page({
       libSelectedCount: libItems.filter((t) => t.selected).length
     });
   },
+  toggleLibManage() {
+    const libManageMode = !this.data.libManageMode;
+    const libItems = this.data.libItems.map((t) => Object.assign({}, t, { delLib: false }));
+    this.setData({ libManageMode, libItems, libDelCount: 0 });
+  },
+  confirmDelLib() {
+    const ids = this.data.libItems.filter((t) => t.delLib).map((t) => t.id);
+    if (ids.length === 0) return;
+    wx.showModal({
+      title: "删除模板衣物",
+      content: `将删除 ${ids.length} 件模板衣物，删除后不可恢复。`,
+      confirmText: "删除",
+      confirmColor: "#C0392B",
+      success: (res) => {
+        if (res.confirm) {
+          api.deleteItems("library", ids).then(() => {
+            toast("已删除");
+            this.loadAll();
+            this.refreshLib();
+          });
+        }
+      }
+    });
+  },
   confirmAdd() {
     const ids = this.data.libItems.filter((t) => t.selected).map((t) => t.id);
     if (ids.length === 0) {
-      toast("请先选择衣物");
+      toast("请先选择衣物加入穿搭");
       return;
     }
     api.addToMyTemplates(ids).then(() => {
-      toast("已加入模板");
+      toast("已加入穿搭");
       this.setData({ viewMode: "home" });
       this.loadAll();
     });
