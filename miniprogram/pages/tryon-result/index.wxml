@@ -148,18 +148,4 @@
       </view>
     </view>
   </sheet>
-
-  <!-- 视频播放弹层（已有视频时） -->
-  <sheet visible="{{videoVisible}}" bind:cancel="closeVideo">
-    <view class="video-player-wrap">
-      <video
-        class="result-video"
-        src="{{result.tryonVideo}}"
-        controls
-        objectFit="cover"
-        poster="{{result.tryonImage}}"
-        autoplay
-      ></video>
-    </view>
-  </sheet>
 </view>

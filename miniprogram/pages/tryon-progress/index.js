@@ -132,6 +132,8 @@ Page({
     this.clearTimers();
     // submitTask 挂载的 pending：用于构造单件衣物清单（供结果页保存模板按衣物归档）
     const pending = this._pending || {};
+    // 无 pending 重入（仅 taskId 轮询）时保留已存的衣物明细，避免覆盖丢失
+    const prevResult = wx.getStorageSync("aiTryonResult") || {};
     this._startTimer = setTimeout(() => {
       // 40ms/帧（25fps）：顺滑且避免高频 setData 通信拥堵
       this._frameTimer = setInterval(() => {
@@ -149,7 +151,7 @@ Page({
               name: pending.garmentNames[i],
               image: pending.garmentImages[i],
               category: pending.garmentCategories[i] || "其他"
-            })) : []
+            })) : (prevResult.garments || [])
           });
           toast("生成完成 · AI 生成效果，仅供参考");
           this._navTimer = setTimeout(() => navigate("/pages/tryon-result/index"), 1400);

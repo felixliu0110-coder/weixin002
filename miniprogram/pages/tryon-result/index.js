@@ -5,7 +5,6 @@ Page({
   data: {
     collectVisible: false,
     templateVisible: false,
-    videoVisible: false,
     collecting: false,
     tplName: "",
     tplCategory: "",
@@ -94,7 +93,13 @@ Page({
 
   /* ---------- 保存模板（重构：多选衣物分别保存） ---------- */
   onSaveTemplate() {
-    const garments = (this.data.result.garments || []).map((g, i) => Object.assign({}, g, {
+    const source = this.data.result.garments || [];
+    // 历史记录/收藏进入本页时无衣物明细（单条记录只存了合成图）：不开空弹层
+    if (!source.length) {
+      toast("该记录没有衣物明细，请在生成完成时保存");
+      return;
+    }
+    const garments = source.map((g, i) => Object.assign({}, g, {
       _index: i,
       _checked: false,
       _editName: g.name,
@@ -210,14 +215,6 @@ Page({
       path: "/pages/login/index",
       imageUrl: this.data.result.tryonImage
     };
-  },
-
-  /* ---------- 视频体验 ---------- */
-  playVideo() {
-    this.setData({ videoVisible: true });
-  },
-  closeVideo() {
-    this.setData({ videoVisible: false });
   },
 
   /* ---------- 跳转到视频生成页 ---------- */

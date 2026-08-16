@@ -12,7 +12,8 @@ Page({
     stageText: "准备中",
     error: false,
     errorMsg: "",
-    videoUrl: ""
+    videoUrl: "",
+    videoVisible: false
   },
 
   onLoad() {
@@ -20,6 +21,11 @@ Page({
     this.setData({
       result: Object.assign({ tryonImage: "/assets/img/p07-result.jpg", garmentName: "AI 试穿" }, r)
     });
+    // 图片任务完成时通常已附带转身视频（缓存复用会返回同一任务）：
+    // 已有视频直接进入完成态，不再走一遍无真实含义的假进度
+    if (r.tryonVideo) {
+      this.setData({ videoUrl: r.tryonVideo, stageText: "视频已就绪" });
+    }
   },
 
   /* ---------- 生成视频 ---------- */
@@ -27,16 +33,38 @@ Page({
     if (this.data.generating) return;
     this.setData({ generating: true, percent: 0, stageText: "提交视频任务", error: false, errorMsg: "" });
 
-    const pending = wx.getStorageSync("aiTryonPending") || {};
     const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
+    // 衣物信息优先取生成结果（aiTryonPending 在进度页提交成功后已被清除）
+    const result = wx.getStorageSync("aiTryonResult") || {};
+    const garments = result.garments || [];
+    let garmentIds = garments.map((g) => g.id);
+    let garmentNames = garments.map((g) => g.name);
+    if (!garmentIds.length) {
+      const pending = wx.getStorageSync("aiTryonPending") || {};
+      garmentIds = pending.garmentIds || [];
+      garmentNames = pending.garmentNames || [];
+    }
+    if (!garmentIds.length) {
+      this.setData({
+        generating: false,
+        error: true,
+        errorMsg: "缺少衣物信息，请从生成结果页进入"
+      });
+      return;
+    }
 
-    // 调用云函数提交视频生成任务
+    // 调用云函数提交视频生成任务（mode 供云函数后续升级区分图/视频任务，当前兼容忽略）
     api.submitAiTryon({
       avatarViewId,
-      garmentIds: pending.garmentIds || [],
-      garmentNames: pending.garmentNames || [],
-      mode: "video" // 视频模式
+      garmentIds,
+      garmentNames,
+      mode: "video"
     }).then((res) => {
+      // 云函数异常返回 { error } 而非抛异常：同样进入失败态，不静默回退
+      if (res && res.error && !res.taskId) {
+        this.setData({ generating: false, error: true, errorMsg: "生成失败：" + res.error });
+        return;
+      }
       this.taskId = res.taskId;
       this._pollCount = 0;
       this.setData({ stageText: "生成 180° 转身视频" });
@@ -86,12 +114,21 @@ Page({
         if (p >= 100) {
           clearInterval(this._frameTimer);
           this._frameTimer = null;
+          const videoUrl = st.tryonVideo || "";
           this.setData({
             generating: false,
-            videoUrl: st.tryonVideo || "",
-            stageText: "生成完成"
+            videoUrl,
+            stageText: videoUrl ? "生成完成" : "视频未生成"
           });
-          toast("视频生成完成 · AI 生成效果，仅供参考");
+          if (videoUrl) {
+            // 回写结果缓存，下次进入直接展示完成态
+            const r = wx.getStorageSync("aiTryonResult") || {};
+            r.tryonVideo = videoUrl;
+            wx.setStorageSync("aiTryonResult", r);
+            toast("视频生成完成 · AI 生成效果，仅供参考");
+          } else {
+            this.setData({ error: true, errorMsg: "本次任务未生成视频，请重试" });
+          }
         }
       }, 40);
     }, 300);
@@ -104,6 +141,12 @@ Page({
 
   /* ---------- 返回结果页 ---------- */
   backToResult() {
+    // 本页由结果页 navigateTo 进入：直接返回，避免页面栈叠加
+    const pages = getCurrentPages();
+    if (pages.length > 1) {
+      wx.navigateBack();
+      return;
+    }
     navigate("/pages/tryon-result/index");
   },
 
