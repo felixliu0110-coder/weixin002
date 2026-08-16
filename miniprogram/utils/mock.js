@@ -20,7 +20,7 @@ const avatarProfile = {
 
 const quota = { userId: "u-demo", dailyFree: 3, used: 0, resetDate: "2026-08-16", isExample: true };
 
-let templates = [
+let garmentLibrary = [
   { id: "g-tee", name: "白色基础T恤", category: "上衣", image: "/assets/img/p06-tee.jpg" },
   { id: "g-shirt", name: "蓝色条纹衬衫", category: "上衣", image: "/assets/img/p06-shirt.jpg" },
   { id: "g-hoodie", name: "米白连帽卫衣", category: "上衣", image: "/assets/img/p06-hoodie.jpg" },
@@ -28,6 +28,8 @@ let templates = [
   { id: "g-pants", name: "浅灰休闲裤", category: "裤子", image: "/assets/img/p06-pants.jpg" },
   { id: "g-skirt", name: "粉色半身裙", category: "其他", image: "/assets/img/p06-skirt.jpg" }
 ];
+
+let myTemplates = [];
 
 const homeTemplates = [
   { id: "t-dress", name: "粉色连衣裙", category: "连衣裙", image: "/assets/img/p17-dress.jpg" },
@@ -58,17 +60,29 @@ const userInfo = {
 module.exports = {
   async getAvatarProfile() { await delay(400); return JSON.parse(JSON.stringify(avatarProfile)); },
   async saveAvatarProfile(data) { await delay(300); Object.assign(avatarProfile, data); return { ok: true }; },
-  async getGarmentTemplates() { await delay(400); return JSON.parse(JSON.stringify(templates)); },
+  async getGarmentTemplates() { await delay(400); return JSON.parse(JSON.stringify(garmentLibrary)); },
+  async getGarmentLibrary() { await delay(300); return JSON.parse(JSON.stringify(garmentLibrary)); },
+  async getMyTemplates() { await delay(300); return JSON.parse(JSON.stringify(myTemplates)); },
+  async addToMyTemplates(ids) {
+    await delay(300);
+    const items = garmentLibrary.filter(
+      (i) => ids.includes(i.id) && !myTemplates.some((m) => m.id === i.id)
+    );
+    myTemplates = myTemplates.concat(items);
+    return { ok: true, count: items.length };
+  },
   async getHomeTemplates() { await delay(300); return JSON.parse(JSON.stringify(homeTemplates)); },
   async uploadGarment(imagePath, params) {
     await delay(600);
-    return {
+    const item = {
       id: "g-upload-" + Date.now(),
       image: imagePath,
       name: (params && params.name) || "上传衣物",
       category: (params && params.category) || "其他",
       status: "ok"
     };
+    garmentLibrary.push(item);
+    return item;
   },
   async submitTryon(params) {
     await delay(900);
@@ -81,7 +95,7 @@ module.exports = {
     await delay(300);
     if (kind === "history") history = history.filter((i) => !ids.includes(i.id));
     if (kind === "favorites") favorites = favorites.filter((i) => !ids.includes(i.id));
-    if (kind === "templates") templates = templates.filter((i) => !ids.includes(i.id));
+    if (kind === "myTemplates") myTemplates = myTemplates.filter((i) => !ids.includes(i.id));
     return { ok: true };
   },
   async saveToTemplates(params) {
@@ -92,7 +106,8 @@ module.exports = {
       category: params.category || "其他",
       image: params.image || "/assets/img/p07-result.jpg"
     };
-    templates.push(item);
+    garmentLibrary.push(item);
+    myTemplates.push(item);
     return { ok: true, id: item.id };
   },
   async recognizeGarment() {

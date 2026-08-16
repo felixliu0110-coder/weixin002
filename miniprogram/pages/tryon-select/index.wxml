@@ -1,59 +1,100 @@
 <view class="wx-page">
   <nav-bar title="选择衣物" showBack="{{true}}" backRoute="/pages/home/index">
-    <view slot="right" class="manage-btn" hover-class="manage-hover" bindtap="toggleManage">{{manageMode ? '完成' : '管理'}}</view>
+    <view wx:if="{{tab === 'lib' && viewMode === 'home'}}" slot="right" class="manage-btn" hover-class="manage-hover" bindtap="toggleManage">{{manageMode ? '完成' : '管理'}}</view>
   </nav-bar>
 
   <view class="content">
     <seg options="{{tabs}}" value="{{tab}}" bindchange="onTab" />
 
-    <view class="hint">选择一件衣物，AI 将按你的数字人体型生成试穿效果。</view>
+    <!-- 模板衣物 -->
+    <block wx:if="{{tab === 'lib'}}">
+      <!-- 分类入口 + 我的模板 -->
+      <block wx:if="{{viewMode === 'home'}}">
+        <view class="hint">点击分类选择衣物，选中的衣物会加入「我的模板」</view>
+        <view class="cat-cards">
+          <view
+            wx:for="{{categories}}"
+            wx:key="*this"
+            class="cat-card"
+            hover-class="cat-card-hover"
+            data-cat="{{item}}"
+            bindtap="onCatCard"
+          >
+            <text class="cat-emoji">{{catEmojis[item]}}</text>
+            <text class="cat-name">{{item}}</text>
+            <text class="cat-count">{{catCounts[item] || 0}} 件</text>
+          </view>
+        </view>
 
-    <view wx:if="{{templates.length === 0 && !manageMode}}" class="empty-state">
-      <view class="es-ic"><image class="ic-img" style="width:40rpx;height:40rpx" src="/assets/icons/png/icon-hanger-gray.png" /></view>
-      <text class="es-text">暂无模板衣物，试试上传一件</text>
+        <view class="sec-hd">
+          <text class="sec-title">我的模板衣物</text>
+          <text class="hint">长按可删除</text>
+        </view>
+        <view wx:if="{{myTemplates.length === 0 && !manageMode}}" class="cat-empty">还没有模板衣物，点击上方分类选择</view>
+        <view class="garment-grid">
+          <garment-item
+            wx:for="{{myTemplates}}"
+            wx:key="id"
+            data="{{item}}"
+            selected="{{manageMode ? item.del : item.selected}}"
+            bindtap="onItemTap"
+            bind:longpress="onLongPress"
+          />
+        </view>
+      </block>
+
+      <!-- 分类内选择衣物 -->
+      <block wx:if="{{viewMode === 'select'}}">
+        <view class="select-head">
+          <view class="back-link" hover-class="back-hover" bindtap="backHome">‹ 返回</view>
+          <text class="select-title">选择「{{curCategory}}」衣物</text>
+        </view>
+        <view class="cat-tabs">
+          <view
+            wx:for="{{categories}}"
+            wx:key="*this"
+            class="cat-tab {{curCategory === item ? 'on' : ''}}"
+            hover-class="cat-tab-hover"
+            data-cat="{{item}}"
+            bindtap="onCategoryTab"
+          >{{item}}</view>
+        </view>
+        <view wx:if="{{libItems.length === 0}}" class="cat-empty">该分类暂无衣物</view>
+        <view class="garment-grid">
+          <garment-item
+            wx:for="{{libItems}}"
+            wx:key="id"
+            data="{{item}}"
+            selected="{{item.selected}}"
+            bindtap="onLibSelect"
+          />
+        </view>
+      </block>
+    </block>
+
+    <!-- 上传衣物 -->
+    <view wx:if="{{tab === 'upload'}}" class="upload-view">
+      <view class="hint">上传衣物将自动加入衣物库，可在分类中选择加入模板</view>
       <btn class="empty-btn" type="secondary" size="sm" bindtap="openUpload">上传衣物</btn>
     </view>
-
-    <view class="cat-tabs">
-      <view
-        wx:for="{{categories}}"
-        wx:key="*this"
-        class="cat-tab {{curCategory === item ? 'on' : ''}}"
-        hover-class="cat-tab-hover"
-        data-cat="{{item}}"
-        bindtap="onCategoryTab"
-      >{{item}}</view>
-    </view>
-
-    <view wx:if="{{filteredTemplates.length === 0}}" class="cat-empty">
-      <text>「{{curCategory}}」分类暂无衣物</text>
-    </view>
-
-    <view class="garment-grid">
-      <garment-item
-        wx:for="{{filteredTemplates}}"
-        wx:key="id"
-        data="{{item}}"
-        selected="{{manageMode ? item.del : item.selected}}"
-        bindtap="onItemTap"
-        bind:longpress="onLongPress"
-      />
-    </view>
   </view>
 
-  <view wx:if="{{!manageMode}}" class="footer-bar">
+  <!-- 底部操作 -->
+  <view wx:if="{{tab === 'lib' && viewMode === 'home' && !manageMode}}" class="footer-bar">
     <btn class="footer-main" type="primary" disabled="{{selectedCount === 0}}" bindtap="startTryon">{{buttonText}}</btn>
   </view>
-
-  <view wx:if="{{manageMode}}" class="delete-bar">
+  <view wx:if="{{tab === 'lib' && viewMode === 'home' && manageMode}}" class="delete-bar">
     <btn class="delete-btn" type="danger" disabled="{{delCount === 0}}" bindtap="onDelete">删除所选（{{delCount}}）</btn>
+  </view>
+  <view wx:if="{{tab === 'lib' && viewMode === 'select'}}" class="footer-bar">
+    <btn class="footer-main" type="primary" disabled="{{libSelectedCount === 0}}" bindtap="confirmAdd">加入模板（{{libSelectedCount}}）</btn>
   </view>
 
   <sheet visible="{{uploadVisible}}" bind:cancel="closeUpload">
     <view class="sheet-head">
       <view class="grab"></view>
       <text class="sheet-title">上传衣物</text>
-      <text class="sheet-desc">拍照或从相册选择，AI 自动识别品类并抠图；jpg / png ≤ 20MB，非衣物图片将被拦截。</text>
+      <text class="sheet-desc">拍照或从相册选择；jpg / png ≤ 20MB，非衣物图片将被拦截。</text>
     </view>
     <view class="pick-actions">
       <view class="pick-btn" hover-class="pick-hover" data-mode="album" bindtap="pickPhoto">
@@ -71,7 +112,7 @@
     <view class="sheet-head">
       <view class="grab"></view>
       <text class="sheet-title">上传衣物信息</text>
-      <text class="sheet-desc">填写衣物名称并选择分类，保存到模板衣物</text>
+      <text class="sheet-desc">填写衣物名称并选择分类，保存到衣物库</text>
     </view>
     <view class="info-form">
       <view class="info-field">

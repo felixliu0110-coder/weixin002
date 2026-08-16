@@ -8,6 +8,17 @@
 .cat-tab.on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); font-weight: 600; }
 .cat-tab-hover { opacity: 0.85; }
 .cat-empty { display: flex; align-items: center; justify-content: center; padding: 60rpx 0; color: var(--fg-2); font-size: 26rpx; }
+.cat-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20rpx; margin-top: 8rpx; }
+.cat-card { display: flex; flex-direction: column; align-items: center; gap: 8rpx; padding: 28rpx 12rpx 22rpx; border-radius: var(--radius-lg); background: linear-gradient(180deg, var(--accent-soft), #FDF3EE); border: 1px solid var(--border-soft); box-shadow: var(--shadow-card); }
+.cat-card-hover { transform: scale(0.97); border-color: var(--accent); }
+.cat-emoji { font-size: 52rpx; line-height: 1; }
+.cat-name { font-size: 28rpx; font-weight: 600; color: var(--fg); }
+.cat-count { font-size: 22rpx; color: var(--fg-2); }
+.select-head { display: flex; align-items: center; gap: 20rpx; margin: 8rpx 2rpx 24rpx; }
+.back-link { font-size: 28rpx; color: #7A5A4E; padding: 8rpx 4rpx; }
+.back-hover { opacity: 0.8; }
+.select-title { font-size: 32rpx; font-weight: 600; }
+.upload-view { display: flex; flex-direction: column; align-items: center; gap: 28rpx; padding: 60rpx 0; text-align: center; }
 .empty-btn { display: block; width: auto; }
 .hint { font-size: 25rpx; color: var(--fg-2); margin: 20rpx 4rpx 24rpx; }
 .garment-grid { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 24rpx; row-gap: 52rpx; }

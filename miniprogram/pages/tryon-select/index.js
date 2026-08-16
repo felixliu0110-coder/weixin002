@@ -8,22 +8,27 @@ Page({
       { label: "上传衣物", value: "upload" }
     ],
     tab: "lib",
-    templates: [],
+    viewMode: "home", // home: 分类入口+我的模板；select: 分类内选择衣物
+    categories: ["上衣", "裤子", "头饰", "鞋子", "其他"],
+    catEmojis: { "上衣": "👕", "裤子": "👖", "头饰": "🧢", "鞋子": "👟", "其他": "📦" },
+    curCategory: "上衣",
+    garmentLibrary: [],
+    libItems: [],
+    libSelectedCount: 0,
+    myTemplates: [],
+    catCounts: {},
+    selectedIds: [],
     selectedCount: 0,
     manageMode: false,
     delCount: 0,
-    categories: ["上衣", "裤子", "头饰", "鞋子", "其他"],
-    curCategory: "上衣",
-    filteredTemplates: [],
+    buttonText: "开始试穿",
     uploadName: "",
     uploadCategory: "上衣",
-    infoVisible: false,
-    pickMode: "album",
-    buttonText: "开始试穿",
-    uploadVisible: false
+    uploadVisible: false,
+    infoVisible: false
   },
   onLoad() {
-    this.loadTemplates();
+    this.loadAll();
   },
   onShow() {
     if (typeof this.getTabBar === "function" && this.getTabBar()) {
@@ -35,92 +40,92 @@ Page({
     this.setData({ tab });
     if (tab === "upload") {
       this.setData({ uploadVisible: true });
-    } else {
-      toast("已显示模板衣物库");
     }
   },
-  toggleGarment(e) {
-    const id = e.detail.id;
-    const name = e.detail.name;
-    const templates = this.data.templates.map((t) =>
-      t.id === id ? Object.assign({}, t, { selected: !t.selected }) : t
-    );
-    const count = templates.filter((t) => t.selected).length;
-    const chosen = templates.find((t) => t.id === id);
-    this.setData({
-      templates,
-      selectedCount: count,
-      buttonText: count > 0 ? "开始试穿（已选 " + count + " 件）" : "开始试穿"
-    });
-    this.applyFilter();
-    toast(chosen.selected ? "已选择「" + name + "」" : "已取消选择");
-  },
-  loadTemplates() {
-    api.getGarmentTemplates().then((templates) => {
+
+  /* ---------- 数据加载 ---------- */
+  loadAll() {
+    api.getGarmentLibrary().then((lib) => {
       this.setData({
-        templates: templates.map((t) => Object.assign({}, t, { selected: false, del: false })),
-        filteredTemplates: templates.filter((t) => t.category === this.data.curCategory),
-        selectedCount: 0,
-        buttonText: "开始试穿"
+        garmentLibrary: lib,
+        libItems: lib.filter((i) => i.category === this.data.curCategory)
       });
     });
-  },
-  applyFilter() {
-    this.setData({
-      filteredTemplates: this.data.templates.filter((t) => t.category === this.data.curCategory)
+    api.getMyTemplates().then((my) => {
+      this.setData({ myTemplates: my });
+      this.computeCatCounts(my);
     });
+  },
+  computeCatCounts(my) {
+    const counts = {};
+    this.data.categories.forEach((c) => {
+      counts[c] = my.filter((i) => i.category === c).length;
+    });
+    this.setData({ catCounts: counts });
+  },
+
+  /* ---------- 分类入口 / 选择视图 ---------- */
+  onCatCard(e) {
+    this.setData({
+      viewMode: "select",
+      curCategory: e.currentTarget.dataset.cat
+    });
+    this.refreshLib();
   },
   onCategoryTab(e) {
     this.setData({ curCategory: e.currentTarget.dataset.cat });
-    this.applyFilter();
+    this.refreshLib();
   },
-  toggleManage() {
-    const manageMode = !this.data.manageMode;
-    const templates = this.data.templates.map((t) => Object.assign({}, t, { del: false }));
-    this.setData({ manageMode, templates, delCount: 0 });
-    this.applyFilter();
-  },
-  onItemTap(e) {
-    if (this.data.manageMode) {
-      const id = e.detail.id;
-      const templates = this.data.templates.map((t) =>
-        t.id === id ? Object.assign({}, t, { del: !t.del }) : t
-      );
-      const delCount = templates.filter((t) => t.del).length;
-      this.setData({ templates, delCount });
-      this.applyFilter();
-    } else {
-      this.toggleGarment(e);
-    }
-  },
-  onLongPress(e) {
-    if (!this.data.manageMode) {
-      const id = e.detail.id;
-      const templates = this.data.templates.map((t) =>
-        t.id === id ? Object.assign({}, t, { del: true }) : Object.assign({}, t, { del: false })
-      );
-      this.setData({ manageMode: true, templates, delCount: 1 });
-      this.applyFilter();
-    }
-  },
-  onDelete() {
-    const ids = this.data.templates.filter((t) => t.del).map((t) => t.id);
-    if (ids.length === 0) return;
-    wx.showModal({
-      title: "删除模板衣物",
-      content: `将删除 ${ids.length} 件模板衣物，删除后不可恢复。`,
-      confirmText: "删除",
-      confirmColor: "#C0392B",
-      success: (res) => {
-        if (res.confirm) {
-          api.deleteItems("templates", ids).then(() => {
-            toast("已删除");
-            this.setData({ manageMode: false, delCount: 0 });
-            this.loadTemplates();
-          });
-        }
-      }
+  refreshLib() {
+    this.setData({
+      libItems: this.data.garmentLibrary
+        .filter((i) => i.category === this.data.curCategory)
+        .map((t) => Object.assign({}, t, { selected: false })),
+      libSelectedCount: 0
     });
+  },
+  backHome() {
+    this.setData({ viewMode: "home" });
+    this.loadAll();
+  },
+  onLibSelect(e) {
+    const id = e.detail.id;
+    const libItems = this.data.libItems.map((t) =>
+      t.id === id ? Object.assign({}, t, { selected: !t.selected }) : t
+    );
+    this.setData({
+      libItems,
+      libSelectedCount: libItems.filter((t) => t.selected).length
+    });
+  },
+  confirmAdd() {
+    const ids = this.data.libItems.filter((t) => t.selected).map((t) => t.id);
+    if (ids.length === 0) {
+      toast("请先选择衣物");
+      return;
+    }
+    api.addToMyTemplates(ids).then(() => {
+      toast("已加入模板");
+      this.setData({ viewMode: "home" });
+      this.loadAll();
+    });
+  },
+
+  /* ---------- 我的模板：选择试穿 ---------- */
+  toggleGarment(e) {
+    const id = e.detail.id;
+    const name = e.detail.name;
+    const myTemplates = this.data.myTemplates.map((t) =>
+      t.id === id ? Object.assign({}, t, { selected: !t.selected }) : t
+    );
+    const count = myTemplates.filter((t) => t.selected).length;
+    const chosen = myTemplates.find((t) => t.id === id);
+    this.setData({
+      myTemplates,
+      selectedCount: count,
+      buttonText: count > 0 ? "开始试穿（已选 " + count + " 件）" : "开始试穿"
+    });
+    toast(chosen.selected ? "已选择「" + name + "」" : "已取消选择");
   },
   startTryon() {
     if (this.data.selectedCount === 0) {
@@ -129,11 +134,64 @@ Page({
     }
     navigate("/pages/tryon-progress/index");
   },
+
+  /* ---------- 我的模板：管理删除 ---------- */
+  toggleManage() {
+    const manageMode = !this.data.manageMode;
+    const myTemplates = this.data.myTemplates.map((t) => Object.assign({}, t, { del: false }));
+    this.setData({ manageMode, myTemplates, delCount: 0 });
+  },
+  onItemTap(e) {
+    if (this.data.manageMode) {
+      const id = e.detail.id;
+      const myTemplates = this.data.myTemplates.map((t) =>
+        t.id === id ? Object.assign({}, t, { del: !t.del }) : t
+      );
+      this.setData({ myTemplates, delCount: myTemplates.filter((t) => t.del).length });
+    } else {
+      this.toggleGarment(e);
+    }
+  },
+  onLongPress(e) {
+    if (!this.data.manageMode) {
+      const id = e.detail.id;
+      const myTemplates = this.data.myTemplates.map((t) =>
+        t.id === id ? Object.assign({}, t, { del: true }) : Object.assign({}, t, { del: false })
+      );
+      this.setData({ manageMode: true, myTemplates, delCount: 1 });
+    }
+  },
+  onDelete() {
+    const ids = this.data.myTemplates.filter((t) => t.del).map((t) => t.id);
+    const count = ids.length;
+    if (count === 0) return;
+    wx.showModal({
+      title: "删除模板衣物",
+      content: `将删除 ${count} 件模板衣物，删除后不可恢复。`,
+      confirmText: "删除",
+      confirmColor: "#C0392B",
+      success: (res) => {
+        if (res.confirm) {
+          api.deleteItems("myTemplates", ids).then(() => {
+            toast("已删除");
+            this.setData({ manageMode: false });
+            this.loadAll();
+          });
+        }
+      }
+    });
+  },
+
+  /* ---------- 上传衣物 ---------- */
   openUpload() { this.setData({ uploadVisible: true }); },
   closeUpload() { this.setData({ uploadVisible: false }); },
   pickPhoto(e) {
-    const mode = e.currentTarget.dataset.mode;
-    this.setData({ uploadVisible: false, pickMode: mode, infoVisible: true, uploadName: "", uploadCategory: "上衣" });
+    this.setData({
+      uploadVisible: false,
+      infoVisible: true,
+      uploadName: "",
+      uploadCategory: "上衣"
+    });
   },
   closeInfo() { this.setData({ infoVisible: false }); },
   onInfoName(e) { this.setData({ uploadName: e.detail.value }); },

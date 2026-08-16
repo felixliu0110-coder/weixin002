@@ -60,6 +60,9 @@ module.exports = {
   },
 
   getGarmentTemplates: mock.getGarmentTemplates,
+  getGarmentLibrary: mock.getGarmentLibrary,
+  getMyTemplates: mock.getMyTemplates,
+  addToMyTemplates: mock.addToMyTemplates,
   getHomeTemplates: mock.getHomeTemplates,
 
   uploadGarment: mock.uploadGarment,
@@ -128,7 +131,7 @@ module.exports = {
 
   async deleteItems(kind, ids) {
     // 模板衣物暂存本地（云上数据范围待定），历史/收藏在云模式下走云数据库
-    if (kind === "templates" || !cloudReady()) return mock.deleteItems(kind, ids);
+    if (kind === "myTemplates" || !cloudReady()) return mock.deleteItems(kind, ids);
     try {
       const collName = { history: "tryon_results", favorites: "favorites", templates: "garments" }[kind];
       const coll = db().collection(collName);
