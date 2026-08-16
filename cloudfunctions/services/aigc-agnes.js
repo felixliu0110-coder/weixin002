@@ -10,6 +10,13 @@ function getKey() {
   return process.env.AGNES_API_KEY || "";
 }
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Agnes 内容安全策略为概率性拒绝（400 Unable to generate this content），自动重试提高成功率
+function isContentRejected(e) {
+  return !!(e && e.statusCode === 400 && /Unable to generate/i.test(e.message || ""));
+}
+
 function requestJson(method, path, body, timeoutMs) {
   return new Promise((resolve, reject) => {
     const url = new URL(BASE + path);
@@ -29,7 +36,11 @@ function requestJson(method, path, body, timeoutMs) {
         let json = null;
         try { json = JSON.parse(data); } catch (e) { /* 非 JSON 响应 */ }
         if (res.statusCode >= 400) {
-          const err = new Error("Agnes API " + res.statusCode + ": " + String(data).slice(0, 300));
+          let detail = "";
+          if (json && json.error) {
+            detail = json.error.message || JSON.stringify(json.error);
+          }
+          const err = new Error("Agnes API " + res.statusCode + (detail ? ": " + detail : ""));
           err.code = "AGNES_API_" + res.statusCode;
           err.statusCode = res.statusCode;
           reject(err);
@@ -57,21 +68,31 @@ module.exports = {
       err.code = "AIGC_NOT_CONFIGURED";
       throw err;
     }
-    const body = {
-      model: "agnes-image-2.1-flash",
-      prompt,
-      size: size || "1024x1024",
-      extra_body: { response_format: "url" }
-    };
-    if (refImages && refImages.length > 0) {
-      body.extra_body.image = refImages;
+    let lastErr = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const body = {
+          model: "agnes-image-2.1-flash",
+          prompt,
+          size: size || "1024x1024",
+          extra_body: { response_format: "url" }
+        };
+        if (refImages && refImages.length > 0) {
+          body.extra_body.image = refImages;
+        }
+        const res = await requestJson("POST", "/v1/images/generations", body, 90000);
+        const urls = (res.data || []).map((d) => d && d.url).filter(Boolean);
+        if (urls.length === 0) {
+          throw new Error("Agnes 生图无返回 URL");
+        }
+        return { urls, provider: "agnes" };
+      } catch (e) {
+        lastErr = e;
+        if (!isContentRejected(e) || attempt >= 3) throw e;
+        await sleep(1200 * attempt);
+      }
     }
-    const res = await requestJson("POST", "/v1/images/generations", body, 90000);
-    const urls = (res.data || []).map((d) => d && d.url).filter(Boolean);
-    if (urls.length === 0) {
-      throw new Error("Agnes 生图无返回 URL");
-    }
-    return { urls, provider: "agnes" };
+    throw lastErr;
   },
   /* 创建图生视频任务（异步，不等待完成）。返回任务 ID，后续用 getVideoStatus 轮询。 */
   async generateVideo({ imageUrl, prompt, durationSec }) {
@@ -80,22 +101,32 @@ module.exports = {
       err.code = "AIGC_NOT_CONFIGURED";
       throw err;
     }
-    const frames = durationSec && durationSec <= 4 ? 81 : 121; // 约 3s / 5s
-    const body = {
-      model: "agnes-video-v2.0",
-      prompt,
-      width: 1152,
-      height: 768,
-      num_frames: frames,
-      frame_rate: 24
-    };
-    if (imageUrl) body.image = imageUrl;
-    const res = await requestJson("POST", "/v1/videos", body, 60000);
-    const videoId = res.video_id || res.task_id || res.id;
-    if (!videoId) {
-      throw new Error("Agnes 视频任务创建失败，无 task_id/video_id");
+    let lastErr = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const frames = durationSec && durationSec <= 4 ? 81 : 121; // 约 3s / 5s
+        const body = {
+          model: "agnes-video-v2.0",
+          prompt,
+          width: 1152,
+          height: 768,
+          num_frames: frames,
+          frame_rate: 24
+        };
+        if (imageUrl) body.image = imageUrl;
+        const res = await requestJson("POST", "/v1/videos", body, 60000);
+        const videoId = res.video_id || res.task_id || res.id;
+        if (!videoId) {
+          throw new Error("Agnes 视频任务创建失败，无 task_id/video_id");
+        }
+        return { videoTaskId: videoId, status: res.status || "queued", provider: "agnes" };
+      } catch (e) {
+        lastErr = e;
+        if (!isContentRejected(e) || attempt >= 3) throw e;
+        await sleep(1200 * attempt);
+      }
     }
-    return { videoTaskId: videoId, status: res.status || "queued", provider: "agnes" };
+    throw lastErr;
   },
   /* 轮询视频任务状态。 */
   async getVideoStatus(taskId) {

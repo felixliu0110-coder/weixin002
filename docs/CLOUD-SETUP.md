@@ -63,7 +63,7 @@ AI 生成服务（Agnes AIGC）的密钥通过云函数环境变量注入，未�
 1. 微信开发者工具 →「云开发」控制台 →「云函数」；
 2. 逐个选择 `createAvatarViews`、`ensureGarmentViews`、`aiTryon`，点「配置」；
 3. 在「环境变量」中添加 `AGNES_API_KEY`，值为你的 Agnes API Key；
-4. 同页把「执行超时时间」改为 **60 秒**（默认 3 秒不足以完成真实生图/视频任务创建）。
+4. 同页把「执行超时时间」改为 **120 秒**（默认 3 秒不足以完成真实生图；AI 内容审核拒绝时会自动重试，120 秒留足余量，最大支持 300 秒）。
 
 > `onTryonComplete` 不需要该 Key。`createAvatarViews`（人物三视图）、`ensureGarmentViews`（衣物四视图）、`aiTryon`（试穿效果图 + 转身视频）三个函数都需要配置。Key 配置后自动从 mock 切换为真实生成；其中 `aiTryon` 的视频为异步任务，前端会轮询到生成完成。
 

@@ -1,4 +1,6 @@
 /* 人物三视图提示词：源自 .agnes/jimeng-2026-08-16-7722-真人写实三视图生成提示词文档.md */
+const num = (x, fallback) => (typeof x === "number" && isFinite(x)) ? x : fallback;
+
 const SKIN_TONE_MAP = {
   light: "自然偏浅肤色",
   natural: "自然黄种人肤色",
@@ -11,7 +13,8 @@ function skinToneDesc(skinTone) {
 }
 
 function buildAvatarViewsPrompt(profile) {
-  return `真人写实等比例三视图人物设定图，同一张图内横向并排展示完整人物的正面视图、左侧面视图、背面视图，三个视图的人物完全为同一人，站姿统一为双手自然垂于身体两侧、双脚分开与肩同宽，全程不做任何美颜美化、不加滤镜、不磨皮、不拉长腿、不调整五官比例，完全按照真实人体参数等比例还原：身高${profile.heightCm}cm、体重${profile.weightKg}kg、鞋码${profile.shoeSize}码，肩宽${profile.shoulderCm}cm，胸围${profile.bustCm}cm、腰围${profile.waistCm}cm、臀围${profile.hipCm}cm，臂长${profile.armLengthCm}cm，腿长${profile.legLengthCm}cm，颈长${profile.neckLengthCm}cm，${skinToneDesc(profile.skinTone)}，皮肤表面保留真实的细微毛孔、色素沉淀和自然肌理。纯白色纯净背景，均匀三点柔光打光，无多余道具、无装饰、无环境元素，画面仅展示三个视角的完整真人全身像，所有身体部位比例严格写实、不存在任何夸张美化效果。`;
+  const gender = profile.gender === "male" ? "男性" : "女性";
+  return `一位${gender}的数字人物形象，全身像，同一画面并排展示正面、侧面、背面三个角度，站姿自然，身高${num(profile.heightCm, 170)}厘米，体重${num(profile.weightKg, 60)}公斤，肩宽${num(profile.shoulderCm, 40)}厘米，臂长${num(profile.armLengthCm, 55)}厘米，腿长${num(profile.legLengthCm, 80)}厘米，胸围${num(profile.bustCm, 90)}厘米，腰围${num(profile.waistCm, 70)}厘米，臀围${num(profile.hipCm, 92)}厘米，鞋码${num(profile.shoeSize, 40)}码，颈长${num(profile.neckLengthCm, 10)}厘米，${skinToneDesc(profile.skinTone)}，纯白色背景，均匀三点柔光，写实风格，画面干净无多余元素`;
 }
 
 module.exports = { buildAvatarViewsPrompt, skinToneDesc };

@@ -5,6 +5,11 @@ const { buildTryonVideoPrompt } = require("./tryonVideo");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
+function fmtErr(e) {
+  const detail = (e && e.message) ? e.message : String(e);
+  return (e && e.code) ? e.code + ": " + detail : detail;
+}
+
 async function submit(event, openid) {
   const { avatarViewId, garmentIds, garmentNames } = event;
   if (!avatarViewId || !garmentIds || garmentIds.length === 0) {
@@ -47,8 +52,8 @@ async function submit(event, openid) {
     await db.collection("tryon_tasks").doc(taskId).update({ data: update });
     return { ok: true, taskId, status: update.status || "processing" };
   } catch (e) {
-    await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "failed", error: e.code || e.message, updated_at: Date.now() } });
-    return { ok: false, taskId, error: e.code || e.message };
+    await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "failed", error: fmtErr(e), updated_at: Date.now() } });
+    return { ok: false, taskId, error: fmtErr(e) };
   }
 }
 

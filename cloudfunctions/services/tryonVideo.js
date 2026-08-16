@@ -1,12 +1,11 @@
 /* 试穿视频提示词：源自 .agnes/jimeng-2026-08-16-2206-写实人衣匹配视频生成提示词.md */
 const { skinToneDesc } = require("./avatarViews");
+const num = (x, fallback) => (typeof x === "number" && isFinite(x)) ? x : fallback;
 
 function buildTryonVideoPrompt(profile, garmentName) {
-  return `纯白色纯净背景，均匀三点柔光打光，无多余道具、无装饰、无多余环境元素，画面全程聚焦完整人物全身：
-人物严格按照真实人体参数等比例还原：身高${profile.heightCm}cm、体重${profile.weightKg}kg、鞋码${profile.shoeSize}码，肩宽${profile.shoulderCm}cm，胸围${profile.bustCm}cm、腰围${profile.waistCm}cm、臀围${profile.hipCm}cm，臂长${profile.armLengthCm}cm，腿长${profile.legLengthCm}cm，颈长${profile.neckLengthCm}cm，${skinToneDesc(profile.skinTone)}，皮肤表面保留真实的细微毛孔、色素沉淀和自然肌理，全程不做任何美颜美化。
-人物身上穿着指定参考服装【${garmentName}】，服装100%还原参考原图所有真实特征，版型、颜色、面料纹理、缝线、纽扣/拉链细节、水洗效果、自然使用痕迹和原图完全一致，不对服装做任何外观优化、不刻意提升质感、不添加任何原图不存在的高级效果。
-人物初始站姿为双手自然垂于身体两侧、双脚分开与肩同宽，随后缓慢原地静态转身180度，镜头保持固定不动，完整自然展示人物从正面转向背面的全过程，依次呈现人物着装的正面、侧转过程、背面的完整全身效果，全程所有身体部位比例严格写实，服装与人体贴合自然，不出现任何夸张美化效果，完整呈现普通人日常着装的真实自然状态。
-全局强制规则：全程无滤镜无后期美化，所有画面保持原生真实质感，允许视觉效果不够精致好看。`;
+  return `纯白色背景，均匀柔和打光，画面聚焦完整人物全身：身高${num(profile.heightCm, 170)}厘米，体重${num(profile.weightKg, 60)}公斤，鞋码${num(profile.shoeSize, 40)}码，肩宽${num(profile.shoulderCm, 40)}厘米，胸围${num(profile.bustCm, 90)}厘米，腰围${num(profile.waistCm, 70)}厘米，臀围${num(profile.hipCm, 92)}厘米，臂长${num(profile.armLengthCm, 55)}厘米，腿长${num(profile.legLengthCm, 80)}厘米，颈长${num(profile.neckLengthCm, 10)}厘米，${skinToneDesc(profile.skinTone)}。
+人物穿着【${garmentName}】这件服装，服装的版型、颜色和面料细节与参考图一致。
+人物初始站姿自然，双手垂于身体两侧，随后缓慢原地转身180度，镜头保持固定，完整展示人物从正面到背面的过程，自然写实，质感真实。`;
 }
 
 module.exports = { buildTryonVideoPrompt };

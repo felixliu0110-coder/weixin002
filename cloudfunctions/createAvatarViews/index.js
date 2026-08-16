@@ -5,6 +5,11 @@ const { buildAvatarViewsPrompt } = require("./avatarViews");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
+function fmtErr(e) {
+  const detail = (e && e.message) ? e.message : String(e);
+  return (e && e.code) ? e.code + ": " + detail : detail;
+}
+
 exports.main = async (event) => {
   const { openid } = cloud.getWXContext();
   // 查询最新三视图：云函数管理权限读取，按 user_id 归属过滤（openid 为空时取最新一条，兼容测试环境）
@@ -41,6 +46,6 @@ exports.main = async (event) => {
     const addRes = await db.collection("avatar_views").add({ data: doc });
     return { ok: true, avatarViewId: addRes._id, status: "ready", views: doc.views };
   } catch (e) {
-    return { ok: false, error: e.code || e.message };
+    return { ok: false, error: fmtErr(e) };
   }
 };

@@ -13,10 +13,10 @@ const profile = {
 
 test("buildAvatarViewsPrompt 包含全部身材参数", () => {
   const p = buildAvatarViewsPrompt(profile);
-  ["165cm", "50kg", "38码", "38cm", "88cm", "66cm", "92cm", "55cm", "96cm", "9cm", "自然黄种人肤色"].forEach((s) => {
+  ["165厘米", "50公斤", "38码", "38厘米", "88厘米", "66厘米", "92厘米", "55厘米", "96厘米", "9厘米", "自然黄种人肤色"].forEach((s) => {
     assert.ok(p.includes(s), "缺少 " + s);
   });
-  assert.ok(p.includes("正面视图") && p.includes("左侧面视图") && p.includes("背面视图"));
+  assert.ok(p.includes("正面") && p.includes("侧面") && p.includes("背面"));
 });
 
 test("buildGarmentViewsPrompt 包含服装名与四视图要求", () => {
@@ -28,7 +28,7 @@ test("buildGarmentViewsPrompt 包含服装名与四视图要求", () => {
 
 test("buildTryonVideoPrompt 包含参数与180度转身", () => {
   const p = buildTryonVideoPrompt(profile, "白色基础T恤");
-  assert.ok(p.includes("165cm") && p.includes("白色基础T恤"));
-  assert.ok(p.includes("原地静态转身180度"));
-  assert.ok(p.includes("无滤镜"));
+  assert.ok(p.includes("165厘米") && p.includes("白色基础T恤"));
+  assert.ok(p.includes("原地转身180度"));
+  assert.ok(p.includes("自然写实"));
 });

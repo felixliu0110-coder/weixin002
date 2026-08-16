@@ -5,6 +5,11 @@ const { buildGarmentViewsPrompt } = require("./garmentViews");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
+function fmtErr(e) {
+  const detail = (e && e.message) ? e.message : String(e);
+  return (e && e.code) ? e.code + ": " + detail : detail;
+}
+
 exports.main = async (event) => {
   const { openid } = cloud.getWXContext();
   const { garmentId, garmentName, garmentImage } = event;
@@ -32,6 +37,6 @@ exports.main = async (event) => {
     const addRes = await db.collection("garment_views").add({ data: doc });
     return { ok: true, cached: false, garmentViewId: addRes._id, status: "ready", views: doc.views };
   } catch (e) {
-    return { ok: false, error: e.code || e.message };
+    return { ok: false, error: fmtErr(e) };
   }
 };
