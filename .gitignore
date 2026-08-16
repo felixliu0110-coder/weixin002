@@ -4,6 +4,7 @@ cloudfunctions/*/aigc-agnes.js
 cloudfunctions/*/aigc-mock.js
 cloudfunctions/*/avatarViews.js
 cloudfunctions/*/garmentViews.js
+cloudfunctions/*/storage.js
 cloudfunctions/*/tryonCache.js
 cloudfunctions/*/tryonVideo.js
 !cloudfunctions/services/aigc.js
@@ -11,6 +12,7 @@ cloudfunctions/*/tryonVideo.js
 !cloudfunctions/services/aigc-mock.js
 !cloudfunctions/services/avatarViews.js
 !cloudfunctions/services/garmentViews.js
+!cloudfunctions/services/storage.js
 !cloudfunctions/services/tryonCache.js
 !cloudfunctions/services/tryonVideo.js
 node_modules/

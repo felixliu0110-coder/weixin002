@@ -1,6 +1,7 @@
 const cloud = require("wx-server-sdk");
 const { getAigc } = require("./aigc");
 const { buildAvatarViewsPrompt } = require("./avatarViews");
+const { saveRemoteImage } = require("./storage");
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -34,11 +35,17 @@ exports.main = async (event) => {
   const prompt = buildAvatarViewsPrompt(profile);
   try {
     const res = await aigc.generateImages({ prompt, refImages: event.refImages || [], count: 1 });
+    let composite = res.urls[0];
+    try {
+      composite = await saveRemoteImage(res.urls[0], "avatar_views");
+    } catch (e) {
+      console.log("createAvatarViews storage save fail", "error=" + e.message);
+    }
     const doc = {
       _openid: openid,
       user_id: openid,
       profile_snapshot: profile,
-      views: { composite: res.urls[0] },
+      views: { composite },
       provider: res.provider,
       status: "ready",
       createdAt: Date.now()

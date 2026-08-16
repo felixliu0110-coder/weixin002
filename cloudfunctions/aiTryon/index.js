@@ -2,6 +2,7 @@ const cloud = require("wx-server-sdk");
 const { getAigc } = require("./aigc");
 const { buildTryonVideoPrompt } = require("./tryonVideo");
 const { buildTryonCacheKey, isCacheHit } = require("./tryonCache");
+const { saveRemoteImage } = require("./storage");
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -137,7 +138,13 @@ async function submit(event, openid) {
     console.log("aiTryon submit fail", "taskId=" + taskId, "error=" + fmtErr(lastErr), "costMs=" + (Date.now() - t0));
     return { ok: false, taskId, error: fmtErr(lastErr) };
   }
-  const update = { stage: "video", tryon_image: imgRes.urls[0], updated_at: Date.now() };
+  let tryonImage = imgRes.urls[0];
+  try {
+    tryonImage = await saveRemoteImage(imgRes.urls[0], "tryon");
+  } catch (e) {
+    console.log("aiTryon storage save fail", "taskId=" + taskId, "error=" + e.message);
+  }
+  const update = { stage: "video", tryon_image: tryonImage, updated_at: Date.now() };
   if (vidRes.videoTaskId) {
     // 异步视频服务（agnes）：创建任务后由 status 轮询完成
     update.video_task_id = vidRes.videoTaskId;

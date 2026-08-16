@@ -1,6 +1,7 @@
 const cloud = require("wx-server-sdk");
 const { getAigc } = require("./aigc");
 const { buildGarmentViewsPrompt } = require("./garmentViews");
+const { saveRemoteImage } = require("./storage");
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -25,11 +26,17 @@ exports.main = async (event) => {
     const aigc = getAigc();
     const prompt = buildGarmentViewsPrompt(garmentName);
     const res = await aigc.generateImages({ prompt, refImages: garmentImage ? [garmentImage] : [], count: 1 });
+    let composite = res.urls[0];
+    try {
+      composite = await saveRemoteImage(res.urls[0], "garment_views");
+    } catch (e) {
+      console.log("ensureGarmentViews storage save fail", "error=" + e.message);
+    }
     const doc = {
       _openid: openid,
       garment_id: garmentId,
       user_id: openid,
-      views: { composite: res.urls[0] },
+      views: { composite },
       provider: res.provider,
       status: "ready",
       createdAt: Date.now()

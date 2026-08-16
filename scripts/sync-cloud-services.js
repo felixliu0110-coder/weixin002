@@ -10,6 +10,7 @@ const SHARED_FILES = [
   "aigc-mock.js",
   "avatarViews.js",
   "garmentViews.js",
+  "storage.js",
   "tryonCache.js",
   "tryonVideo.js"
 ];
