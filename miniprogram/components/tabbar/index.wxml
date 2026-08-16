@@ -1,4 +1,4 @@
-<view class="tabbar {{pill ? 'pill' : ''}}">
+<view class="tabbar {{navMode ? 'nav' : ''}} {{pill ? 'pill' : ''}}">
   <view
     wx:for="{{list}}"
     wx:key="pagePath"

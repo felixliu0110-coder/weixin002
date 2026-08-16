@@ -1,7 +1,58 @@
-.tabbar { display: flex; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -4rpx 16rpx rgba(70, 52, 40, 0.04); padding: 12rpx 20rpx calc(12rpx + env(safe-area-inset-bottom)); min-height: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); position: relative; z-index: 60; }
-.tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6rpx; font-size: 22rpx; color: var(--fg-2); border-radius: var(--radius-md); margin: 4rpx 8rpx; }
-.tab-icon { width: 44rpx; height: 44rpx; }
-.tab.on { color: var(--accent-text); font-weight: 600; }
-.tabbar.pill .tab.on { background: var(--accent-tab); color: var(--fg); border-radius: 999rpx; }
+.tabbar {
+  display: flex;
+  background: var(--surface);
+  border-top: 0.5px solid var(--border-soft);
+  box-shadow: 0 -2rpx 12rpx rgba(70, 52, 40, 0.03);
+  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
+  min-height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  position: relative;
+  z-index: 60;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+  border-radius: 999rpx;
+  margin: 0 12rpx;
+  padding: 8rpx 0;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.tab-icon {
+  width: 52rpx;
+  height: 52rpx;
+  transition: transform 0.25s ease;
+}
+
+.tab.on {
+  color: var(--accent-text);
+  font-weight: 600;
+  background: var(--accent-soft);
+}
+
+.tab.on .tab-icon {
+  transform: translateY(-2rpx) scale(1.08);
+}
+
+/* navMode 下：选中项带背景药丸，非选中项更淡 */
+.tabbar.nav .tab.on {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+/* pill 模式：更紧凑的药丸 */
+.tabbar.pill .tab.on {
+  background: var(--accent-tab);
+  color: var(--fg);
+  border-radius: 999rpx;
+  padding: 8rpx 0;
+}
 
 .tab-hover { opacity: 0.72; }
