@@ -1,4 +1,5 @@
 /* 交互封装（迁移自 weixin002/assets/proto.js） */
+const config = require("../config");
 const wxApi = typeof wx !== "undefined" ? wx : (global.__wx || {});
 
 const TAB_ROUTES = ["/pages/home/index", "/pages/tryon-select/index", "/pages/favorites/index", "/pages/profile/index"];
@@ -6,6 +7,17 @@ const TAB_ROUTES = ["/pages/home/index", "/pages/tryon-select/index", "/pages/fa
 function toast(msg, ms) {
   if (!wxApi.showToast) return;
   wxApi.showToast({ title: msg, icon: "none", duration: ms || 1900 });
+}
+
+/* 试穿提交前请求订阅授权；未配置模板 ID 时静默跳过 */
+function requestSubscribe() {
+  const tmplId = (config && config.subscribeTmplId) || "";
+  if (!tmplId || typeof wx === "undefined" || typeof wx.requestSubscribeMessage !== "function") {
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    wx.requestSubscribeMessage({ tmplIds: [tmplId], success: resolve, fail: resolve });
+  });
 }
 
 let lastNavTime = 0;
@@ -77,6 +89,7 @@ function ring(percent, duration, cb) {
 
 module.exports = {
   toast,
+  requestSubscribe,
   navigate,
   navigateAfter,
   reLaunch,

@@ -1,4 +1,4 @@
-const { toast, navigate } = require("../../utils/interaction");
+const { toast, navigate, requestSubscribe } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
 Page({
@@ -25,7 +25,7 @@ Page({
     const g = this.data.garment;
     const garmentId = (g && g.id) || "g-upload-" + Date.now();
     const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
-    api.ensureGarmentViews(garmentId, g.name, g.image).then(() => {
+    requestSubscribe().then(() => api.ensureGarmentViews(garmentId, g.name, g.image)).then(() => {
       return api.submitAiTryon({
         avatarViewId,
         garmentIds: [garmentId],

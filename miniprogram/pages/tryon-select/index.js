@@ -1,4 +1,4 @@
-const { toast, navigate } = require("../../utils/interaction");
+const { toast, navigate, requestSubscribe } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
 Page({
@@ -178,7 +178,8 @@ Page({
     const items = this.data.myTemplates.filter((t) => t.selected);
     const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
     // 每件选中衣物都要预生成四视图（此前只处理第一件，多件时后续衣物视图缺失）
-    Promise.all(items.map((g) => api.ensureGarmentViews(g.id, g.name, g.image)))
+    requestSubscribe()
+      .then(() => Promise.all(items.map((g) => api.ensureGarmentViews(g.id, g.name, g.image))))
       .then(() => {
         return api.submitAiTryon({
           avatarViewId,

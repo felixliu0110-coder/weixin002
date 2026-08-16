@@ -11,6 +11,48 @@ function fmtErr(e) {
   return (e && e.code) ? e.code + ": " + detail : detail;
 }
 
+/* 试穿完成写记录（task_id 去重；占位视频不写，避免污染真实记录） */
+async function saveTryonResult(task) {
+  if (!task || !task.tryon_video || task.tryon_video.indexOf("placeholder") >= 0) return false;
+  const dup = await db.collection("tryon_results").where({ task_id: task._id }).limit(1).get();
+  if (dup.data.length > 0) return false;
+  await db.collection("tryon_results").add({
+    data: {
+      _openid: task._openid || task.user_id,
+      user_id: task.user_id,
+      task_id: task._id,
+      avatar_view_id: task.avatar_view_id,
+      garment_id: (task.garment_ids || [])[0],
+      garment_name: task.garment_name || "AI 试穿",
+      tryon_image: task.tryon_image,
+      tryon_video: task.tryon_video,
+      ai_tagged: true,
+      createdAt: Date.now()
+    }
+  });
+  return true;
+}
+
+/* 订阅消息通知（需配置环境变量 SUBSCRIBE_TMPL_ID；字段名以申请的模板为准） */
+async function sendSubscribe(openid, garmentName) {
+  const tmplId = process.env.SUBSCRIBE_TMPL_ID;
+  if (!tmplId || !openid) return;
+  try {
+    await cloud.openapi.subscribeMessage.send({
+      touser: openid,
+      templateId: tmplId,
+      page: "pages/tryon-result/index",
+      data: {
+        thing1: { value: (garmentName || "AI 试穿").slice(0, 20) },
+        thing2: { value: "AI 试穿生成完成" }
+      }
+    });
+    console.log("aiTryon subscribe sent", "openid=" + openid);
+  } catch (e) {
+    console.log("aiTryon subscribe fail", "error=" + ((e && (e.errMsg || e.message)) || e));
+  }
+}
+
 async function submit(event, openid) {
   const { avatarViewId, garmentIds, garmentNames } = event;
   const t0 = Date.now();
@@ -44,6 +86,7 @@ async function submit(event, openid) {
     user_id: openid,
     avatar_view_id: avatarViewId,
     garment_ids: garmentIds,
+    garment_name: garmentName,
     cache_key: cacheKey,
     type: "ai_video",
     stage: "video",
@@ -54,29 +97,41 @@ async function submit(event, openid) {
   };
   const addRes = await db.collection("tryon_tasks").add({ data: task });
   const taskId = addRes._id;
-  try {
-    // 试穿效果图（agnes 同步生图，等待返回 URL）
-    const imgRes = await aigc.generateImages({ prompt: "同人物穿着" + garmentName + "的照片级效果图", refImages: [], count: 1 });
-    const vidRes = await aigc.generateVideo({ imageUrl: imgRes.urls[0], prompt: videoPrompt, durationSec: 5 });
-    const update = { stage: "video", tryon_image: imgRes.urls[0], updated_at: Date.now() };
-    if (vidRes.videoTaskId) {
-      // 异步视频服务（agnes）：创建任务后由 status 轮询完成
-      update.video_task_id = vidRes.videoTaskId;
-      update.provider = vidRes.provider || "agnes";
-    } else {
-      // 同步实现（mock）：直接落结果
-      update.status = "success";
-      update.tryon_video = vidRes.videoUrl;
-      update.provider = vidRes.provider || "mock";
+  // 生成（效果图 + 视频任务创建）：失败自动重试 1 次（FR-21）
+  let lastErr = null;
+  let imgRes = null;
+  let vidRes = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      imgRes = await aigc.generateImages({ prompt: "同人物穿着" + garmentName + "的照片级效果图", refImages: [], count: 1 });
+      vidRes = await aigc.generateVideo({ imageUrl: imgRes.urls[0], prompt: videoPrompt, durationSec: 5 });
+      lastErr = null;
+      break;
+    } catch (e) {
+      lastErr = e;
+      await db.collection("tryon_tasks").doc(taskId).update({ data: { retry_count: attempt + 1, updated_at: Date.now() } });
+      console.log("aiTryon generate attempt fail", "taskId=" + taskId, "attempt=" + (attempt + 1), "error=" + fmtErr(e));
     }
-    await db.collection("tryon_tasks").doc(taskId).update({ data: update });
-    console.log("aiTryon submit ok", "taskId=" + taskId, "status=" + (update.status || "processing"), "costMs=" + (Date.now() - t0));
-    return { ok: true, taskId, status: update.status || "processing" };
-  } catch (e) {
-    await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "failed", error: fmtErr(e), updated_at: Date.now() } });
-    console.log("aiTryon submit fail", "taskId=" + taskId, "error=" + fmtErr(e), "costMs=" + (Date.now() - t0));
-    return { ok: false, taskId, error: fmtErr(e) };
   }
+  if (lastErr) {
+    await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "failed", error: fmtErr(lastErr), updated_at: Date.now() } });
+    console.log("aiTryon submit fail", "taskId=" + taskId, "error=" + fmtErr(lastErr), "costMs=" + (Date.now() - t0));
+    return { ok: false, taskId, error: fmtErr(lastErr) };
+  }
+  const update = { stage: "video", tryon_image: imgRes.urls[0], updated_at: Date.now() };
+  if (vidRes.videoTaskId) {
+    // 异步视频服务（agnes）：创建任务后由 status 轮询完成
+    update.video_task_id = vidRes.videoTaskId;
+    update.provider = vidRes.provider || "agnes";
+  } else {
+    // 同步实现（mock）：直接落结果
+    update.status = "success";
+    update.tryon_video = vidRes.videoUrl;
+    update.provider = vidRes.provider || "mock";
+  }
+  await db.collection("tryon_tasks").doc(taskId).update({ data: update });
+  console.log("aiTryon submit ok", "taskId=" + taskId, "status=" + (update.status || "processing"), "costMs=" + (Date.now() - t0));
+  return { ok: true, taskId, status: update.status || "processing" };
 }
 
 async function status(event) {
@@ -96,6 +151,8 @@ async function status(event) {
           });
           d.status = "success";
           d.tryon_video = st.videoUrl;
+          await saveTryonResult(Object.assign({ _id: event.taskId }, d));
+          await sendSubscribe(d.user_id, d.garment_name);
           console.log("aiTryon video completed", "taskId=" + event.taskId, "costMs=" + (Date.now() - t0));
         } else if (st.status === "failed") {
           const msg = st.error || "视频生成失败";
