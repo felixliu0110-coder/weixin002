@@ -1,19 +1,45 @@
 .wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+
+/* 图片卡片 */
 .photo-card { position: relative; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-soft); background: var(--surface); box-shadow: var(--shadow-card); }
-.photo-card image { width: 100%; }
+.result-img { width: 100%; display: block; }
 .badge-ai { position: absolute; top: 24rpx; left: 24rpx; background: rgba(31,29,27,0.76); color: var(--accent-on); font-size: 22rpx; font-weight: 500; padding: 10rpx 20rpx; border-radius: 999rpx; display: inline-flex; align-items: center; gap: 10rpx; }
-.badge-ai .iconfont { font-size: 24rpx; }
 .wm { position: absolute; left: 50%; bottom: 24rpx; transform: translateX(-50%); background: rgba(31,29,27,0.66); color: rgba(255,255,255,0.92); font-size: 21rpx; padding: 8rpx 24rpx; border-radius: 999rpx; white-space: nowrap; }
-.angle-row { display: flex; gap: 16rpx; margin-top: 28rpx; }
-.angle-row .chip { flex: 1; }
+
+/* 穿搭信息 */
 .result-meta { display: block; margin-top: 28rpx; display: flex; align-items: flex-start; justify-content: space-between; gap: 20rpx; }
 .rm-copy { flex: 1; min-width: 0; }
 .rm-title { font-size: 34rpx; font-weight: 600; }
 .rm-sub { font-size: 25rpx; color: var(--fg-2); margin-top: 8rpx; line-height: 1.55; }
-.rm-hint { font-size: 24rpx; color: var(--fg-2); margin-top: 8rpx; }
-.rm-tag { flex: 0 0 auto; background: var(--tag-bg); color: var(--fg-2); font-size: 24rpx; font-weight: 600; border-radius: 999rpx; padding: 10rpx 22rpx; }
-.action-row { display: flex; gap: 24rpx; margin-top: 28rpx; }
-.action-btn { display: block; flex: 1; }
+
+/* 操作按钮列表：纵向排列 */
+.action-list { margin-top: 28rpx; display: flex; flex-direction: column; gap: 16rpx; }
+.action-item { display: flex; align-items: center; gap: 20rpx; padding: 24rpx 28rpx; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--border-soft); position: relative; }
+.action-hover { background: var(--accent-soft); }
+.action-active { background: var(--accent-soft); border-color: var(--accent); }
+.action-icon { width: 44rpx; height: 44rpx; flex-shrink: 0; }
+.action-label { font-size: 30rpx; font-weight: 600; color: var(--fg); flex-shrink: 0; }
+.action-hint { font-size: 24rpx; color: var(--fg-2); margin-left: auto; text-align: right; }
+
+/* 分享按钮透明覆盖层 */
+.share-btn { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; padding: 0; margin: 0; border: none; background: transparent; }
+
+/* 视频体验区域 */
+.video-section { margin-top: 32rpx; }
+.vs-head { margin-bottom: 16rpx; }
+.vs-title { font-size: 30rpx; font-weight: 600; color: var(--fg); }
+.vs-sub { font-size: 24rpx; color: var(--fg-2); margin-top: 4rpx; display: block; }
+.video-card { position: relative; border-radius: var(--radius-lg); overflow: hidden; height: 320rpx; border: 1px solid var(--border-soft); }
+.video-poster { width: 100%; height: 100%; display: block; }
+.video-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.25); }
+.play-icon { width: 72rpx; height: 72rpx; }
+.play-text { font-size: 26rpx; color: #fff; margin-top: 12rpx; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
+/* 视频播放器弹层 */
+.video-player-wrap { padding: 20rpx 0; }
+.result-video { width: 100%; border-radius: var(--radius-md); display: block; background: #000; }
+
+/* 弹层通用 */
 .sheet-head { display: flex; flex-direction: column; gap: 8rpx; }
 .grab { width: 80rpx; height: 8rpx; border-radius: 4rpx; background: var(--border); margin: 0 auto 20rpx; }
 .sheet-title { font-size: 34rpx; font-weight: 600; }
@@ -31,5 +57,3 @@
 .cat-chip { display: flex; align-items: center; justify-content: center; min-height: 76rpx; border-radius: 999rpx; border: 1px solid var(--border); background: var(--surface); color: var(--fg-2); font-size: 26rpx; }
 .cat-chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); font-weight: 600; }
 .cat-chip-hover { opacity: 0.85; }
-.action-row .iconfont { font-size: 32rpx; margin-right: 8rpx; }
-.result-video { width: 100%; border-radius: 24rpx; display: block; background: #000000; }

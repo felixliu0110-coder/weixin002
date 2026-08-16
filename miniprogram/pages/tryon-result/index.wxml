@@ -2,36 +2,63 @@
   <nav-bar title="今日穿搭灵感" showBack="{{true}}"></nav-bar>
 
   <view class="content">
+    <!-- 主展示：图片 -->
     <view class="photo-card">
-      <video
-        wx:if="{{result.tryonVideo}}"
-        class="result-video"
-        src="{{result.tryonVideo}}"
-        controls
-        objectFit="cover"
-        poster="{{result.tryonImage}}"
-      ></video>
-      <image wx:else src="{{result.tryonImage}}" mode="widthFix" />
-      <view class="badge-ai"><image class="ic-img" style="width:24rpx;height:24rpx" src="/assets/icons/png/icon-star-white.png" />AI 生成</view>
+      <image src="{{result.tryonImage}}" mode="widthFix" class="result-img" />
+      <view class="badge-ai">
+        <image class="ic-img" style="width:24rpx;height:24rpx" src="/assets/icons/png/icon-star-white.png" />
+        AI 生成
+      </view>
       <view class="wm">AI 生成效果，仅供参考</view>
     </view>
 
+    <!-- 穿搭信息 -->
     <card class="result-meta">
       <view class="rm-copy">
         <view class="rm-title">{{result.garmentName}}</view>
-        <view class="rm-sub">按你的身材生成，AI 180° 转身视频，默认正面起转。</view>
+        <view class="rm-sub">按你的身材生成，默认正面视角。</view>
       </view>
     </card>
 
-    <view class="action-row">
-      <btn class="action-btn" type="secondary" bindtap="onCollect"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-heart-gray.png" />收藏</btn>
-      <btn class="action-btn" type="secondary" bindtap="onSaveTemplate"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-save-gray.png" />保存模板</btn>
-      <btn class="action-btn" type="secondary" open-type="share" bindtap="onShare"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-upload-gray.png" />分享</btn>
+    <!-- 操作按钮：纵向排列 -->
+    <view class="action-list">
+      <view class="action-item {{collecting ? 'action-active' : ''}}" hover-class="action-hover" bindtap="onCollect">
+        <image class="action-icon" src="/assets/icons/svg/ic-heart.svg" mode="aspectFit" />
+        <text class="action-label">收藏</text>
+        <text class="action-hint">保存到试穿记录</text>
+      </view>
+      <view class="action-item" hover-class="action-hover" bindtap="onSaveTemplate">
+        <image class="action-icon" src="/assets/icons/svg/ic-hanger.svg" mode="aspectFit" />
+        <text class="action-label">保存模板</text>
+        <text class="action-hint">加入衣物库下次使用</text>
+      </view>
+      <view class="action-item" hover-class="action-hover" bindtap="onShare">
+        <image class="action-icon" src="/assets/icons/svg/ic-share.svg" mode="aspectFit" />
+        <text class="action-label">分享</text>
+        <text class="action-hint">发送给好友</text>
+        <button class="share-btn" open-type="share" style="position:absolute;inset:0;opacity:0"></button>
+      </view>
+    </view>
+
+    <!-- 视频体验入口（独立区域） -->
+    <view wx:if="{{result.tryonVideo}}" class="video-section">
+      <view class="vs-head">
+        <text class="vs-title">360° 动态试穿</text>
+        <text class="vs-sub">查看衣物在动态视角下的效果</text>
+      </view>
+      <view class="video-card" bindtap="playVideo">
+        <image class="video-poster" src="{{result.tryonImage}}" mode="aspectFill" />
+        <view class="video-overlay">
+          <image class="play-icon" src="/assets/icons/svg/ic-play.svg" mode="aspectFit" />
+          <text class="play-text">点击播放视频</text>
+        </view>
+      </view>
     </view>
   </view>
 
   <tab-bar selected="{{1}}" navMode="{{true}}"></tab-bar>
 
+  <!-- 收藏确认弹层 -->
   <sheet visible="{{collectVisible}}" bind:cancel="closeCollect">
     <view class="sheet-head">
       <view class="grab"></view>
@@ -46,6 +73,7 @@
     </view>
   </sheet>
 
+  <!-- 保存模板弹层 -->
   <sheet visible="{{templateVisible}}" bind:cancel="closeTemplate">
     <view class="sheet-head">
       <view class="grab"></view>
@@ -75,6 +103,20 @@
         <btn class="sheet-action" type="primary" bindtap="confirmSaveTemplate">保存</btn>
         <btn class="sheet-action" type="secondary" bindtap="closeTemplate">取消</btn>
       </view>
+    </view>
+  </sheet>
+
+  <!-- 视频播放弹层 -->
+  <sheet visible="{{videoVisible}}" bind:cancel="closeVideo">
+    <view class="video-player-wrap">
+      <video
+        class="result-video"
+        src="{{result.tryonVideo}}"
+        controls
+        objectFit="cover"
+        poster="{{result.tryonImage}}"
+        autoplay
+      ></video>
     </view>
   </sheet>
 </view>
