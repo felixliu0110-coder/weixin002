@@ -3,6 +3,7 @@
     wx:for="{{list}}"
     wx:key="pagePath"
     class="tab {{selected === index ? 'on' : ''}}"
+    hover-class="tab-hover"
     data-index="{{index}}"
     catchtap="onSelect"
   >

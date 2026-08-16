@@ -1,4 +1,4 @@
-const { toast } = require("../../utils/interaction");
+const { toast, reLaunch } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
 Page({
@@ -15,7 +15,15 @@ Page({
     this._deleting = true;
     this.setData({ delVisible: false });
     api.deleteUserData().then(() => {
+      this._deleting = false;
+      // 数据已删除：重置登录态并回到登录页，不能停留在已失效的数据页上
+      const app = getApp();
+      if (app && app.globalData) app.globalData.loggedIn = false;
       toast("已提交删除，将在 7 天内完成清理");
+      setTimeout(() => reLaunch("/pages/login/index"), 1200);
+    }).catch(() => {
+      this._deleting = false;
+      toast("删除失败，请重试");
     });
   },
   openRevoke() { this.setData({ revokeVisible: true }); },

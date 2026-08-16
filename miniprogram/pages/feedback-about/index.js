@@ -1,4 +1,4 @@
-const { navigate } = require("../../utils/interaction");
+const { toast, navigate } = require("../../utils/interaction");
 
 Page({
   data: {
@@ -8,7 +8,9 @@ Page({
   onInput(e) { this.setData({ fbText: e.detail.value }); },
   onSubmit() {
     if (!this.data.fbText.trim()) {
-      // 原型未做空内容校验，保持与原型一致：直接进入成功态
+      // 空反馈直接提交会污染反馈通道
+      toast("请先填写反馈内容");
+      return;
     }
     this.setData({ formOk: true, fbText: "" });
   },

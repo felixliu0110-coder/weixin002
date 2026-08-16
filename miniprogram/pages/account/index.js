@@ -39,8 +39,14 @@ Page({
   },
   onLogout() {
     api.logout().then(() => {
+      const app = getApp();
+      if (app && app.globalData) app.globalData.loggedIn = false;
       toast("已退出登录");
-      setTimeout(() => reLaunch("/pages/login/index"), 800);
+      this._logoutTimer = setTimeout(() => reLaunch("/pages/login/index"), 800);
     });
+  },
+  onUnload() {
+    // 页面销毁时清理延迟跳转，避免卸载后仍被强制 reLaunch
+    if (this._logoutTimer) { clearTimeout(this._logoutTimer); this._logoutTimer = null; }
   }
 });

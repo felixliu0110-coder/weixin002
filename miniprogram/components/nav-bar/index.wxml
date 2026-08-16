@@ -1,7 +1,7 @@
 <view class="nav" style="padding-top: {{statusBarHeight}}px;">
   <view class="nav-bar" style="height: {{navHeight}}px;">
     <view class="nav-left">
-      <view wx:if="{{showBack}}" class="nav-btn" hover-class="nav-btn-hover" bindtap="onBack">
+      <view wx:if="{{showBack}}" class="nav-btn" hover-class="nav-btn-hover" catchtap="onBack">
         <image class="ic-img" style="width:42rpx;height:42rpx" src="/assets/icons/png/icon-back-dark.png" />
       </view>
     </view>
