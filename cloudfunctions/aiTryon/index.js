@@ -212,6 +212,7 @@ exports.main = async (event) => {
       } else {
         res = await coll.orderBy("createdAt", "desc").limit(50).get();
       }
+      console.log("aiTryon history query", "openid=" + (openid ? "set" : "EMPTY"), "count=" + res.data.length);
       return {
         ok: true,
         list: res.data.map((d) => ({
