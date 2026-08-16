@@ -30,7 +30,7 @@
       <view class="action-item" hover-class="action-hover" bindtap="onSaveTemplate">
         <image class="action-icon" src="/assets/icons/svg/ic-hanger.svg" mode="aspectFit" />
         <text class="action-label">保存模板</text>
-        <text class="action-hint">加入衣物库下次使用</text>
+        <text class="action-hint">将单件衣物加入衣物库</text>
       </view>
       <view class="action-item" hover-class="action-hover" bindtap="onShare">
         <image class="action-icon" src="/assets/icons/svg/ic-share.svg" mode="aspectFit" />
@@ -40,17 +40,17 @@
       </view>
     </view>
 
-    <!-- 视频体验入口（独立区域） -->
-    <view wx:if="{{result.tryonVideo}}" class="video-section">
-      <view class="vs-head">
-        <text class="vs-title">360° 动态试穿</text>
-        <text class="vs-sub">查看衣物在动态视角下的效果</text>
+    <!-- 视频生成入口 -->
+    <view class="video-generate-section">
+      <view class="vg-head">
+        <text class="vg-title">360° 动态试穿</text>
+        <text class="vg-sub">生成转身视频，查看动态效果</text>
       </view>
-      <view class="video-card" bindtap="playVideo">
-        <image class="video-poster" src="{{result.tryonImage}}" mode="aspectFill" />
-        <view class="video-overlay">
-          <image class="play-icon" src="/assets/icons/svg/ic-play.svg" mode="aspectFit" />
-          <text class="play-text">点击播放视频</text>
+      <view class="vg-card" bindtap="goToVideoGenerate">
+        <image class="vg-poster" src="{{result.tryonImage}}" mode="aspectFill" />
+        <view class="vg-overlay">
+          <image class="vg-play-icon" src="/assets/icons/svg/ic-play.svg" mode="aspectFit" />
+          <text class="vg-play-text">生成动态视频</text>
         </view>
       </view>
     </view>
@@ -73,16 +73,59 @@
     </view>
   </sheet>
 
-  <!-- 保存模板弹层 -->
+  <!-- 保存模板弹层（多选衣物） -->
   <sheet visible="{{templateVisible}}" bind:cancel="closeTemplate">
     <view class="sheet-head">
       <view class="grab"></view>
       <text class="sheet-title">保存到模板衣物</text>
+      <text class="sheet-desc">选择本次穿搭中要保存到衣物库的单品，可分别编辑名称和分类</text>
+    </view>
+
+    <!-- 衣物列表 -->
+    <view class="tpl-garment-list">
+      <view
+        wx:for="{{tplGarments}}"
+        wx:key="id"
+        class="tpl-garment-item {{item._checked ? 'tpl-garment-checked' : ''}}"
+        bindtap="toggleTplGarment"
+        data-idx="{{index}}"
+      >
+        <view class="tpl-garment-check">
+          <view class="check-circle {{item._checked ? 'check-on' : ''}}">
+            <view wx:if="{{item._checked}}" class="check-tick"></view>
+          </view>
+        </view>
+        <image class="tpl-garment-img" src="{{item.image}}" mode="aspectFill" />
+        <view class="tpl-garment-info">
+          <text class="tpl-garment-name">{{item._editName}}</text>
+          <text class="tpl-garment-cat">{{item._editCategory}}</text>
+        </view>
+        <view class="tpl-garment-edit" catchtap="openTplEdit" data-idx="{{index}}">
+          <text class="edit-text">编辑</text>
+        </view>
+      </view>
+    </view>
+
+    <view slot="actions">
+      <view class="template-actions">
+        <btn class="sheet-action" type="primary" bindtap="confirmSaveTemplate">
+          保存选中（{{tplSelected.length}} 件）
+        </btn>
+        <btn class="sheet-action" type="secondary" bindtap="closeTemplate">取消</btn>
+      </view>
+    </view>
+  </sheet>
+
+  <!-- 单件衣物编辑弹层 -->
+  <sheet visible="{{tplEditIndex >= 0}}" bind:cancel="closeTplEdit">
+    <view class="sheet-head">
+      <view class="grab"></view>
+      <text class="sheet-title">编辑衣物信息</text>
     </view>
     <view class="tpl-form">
       <view class="tpl-field">
         <text class="tpl-label">衣物名称</text>
-        <input class="tpl-input" value="{{tplName}}" bindinput="onTplName" placeholder="输入衣物名称" maxlength="20" />
+        <input class="tpl-input" value="{{tplEditName}}" bindinput="onTplEditName" placeholder="输入衣物名称" maxlength="20" />
       </view>
       <view class="tpl-field">
         <text class="tpl-label">衣物分类</text>
@@ -90,23 +133,23 @@
           <view
             wx:for="{{categories}}"
             wx:key="*this"
-            class="cat-chip {{tplCategory === item ? 'on' : ''}}"
+            class="cat-chip {{tplEditCategory === item ? 'on' : ''}}"
             hover-class="cat-chip-hover"
             data-cat="{{item}}"
-            bindtap="onTplCategory"
+            bindtap="onTplEditCategory"
           >{{item}}</view>
         </view>
       </view>
     </view>
     <view slot="actions">
       <view class="template-actions">
-        <btn class="sheet-action" type="primary" bindtap="confirmSaveTemplate">保存</btn>
-        <btn class="sheet-action" type="secondary" bindtap="closeTemplate">取消</btn>
+        <btn class="sheet-action" type="primary" bindtap="confirmTplEdit">确认</btn>
+        <btn class="sheet-action" type="secondary" bindtap="closeTplEdit">取消</btn>
       </view>
     </view>
   </sheet>
 
-  <!-- 视频播放弹层 -->
+  <!-- 视频播放弹层（已有视频时） -->
   <sheet visible="{{videoVisible}}" bind:cancel="closeVideo">
     <view class="video-player-wrap">
       <video

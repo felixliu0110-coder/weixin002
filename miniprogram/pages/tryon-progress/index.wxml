@@ -22,7 +22,7 @@
         <view class="ring-num mono">{{percent}}%</view>
       </view>
       <view class="gen-title">正在为你试穿{{garmentName}}...</view>
-      <view class="gen-sub">AI 三视图 + 衣物四视图 → 180° 转身视频</view>
+      <view class="gen-sub">AI 三视图 + 衣物四视图 → 试穿效果图</view>
 
       <view class="gen-cards">
         <view class="gen-card">

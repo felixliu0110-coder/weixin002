@@ -31,6 +31,8 @@ Page({
   },
 
   submitTask(pending) {
+    // 挂到实例：生成完成时 animateTo100 需要用 pending 构造单件衣物清单（供结果页保存模板）
+    this._pending = pending;
     const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
     const items = (pending.garmentIds || []).map((id, i) => ({
       id,
@@ -86,7 +88,7 @@ Page({
         return;
       }
       this.setData({
-        stageText: st.stage === "garment_views" ? "生成衣物四视图" : "生成 180° 转身视频"
+        stageText: st.stage === "garment_views" ? "预处理衣物视图" : "合成试穿效果图"
       });
       if (st.status !== "success") {
         if (Date.now() - this._pollStartedAt > POLL_MAX_MS) {
@@ -128,6 +130,8 @@ Page({
 
   animateTo100(st) {
     this.clearTimers();
+    // submitTask 挂载的 pending：用于构造单件衣物清单（供结果页保存模板按衣物归档）
+    const pending = this._pending || {};
     this._startTimer = setTimeout(() => {
       // 40ms/帧（25fps）：顺滑且避免高频 setData 通信拥堵
       this._frameTimer = setInterval(() => {
@@ -138,8 +142,14 @@ Page({
           this._frameTimer = null;
           wx.setStorageSync("aiTryonResult", {
             tryonImage: st.tryonImage || "/assets/img/p07-result.jpg",
-            tryonVideo: st.tryonVideo || "/assets/video/mock-turn.mp4",
-            garmentName: this.data.garmentName
+            tryonVideo: st.tryonVideo || "",
+            garmentName: this.data.garmentName,
+            garments: pending.garmentIds ? pending.garmentIds.map((id, i) => ({
+              id,
+              name: pending.garmentNames[i],
+              image: pending.garmentImages[i],
+              category: pending.garmentCategories[i] || "其他"
+            })) : []
           });
           toast("生成完成 · AI 生成效果，仅供参考");
           this._navTimer = setTimeout(() => navigate("/pages/tryon-result/index"), 1400);

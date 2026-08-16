@@ -184,10 +184,12 @@ Page({
     // 订阅消息授权需在用户点击的调用栈中请求（微信限制）；
     // 授权完成后立即跳转进度页，实际的四视图预处理与任务提交由 tryon-progress 页内完成，本页不等待
     requestSubscribe().then(() => {
+      // 将待生成的衣物信息存入 storage（含分类，供结果页"保存模板"按单件衣物归档）
       wx.setStorageSync("aiTryonPending", {
         garmentIds: items.map((g) => g.id),
         garmentNames: items.map((g) => g.name),
         garmentImages: items.map((g) => g.image),
+        garmentCategories: items.map((g) => g.category || "其他"),
         displayName: names
       });
       this._submitting = false;

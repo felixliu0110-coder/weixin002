@@ -1,4 +1,4 @@
-const { toast } = require("../../utils/interaction");
+const { toast, navigate } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
 Page({
@@ -10,12 +10,18 @@ Page({
     tplName: "",
     tplCategory: "",
     categories: ["上衣", "裤子", "头饰", "鞋子", "其他"],
-    result: { tryonImage: "/assets/img/p07-result.jpg", tryonVideo: "", garmentName: "AI 试穿" }
+    result: { tryonImage: "/assets/img/p07-result.jpg", tryonVideo: "", garmentName: "AI 试穿", garments: [] },
+    // 保存模板多选相关
+    tplGarments: [],      // 本次穿搭的衣物列表（供弹层展示）
+    tplSelected: [],      // 用户勾选的衣物索引
+    tplEditIndex: -1,     // 当前正在编辑的衣物索引
+    tplEditName: "",      // 编辑中的名称
+    tplEditCategory: ""   // 编辑中的分类
   },
   onLoad() {
     const r = wx.getStorageSync("aiTryonResult") || {};
     this.setData({
-      result: Object.assign({ tryonImage: "/assets/img/p07-result.jpg", tryonVideo: "", garmentName: "AI 试穿" }, r),
+      result: Object.assign({ tryonImage: "/assets/img/p07-result.jpg", tryonVideo: "", garmentName: "AI 试穿", garments: [] }, r),
       collecting: false
     });
   },
@@ -86,34 +92,110 @@ Page({
     });
   },
 
-  /* ---------- 保存模板 ---------- */
+  /* ---------- 保存模板（重构：多选衣物分别保存） ---------- */
   onSaveTemplate() {
+    const garments = (this.data.result.garments || []).map((g, i) => Object.assign({}, g, {
+      _index: i,
+      _checked: false,
+      _editName: g.name,
+      _editCategory: g.category || "其他"
+    }));
     this.setData({
       templateVisible: true,
-      tplName: this.data.result.garmentName
+      tplGarments: garments,
+      tplSelected: [],
+      tplEditIndex: -1,
+      tplEditName: "",
+      tplEditCategory: ""
     });
   },
   closeTemplate() { this.setData({ templateVisible: false }); },
-  onTplName(e) { this.setData({ tplName: e.detail.value }); },
-  onTplCategory(e) { this.setData({ tplCategory: e.currentTarget.dataset.cat }); },
-  confirmSaveTemplate() {
-    const name = (this.data.tplName || "").trim();
+
+  // 勾选/取消勾选衣物
+  toggleTplGarment(e) {
+    const idx = e.currentTarget.dataset.idx;
+    const garments = this.data.tplGarments.map((g, i) =>
+      i === idx ? Object.assign({}, g, { _checked: !g._checked }) : g
+    );
+    const selected = garments.filter((g) => g._checked).map((g) => g._index);
+    this.setData({ tplGarments: garments, tplSelected: selected });
+  },
+
+  // 打开单件衣物的编辑弹层
+  openTplEdit(e) {
+    const idx = e.currentTarget.dataset.idx;
+    const g = this.data.tplGarments[idx];
+    this.setData({
+      tplEditIndex: idx,
+      tplEditName: g._editName,
+      tplEditCategory: g._editCategory
+    });
+  },
+  closeTplEdit() { this.setData({ tplEditIndex: -1 }); },
+
+  onTplEditName(e) { this.setData({ tplEditName: e.detail.value }); },
+  onTplEditCategory(e) { this.setData({ tplEditCategory: e.currentTarget.dataset.cat }); },
+
+  // 保存单件衣物的编辑
+  confirmTplEdit() {
+    const name = (this.data.tplEditName || "").trim();
     if (!name) {
       toast("请输入衣物名称");
       return;
     }
-    if (!this.data.tplCategory) {
+    if (!this.data.tplEditCategory) {
       toast("请选择衣物分类");
       return;
     }
+    const idx = this.data.tplEditIndex;
+    const garments = this.data.tplGarments.map((g, i) =>
+      i === idx ? Object.assign({}, g, { _editName: name, _editCategory: this.data.tplEditCategory }) : g
+    );
+    this.setData({ tplGarments: garments, tplEditIndex: -1 });
+  },
+
+  // 确认保存：批量保存勾选的衣物
+  confirmSaveTemplate() {
+    const toSave = this.data.tplGarments.filter((g) => g._checked);
+    if (toSave.length === 0) {
+      toast("请至少选择一件衣物");
+      return;
+    }
+    // 检查每件是否都有名称和分类
+    for (const g of toSave) {
+      if (!g._editName.trim()) {
+        toast("请为所有选中的衣物填写名称");
+        return;
+      }
+      if (!g._editCategory) {
+        toast("请为所有选中的衣物选择分类");
+        return;
+      }
+    }
+
     this.setData({ templateVisible: false });
-    api.saveToTemplates({
-      category: this.data.tplCategory,
-      name,
-      image: this.data.result.tryonImage
-    }).then(() => {
-      toast("已保存到模板（" + this.data.tplCategory + "）");
-    });
+
+    // 串行保存（避免并发问题）
+    let saved = 0;
+    const saveNext = (i) => {
+      if (i >= toSave.length) {
+        toast(`已保存 ${saved} 件衣物到模板库`);
+        return;
+      }
+      const g = toSave[i];
+      api.saveToTemplates({
+        category: g._editCategory,
+        name: g._editName.trim(),
+        image: g.image
+      }).then(() => {
+        saved++;
+        saveNext(i + 1);
+      }).catch(() => {
+        toast(`「${g._editName}」保存失败`);
+        saveNext(i + 1);
+      });
+    };
+    saveNext(0);
   },
 
   /* ---------- 分享 ---------- */
@@ -136,5 +218,10 @@ Page({
   },
   closeVideo() {
     this.setData({ videoVisible: false });
+  },
+
+  /* ---------- 跳转到视频生成页 ---------- */
+  goToVideoGenerate() {
+    navigate("/pages/video-generate/index");
   }
 });

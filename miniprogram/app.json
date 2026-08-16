@@ -14,6 +14,7 @@
     "pages/image-preview/index",
     "pages/tryon-progress/index",
     "pages/tryon-result/index",
+    "pages/video-generate/index",
     "pages/compare-view/index",
     "pages/privacy-manage/index",
     "pages/feedback-about/index",

@@ -24,16 +24,16 @@
 /* 分享按钮透明覆盖层 */
 .share-btn { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; padding: 0; margin: 0; border: none; background: transparent; }
 
-/* 视频体验区域 */
-.video-section { margin-top: 32rpx; }
-.vs-head { margin-bottom: 16rpx; }
-.vs-title { font-size: 30rpx; font-weight: 600; color: var(--fg); }
-.vs-sub { font-size: 24rpx; color: var(--fg-2); margin-top: 4rpx; display: block; }
-.video-card { position: relative; border-radius: var(--radius-lg); overflow: hidden; height: 320rpx; border: 1px solid var(--border-soft); }
-.video-poster { width: 100%; height: 100%; display: block; }
-.video-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.25); }
-.play-icon { width: 72rpx; height: 72rpx; }
-.play-text { font-size: 26rpx; color: #fff; margin-top: 12rpx; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+/* 视频生成入口区域 */
+.video-generate-section { margin-top: 32rpx; }
+.vg-head { margin-bottom: 16rpx; }
+.vg-title { font-size: 30rpx; font-weight: 600; color: var(--fg); }
+.vg-sub { font-size: 24rpx; color: var(--fg-2); margin-top: 4rpx; display: block; }
+.vg-card { position: relative; border-radius: var(--radius-lg); overflow: hidden; height: 320rpx; border: 1px solid var(--border-soft); }
+.vg-poster { width: 100%; height: 100%; display: block; }
+.vg-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.25); }
+.vg-play-icon { width: 72rpx; height: 72rpx; }
+.vg-play-text { font-size: 26rpx; color: #fff; margin-top: 12rpx; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
 
 /* 视频播放器弹层 */
 .video-player-wrap { padding: 20rpx 0; }
@@ -57,3 +57,18 @@
 .cat-chip { display: flex; align-items: center; justify-content: center; min-height: 76rpx; border-radius: 999rpx; border: 1px solid var(--border); background: var(--surface); color: var(--fg-2); font-size: 26rpx; }
 .cat-chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); font-weight: 600; }
 .cat-chip-hover { opacity: 0.85; }
+
+/* ---------- 保存模板：衣物多选列表 ---------- */
+.tpl-garment-list { margin-top: 24rpx; max-height: 600rpx; overflow-y: auto; }
+.tpl-garment-item { display: flex; align-items: center; gap: 20rpx; padding: 20rpx; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--border-soft); margin-bottom: 16rpx; }
+.tpl-garment-checked { border-color: var(--accent); background: var(--accent-soft); }
+.tpl-garment-check { flex-shrink: 0; }
+.check-circle { width: 44rpx; height: 44rpx; border-radius: 50%; border: 2rpx solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; }
+.check-on { border-color: var(--accent); background: var(--accent); }
+.check-tick { width: 20rpx; height: 10rpx; border-left: 3rpx solid #fff; border-bottom: 3rpx solid #fff; transform: rotate(-45deg) translate(2rpx, -2rpx); }
+.tpl-garment-img { width: 100rpx; height: 100rpx; border-radius: var(--radius-sm); flex-shrink: 0; background: var(--bg); }
+.tpl-garment-info { flex: 1; min-width: 0; }
+.tpl-garment-name { font-size: 28rpx; font-weight: 600; color: var(--fg); display: block; }
+.tpl-garment-cat { font-size: 24rpx; color: var(--fg-2); margin-top: 6rpx; display: block; }
+.tpl-garment-edit { flex-shrink: 0; padding: 12rpx 20rpx; }
+.edit-text { font-size: 26rpx; color: var(--accent-text); font-weight: 500; }
