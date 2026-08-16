@@ -151,9 +151,20 @@ module.exports = {
     }
   },
 
-  async deleteItems(kind, ids) {
+  async deleteItems(kind, ids, opts) {
+    const fileIDs = (opts && opts.fileIDs) || [];
     // 模板衣物暂存本地（云上数据范围待定），历史/收藏在云模式下走云数据库
-    if (kind === "myTemplates" || kind === "library" || !cloudReady()) return mock.deleteItems(kind, ids);
+    if (kind === "myTemplates" || !cloudReady()) return mock.deleteItems(kind, ids);
+    if (kind === "library") {
+      // 衣物本体删除：先云端联动清理（原图 + 对应四视图记录/文件，1:1 联动），成功后再删本地记录
+      const res = await wx.cloud.callFunction({
+        name: "uploadGarment",
+        data: { action: "deleteGarment", garmentIds: ids, fileIDs }
+      });
+      const r = res.result;
+      if (!r || !r.ok) throw new Error((r && r.error) || "云端清理失败");
+      return mock.deleteItems(kind, ids);
+    }
     try {
       if (kind === "history") {
         // 云函数删除（云函数写入的记录无客户端 _openid 归属，直接删会因权限失败；同时删云存储文件）

@@ -118,7 +118,9 @@ Page({
     this.setData({ libManageMode, libItems, libDelCount: 0 });
   },
   confirmDelLib() {
-    const ids = this.data.libItems.filter((t) => t.delLib).map((t) => t.id);
+    const items = this.data.libItems.filter((t) => t.delLib);
+    const ids = items.map((t) => t.id);
+    const fileIDs = items.map((t) => t.image).filter((u) => u && u.indexOf("cloud://") === 0);
     if (ids.length === 0) {
       toast("请先选择要删除的衣物");
       return;
@@ -130,11 +132,13 @@ Page({
       confirmColor: "#C0392B",
       success: (res) => {
         if (res.confirm) {
-          api.deleteItems("library", ids).then(() => {
-            toast("已删除");
-            this.loadAll();
-            this.refreshLib();
-          });
+          api.deleteItems("library", ids, { fileIDs })
+            .then(() => {
+              toast("已删除");
+              this.loadAll();
+              this.refreshLib();
+            })
+            .catch(() => toast("删除失败，请重试"));
         }
       }
     });
