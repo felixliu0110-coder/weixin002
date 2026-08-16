@@ -75,9 +75,9 @@ async function tapByText(page, text) {
   await mini.screenshot({ path: path.join(OUT, "4-photo-upload.png") });
   await pause(900);
 
-  // 关键回归点：之前点击生成数字人无反应
+  // 关键回归点：之前点击生成按钮无反应（文案已从「生成数字人」改为「开始生成」）
   page = await mini.currentPage();
-  if (!(await tapByText(page, "生成数字人"))) await page.$(".footer-main").tap();
+  if (!(await tapByText(page, "开始生成"))) await page.$(".footer-main").tap();
   await waitFor(mini, () => currentPath(mini).then((p) => p === "pages/privacy-auth/index"), 10000, "privacy-auth");
   await mini.screenshot({ path: path.join(OUT, "5-privacy-auth.png") });
   await pause(900);
