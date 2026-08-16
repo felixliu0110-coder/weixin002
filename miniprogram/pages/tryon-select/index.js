@@ -23,7 +23,7 @@ Page({
     selectedCount: 0,
     manageMode: false,
     delCount: 0,
-    buttonText: "开始试穿",
+    buttonText: "生成穿搭",
     uploadName: "",
     uploadCategory: "上衣",
     uploadVisible: false,
@@ -54,7 +54,7 @@ Page({
       });
     });
     api.getMyTemplates().then((my) => {
-      this.setData({ myTemplates: my });
+      this.setData({ myTemplates: my.map((t) => Object.assign({}, t, { selected: false, del: false })) });
       this.computeCatCounts(my);
     });
   },
@@ -158,7 +158,7 @@ Page({
     this.setData({
       myTemplates,
       selectedCount: count,
-      buttonText: count > 0 ? "开始试穿（已选 " + count + " 件）" : "开始试穿"
+      buttonText: count > 0 ? "生成穿搭（已选 " + count + " 件）" : "生成穿搭"
     });
     toast(chosen.selected ? "已选择「" + name + "」" : "已取消选择");
   },
