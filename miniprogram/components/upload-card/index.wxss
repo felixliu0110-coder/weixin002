@@ -1,4 +1,4 @@
-.upload-card { display: flex; align-items: center; gap: 28rpx; border: 3rpx dashed var(--accent-deep); background: var(--accent-soft); border-radius: var(--radius-lg); padding: 32rpx 30rpx; width: 100%; min-height: 150rpx; }
+.upload-card { display: flex; align-items: center; gap: 28rpx; border: 3rpx dashed var(--accent); background: var(--surface); border-radius: var(--radius-lg); padding: 32rpx 30rpx; width: 100%; min-height: 150rpx; box-shadow: var(--shadow-card); }
 .upload-card + .upload-card { margin-top: 24rpx; }
 .uc-ic { flex: 0 0 92rpx; width: 92rpx; height: 92rpx; border-radius: 30rpx; background: var(--accent); color: var(--accent-on); display: flex; align-items: center; justify-content: center; }
 .uc-img { width: 42rpx; height: 42rpx; }
