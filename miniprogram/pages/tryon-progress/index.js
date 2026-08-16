@@ -1,8 +1,6 @@
 const { toast, navigate } = require("../../utils/interaction");
 const api = require("../../utils/api");
-
-const POLL_INTERVAL = 900;
-const POLL_MAX = 200; // 约 3 分钟上限，超过进入失败态，避免无限轮询
+const { nextPollInterval, POLL_MAX_MS } = require("../../utils/poll");
 
 Page({
   data: { percent: 0, garmentName: "所选衣物", stageText: "生成衣物四视图", error: false, errorMsg: "" },
@@ -10,6 +8,7 @@ Page({
     const t = wx.getStorageSync("aiTryonTask") || {};
     this.taskId = t.taskId || "task-ai-mock";
     this._pollCount = 0;
+    this._pollStartedAt = Date.now();
     this.setData({ garmentName: t.garmentName || "所选衣物" });
     this.poll();
   },
@@ -23,12 +22,12 @@ Page({
         stageText: st.stage === "garment_views" ? "生成衣物四视图" : "生成 180° 转身视频"
       });
       if (st.status !== "success") {
-        this._pollCount += 1;
-        if (this._pollCount >= POLL_MAX) {
-          this.setData({ error: true, errorMsg: "生成超时，请稍后在试穿记录中查看结果" });
+        if (Date.now() - this._pollStartedAt > POLL_MAX_MS) {
+          this.setData({ error: true, errorMsg: "生成仍在后台进行，可稍后在试穿记录查看" });
           return;
         }
-        this._pollTimer = setTimeout(() => this.poll(), POLL_INTERVAL);
+        this._pollCount += 1;
+        this._pollTimer = setTimeout(() => this.poll(), nextPollInterval(this._pollCount));
         return;
       }
       this.animateTo100(st);
@@ -40,6 +39,7 @@ Page({
   retry() {
     this.clearTimers();
     this._pollCount = 0;
+    this._pollStartedAt = Date.now();
     this.setData({ error: false, errorMsg: "", percent: 0, stageText: "生成衣物四视图" });
     this.poll();
   },
