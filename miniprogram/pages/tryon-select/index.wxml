@@ -74,10 +74,9 @@
       </block>
     </block>
 
-    <!-- 上传衣物 -->
+    <!-- 上传衣物（切换到此 Tab 直接唤起上传弹层，无需额外按钮） -->
     <view wx:if="{{tab === 'upload'}}" class="upload-view">
       <view class="hint">上传衣物将自动加入衣物库，可在分类中选择加入模板</view>
-      <btn class="empty-btn" type="secondary" size="sm" bindtap="openUpload">上传衣物</btn>
     </view>
   </view>
 

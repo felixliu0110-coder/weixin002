@@ -5,7 +5,7 @@ Page({
   data: {
     tabs: [
       { label: "模板衣物", value: "lib" },
-      { label: "上传衣物", value: "upload" }
+      { label: "上传", value: "upload" }
     ],
     tab: "lib",
     viewMode: "home", // home: 分类入口+我的模板；select: 分类内选择衣物
