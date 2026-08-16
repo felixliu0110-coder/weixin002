@@ -57,9 +57,16 @@
         <input class="tpl-input" value="{{tplName}}" bindinput="onTplName" placeholder="输入衣物名称" maxlength="20" />
       </view>
       <view class="tpl-field">
-        <view class="tpl-recognized">
-          <text class="tpl-label">自动识别</text>
-          <view class="rec-badge">{{tplRecognized}}</view>
+        <text class="tpl-label">衣物分类</text>
+        <view class="cat-grid">
+          <view
+            wx:for="{{categories}}"
+            wx:key="*this"
+            class="cat-chip {{tplCategory === item ? 'on' : ''}}"
+            hover-class="cat-chip-hover"
+            data-cat="{{item}}"
+            bindtap="onTplCategory"
+          >{{item}}</view>
         </view>
       </view>
     </view>

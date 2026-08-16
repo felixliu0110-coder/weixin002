@@ -21,12 +21,12 @@ const avatarProfile = {
 const quota = { userId: "u-demo", dailyFree: 3, used: 0, resetDate: "2026-08-16", isExample: true };
 
 let templates = [
-  { id: "g-tee", name: "白色基础T恤", category: "上装", image: "/assets/img/p06-tee.jpg" },
-  { id: "g-shirt", name: "蓝色条纹衬衫", category: "上装", image: "/assets/img/p06-shirt.jpg" },
-  { id: "g-hoodie", name: "米白连帽卫衣", category: "上装", image: "/assets/img/p06-hoodie.jpg" },
-  { id: "g-jeans", name: "蓝色直筒牛仔裤", category: "下装", image: "/assets/img/p06-jeans.jpg" },
-  { id: "g-pants", name: "浅灰休闲裤", category: "下装", image: "/assets/img/p06-pants.jpg" },
-  { id: "g-skirt", name: "粉色半身裙", category: "下装", image: "/assets/img/p06-skirt.jpg" }
+  { id: "g-tee", name: "白色基础T恤", category: "上衣", image: "/assets/img/p06-tee.jpg" },
+  { id: "g-shirt", name: "蓝色条纹衬衫", category: "上衣", image: "/assets/img/p06-shirt.jpg" },
+  { id: "g-hoodie", name: "米白连帽卫衣", category: "上衣", image: "/assets/img/p06-hoodie.jpg" },
+  { id: "g-jeans", name: "蓝色直筒牛仔裤", category: "裤子", image: "/assets/img/p06-jeans.jpg" },
+  { id: "g-pants", name: "浅灰休闲裤", category: "裤子", image: "/assets/img/p06-pants.jpg" },
+  { id: "g-skirt", name: "粉色半身裙", category: "其他", image: "/assets/img/p06-skirt.jpg" }
 ];
 
 const homeTemplates = [
@@ -60,9 +60,15 @@ module.exports = {
   async saveAvatarProfile(data) { await delay(300); Object.assign(avatarProfile, data); return { ok: true }; },
   async getGarmentTemplates() { await delay(400); return JSON.parse(JSON.stringify(templates)); },
   async getHomeTemplates() { await delay(300); return JSON.parse(JSON.stringify(homeTemplates)); },
-  async uploadGarment(imagePath) {
+  async uploadGarment(imagePath, params) {
     await delay(600);
-    return { id: "g-upload-" + Date.now(), image: imagePath, category: "上装", status: "ok" };
+    return {
+      id: "g-upload-" + Date.now(),
+      image: imagePath,
+      name: (params && params.name) || "上传衣物",
+      category: (params && params.category) || "其他",
+      status: "ok"
+    };
   },
   async submitTryon(params) {
     await delay(900);

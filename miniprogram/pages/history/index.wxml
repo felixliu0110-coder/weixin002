@@ -24,7 +24,7 @@
   </view>
 
   <view wx:if="{{manageMode}}" class="delete-bar">
-    <btn class="footer-main" type="danger" disabled="{{delSelected.length === 0}}" bindtap="onDelete">删除（{{delSelected.length}}）</btn>
+    <btn class="delete-btn" type="danger" disabled="{{delSelected.length === 0}}" bindtap="onDelete">删除所选（{{delSelected.length}}）</btn>
   </view>
 
   <tab-bar selected="{{3}}" navMode="{{true}}"></tab-bar>

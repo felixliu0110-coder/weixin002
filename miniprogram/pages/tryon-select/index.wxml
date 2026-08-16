@@ -14,9 +14,24 @@
       <btn class="empty-btn" type="secondary" size="sm" bindtap="openUpload">上传衣物</btn>
     </view>
 
+    <view class="cat-tabs">
+      <view
+        wx:for="{{categories}}"
+        wx:key="*this"
+        class="cat-tab {{curCategory === item ? 'on' : ''}}"
+        hover-class="cat-tab-hover"
+        data-cat="{{item}}"
+        bindtap="onCategoryTab"
+      >{{item}}</view>
+    </view>
+
+    <view wx:if="{{filteredTemplates.length === 0}}" class="cat-empty">
+      <text>「{{curCategory}}」分类暂无衣物</text>
+    </view>
+
     <view class="garment-grid">
       <garment-item
-        wx:for="{{templates}}"
+        wx:for="{{filteredTemplates}}"
         wx:key="id"
         data="{{item}}"
         selected="{{manageMode ? item.del : item.selected}}"
@@ -26,12 +41,12 @@
     </view>
   </view>
 
-  <view class="footer-bar">
+  <view wx:if="{{!manageMode}}" class="footer-bar">
     <btn class="footer-main" type="primary" disabled="{{selectedCount === 0}}" bindtap="startTryon">{{buttonText}}</btn>
   </view>
 
   <view wx:if="{{manageMode}}" class="delete-bar">
-    <btn class="footer-main" type="danger" disabled="{{delCount === 0}}" bindtap="onDelete">删除（{{delCount}}）</btn>
+    <btn class="delete-btn" type="danger" disabled="{{delCount === 0}}" bindtap="onDelete">删除所选（{{delCount}}）</btn>
   </view>
 
   <sheet visible="{{uploadVisible}}" bind:cancel="closeUpload">
@@ -49,6 +64,37 @@
         <image class="ic-img" style="width:44rpx;height:44rpx" src="/assets/icons/png/icon-camera-deep.png" />
         <text>拍照</text>
       </view>
+    </view>
+  </sheet>
+
+  <sheet visible="{{infoVisible}}" bind:cancel="closeInfo">
+    <view class="sheet-head">
+      <view class="grab"></view>
+      <text class="sheet-title">上传衣物信息</text>
+      <text class="sheet-desc">填写衣物名称并选择分类，保存到模板衣物</text>
+    </view>
+    <view class="info-form">
+      <view class="info-field">
+        <text class="info-label">衣物名称</text>
+        <input class="info-input" value="{{uploadName}}" bindinput="onInfoName" placeholder="如：蓝色衬衫" maxlength="20" />
+      </view>
+      <view class="info-field">
+        <text class="info-label">衣物分类</text>
+        <view class="cat-grid">
+          <view
+            wx:for="{{categories}}"
+            wx:key="*this"
+            class="cat-chip {{uploadCategory === item ? 'on' : ''}}"
+            hover-class="cat-chip-hover"
+            data-cat="{{item}}"
+            bindtap="onInfoCategory"
+          >{{item}}</view>
+        </view>
+      </view>
+    </view>
+    <view slot="actions">
+      <btn class="sheet-action" type="secondary" bindtap="closeInfo">取消</btn>
+      <btn class="sheet-action" type="primary" bindtap="confirmUpload">保存并预览</btn>
     </view>
   </sheet>
 </view>

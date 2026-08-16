@@ -2,6 +2,12 @@
 .manage-btn { font-size: 26rpx; color: #7A5A4E; padding: 10rpx 16rpx; }
 .manage-hover { opacity: 0.8; }
 .delete-bar { flex: 0 0 auto; padding: 16rpx 0 calc(16rpx + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border-soft); }
+.delete-btn { display: block; width: 100%; }
+.cat-tabs { display: flex; gap: 16rpx; margin-bottom: 32rpx; flex-wrap: wrap; }
+.cat-tab { display: inline-flex; align-items: center; justify-content: center; min-height: 72rpx; padding: 0 30rpx; border-radius: 999rpx; border: 1px solid var(--border); background: var(--surface); color: var(--fg-2); font-size: 26rpx; }
+.cat-tab.on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); font-weight: 600; }
+.cat-tab-hover { opacity: 0.85; }
+.cat-empty { display: flex; align-items: center; justify-content: center; padding: 60rpx 0; color: var(--fg-2); font-size: 26rpx; }
 .empty-btn { display: block; width: auto; }
 .hint { font-size: 25rpx; color: var(--fg-2); margin: 20rpx 4rpx 24rpx; }
 .garment-grid { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 24rpx; row-gap: 52rpx; }
@@ -16,3 +22,11 @@
 .pick-actions { display: flex; gap: 24rpx; margin: 36rpx 0 8rpx; }
 .pick-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 16rpx; padding: 40rpx 0 36rpx; border-radius: var(--radius-md); background: var(--accent-soft); color: #7A5A4E; font-size: 28rpx; font-weight: 600; }
 .pick-hover { background: var(--accent-tab); }
+.info-form { margin-top: 28rpx; }
+.info-field { margin-top: 24rpx; }
+.info-label { font-size: 26rpx; color: var(--fg-2); display: block; margin-bottom: 12rpx; }
+.info-input { border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-md); height: 84rpx; padding: 0 24rpx; font-size: 28rpx; color: var(--fg); }
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16rpx; }
+.cat-chip { display: flex; align-items: center; justify-content: center; min-height: 76rpx; border-radius: 999rpx; border: 1px solid var(--border); background: var(--surface); color: var(--fg-2); font-size: 26rpx; }
+.cat-chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); font-weight: 600; }
+.cat-chip-hover { opacity: 0.85; }

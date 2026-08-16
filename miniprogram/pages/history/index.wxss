@@ -2,6 +2,7 @@
 .manage-btn { font-size: 26rpx; color: #7A5A4E; padding: 10rpx 16rpx; }
 .manage-hover { opacity: 0.8; }
 .delete-bar { flex: 0 0 auto; padding: 16rpx 0 calc(16rpx + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border-soft); }
+.delete-btn { display: block; width: 100%; }
 .masonry { display: grid; grid-template-columns: 1fr 1fr; column-gap: 28rpx; row-gap: 40rpx; }
 .empty-state { display: flex; flex-direction: column; align-items: center; gap: 20rpx; padding: 80rpx 32rpx; text-align: center; }
 .es-ic { width: 84rpx; height: 84rpx; border-radius: 28rpx; background: var(--surface-2); color: var(--fg-2); display: flex; align-items: center; justify-content: center; }

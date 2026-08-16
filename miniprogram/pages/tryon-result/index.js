@@ -8,7 +8,8 @@ Page({
     templateVisible: false,
     tplName: "",
     tplCategory: "连衣裙",
-    tplRecognized: "连衣裙"
+    tplRecognized: "连衣裙",
+    categories: ["上衣", "裤子", "头饰", "鞋子", "其他"]
   },
   onAngle(e) {
     const angle = e.detail.label;
@@ -34,18 +35,16 @@ Page({
     });
   },
   onSaveTemplate() {
-    // 自动识别衣物类型（当前为模拟识别）
-    api.recognizeGarment().then((res) => {
-      this.setData({
-        templateVisible: true,
-        tplRecognized: res.category,
-        tplCategory: res.category,
-        tplName: res.name
-      });
+    // 上传流程已填写衣物名称与分类；此处默认「其他」供用户调整
+    this.setData({
+      templateVisible: true,
+      tplCategory: "其他",
+      tplName: "粉色针织连衣裙"
     });
   },
   closeTemplate() { this.setData({ templateVisible: false }); },
   onTplName(e) { this.setData({ tplName: e.detail.value }); },
+  onTplCategory(e) { this.setData({ tplCategory: e.currentTarget.dataset.cat }); },
   confirmSaveTemplate() {
     const name = (this.data.tplName || "").trim();
     if (!name) {

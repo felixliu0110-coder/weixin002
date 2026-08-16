@@ -2,12 +2,12 @@ const { toast, navigate } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
 Page({
-  data: { category: "" },
+  data: { garment: { name: "上传衣物", category: "上衣" } },
   onLoad() {
-    api.recognizeGarment().then((res) => {
-      this.setData({ category: res.category });
-      toast("已识别为「" + res.category + "」");
-    });
+    const g = wx.getStorageSync("uploadedGarment");
+    if (g && g.name) {
+      this.setData({ garment: g });
+    }
   },
   confirm() {
     if (this._submitting) return;

@@ -25,6 +25,8 @@
 .tpl-field { margin-top: 24rpx; }
 .tpl-label { font-size: 26rpx; color: var(--fg-2); display: block; margin-bottom: 12rpx; }
 .tpl-input { border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-md); height: 84rpx; padding: 0 24rpx; font-size: 28rpx; color: var(--fg); }
-.tpl-recognized { display: flex; align-items: center; justify-content: space-between; }
-.rec-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 96rpx; height: 64rpx; padding: 0 24rpx; border-radius: 999rpx; background: var(--accent-soft); color: #7A5A4E; font-size: 26rpx; font-weight: 600; }
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16rpx; }
+.cat-chip { display: flex; align-items: center; justify-content: center; min-height: 76rpx; border-radius: 999rpx; border: 1px solid var(--border); background: var(--surface); color: var(--fg-2); font-size: 26rpx; }
+.cat-chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); font-weight: 600; }
+.cat-chip-hover { opacity: 0.85; }
 .action-row .iconfont { font-size: 32rpx; margin-right: 8rpx; }

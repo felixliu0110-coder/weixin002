@@ -12,6 +12,13 @@ Page({
     selectedCount: 0,
     manageMode: false,
     delCount: 0,
+    categories: ["上衣", "裤子", "头饰", "鞋子", "其他"],
+    curCategory: "上衣",
+    filteredTemplates: [],
+    uploadName: "",
+    uploadCategory: "上衣",
+    infoVisible: false,
+    pickMode: "album",
     buttonText: "开始试穿",
     uploadVisible: false
   },
@@ -45,21 +52,33 @@ Page({
       selectedCount: count,
       buttonText: count > 0 ? "开始试穿（已选 " + count + " 件）" : "开始试穿"
     });
+    this.applyFilter();
     toast(chosen.selected ? "已选择「" + name + "」" : "已取消选择");
   },
   loadTemplates() {
     api.getGarmentTemplates().then((templates) => {
       this.setData({
         templates: templates.map((t) => Object.assign({}, t, { selected: false, del: false })),
+        filteredTemplates: templates.filter((t) => t.category === this.data.curCategory),
         selectedCount: 0,
         buttonText: "开始试穿"
       });
     });
   },
+  applyFilter() {
+    this.setData({
+      filteredTemplates: this.data.templates.filter((t) => t.category === this.data.curCategory)
+    });
+  },
+  onCategoryTab(e) {
+    this.setData({ curCategory: e.currentTarget.dataset.cat });
+    this.applyFilter();
+  },
   toggleManage() {
     const manageMode = !this.data.manageMode;
     const templates = this.data.templates.map((t) => Object.assign({}, t, { del: false }));
     this.setData({ manageMode, templates, delCount: 0 });
+    this.applyFilter();
   },
   onItemTap(e) {
     if (this.data.manageMode) {
@@ -69,6 +88,7 @@ Page({
       );
       const delCount = templates.filter((t) => t.del).length;
       this.setData({ templates, delCount });
+      this.applyFilter();
     } else {
       this.toggleGarment(e);
     }
@@ -80,6 +100,7 @@ Page({
         t.id === id ? Object.assign({}, t, { del: true }) : Object.assign({}, t, { del: false })
       );
       this.setData({ manageMode: true, templates, delCount: 1 });
+      this.applyFilter();
     }
   },
   onDelete() {
@@ -111,11 +132,25 @@ Page({
   openUpload() { this.setData({ uploadVisible: true }); },
   closeUpload() { this.setData({ uploadVisible: false }); },
   pickPhoto(e) {
+    const mode = e.currentTarget.dataset.mode;
+    this.setData({ uploadVisible: false, pickMode: mode, infoVisible: true, uploadName: "", uploadCategory: "上衣" });
+  },
+  closeInfo() { this.setData({ infoVisible: false }); },
+  onInfoName(e) { this.setData({ uploadName: e.detail.value }); },
+  onInfoCategory(e) { this.setData({ uploadCategory: e.currentTarget.dataset.cat }); },
+  confirmUpload() {
+    const name = (this.data.uploadName || "").trim();
+    if (!name) {
+      toast("请输入衣物名称");
+      return;
+    }
     if (this._picking) return;
     this._picking = true;
-    const mode = e.currentTarget.dataset.mode;
-    this.setData({ uploadVisible: false });
-    toast(mode === "album" ? "已从相册选择衣物，进入预处理" : "已拍照上传，进入预处理");
-    setTimeout(() => navigate("/pages/image-preview/index"), 1000);
+    this.setData({ infoVisible: false });
+    api.uploadGarment("temp", { name, category: this.data.uploadCategory }).then((garment) => {
+      wx.setStorageSync("uploadedGarment", garment);
+      toast("已上传「" + name + "」");
+      setTimeout(() => navigate("/pages/image-preview/index"), 600);
+    });
   }
 });
