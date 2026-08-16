@@ -27,6 +27,7 @@
 .sheet-title { font-size: 34rpx; font-weight: 600; }
 .edit-body { margin-top: 28rpx; }
 .edit-val { font-size: 44rpx; font-weight: 700; color: var(--fg); }
-.sheet-action { display: block; flex: 1; }
+.sheet-actions { display: flex; flex-direction: column; gap: 20rpx; }
+.sheet-action { display: block; width: 100%; }
 slider { width: 100%; }
 slider.skin-range .wx-slider-track { background: linear-gradient(to right, #FFF0E4, #5C3A28); }

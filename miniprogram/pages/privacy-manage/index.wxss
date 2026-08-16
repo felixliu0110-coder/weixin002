@@ -4,4 +4,5 @@
 .grab { width: 80rpx; height: 8rpx; border-radius: 4rpx; background: var(--border); margin: 0 auto 20rpx; }
 .sheet-title { font-size: 34rpx; font-weight: 600; }
 .sheet-desc { font-size: 26rpx; color: var(--fg-2); line-height: 1.65; margin-top: 12rpx; }
-.sheet-action { display: block; flex: 1; }
+.sheet-actions { display: flex; flex-direction: column; gap: 20rpx; }
+.sheet-action { display: block; width: 100%; }

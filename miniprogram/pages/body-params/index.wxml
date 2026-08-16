@@ -104,9 +104,9 @@
       <text class="edit-val mono">{{editValue}}<text class="opt-unit">{{editUnit}}</text></text>
       <slider min="{{editMin}}" max="{{editMax}}" step="1" value="{{editValue}}" activeColor="#E3A595" backgroundColor="#EADFD3" block-size="24" bindchanging="onEditChange" bindchange="onEditChange" />
     </view>
-    <view slot="actions">
-      <btn class="sheet-action" type="secondary" bindtap="closeEdit">取消</btn>
+    <view slot="actions" class="sheet-actions">
       <btn class="sheet-action" type="primary" bindtap="confirmEdit">确定</btn>
+      <btn class="sheet-action" type="secondary" bindtap="closeEdit">取消</btn>
     </view>
   </sheet>
 </view>
