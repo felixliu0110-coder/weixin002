@@ -1,39 +1,21 @@
 <view class="wx-page">
-  <nav-bar title="我的数字人" showBack="{{true}}" backRoute="/pages/home/index"></nav-bar>
+  <nav-bar title="我的 AI 数字人" showBack="{{true}}" backRoute="/pages/home/index"></nav-bar>
 
   <view class="content">
     <view class="avatar-stage">
-      <canvas
-        wx:if="{{!renderFailed}}"
-        id="avatarCanvas"
-        type="2d"
-        class="avatar-canvas"
-        bindtouchstart="onTouchStart"
-        catchtouchmove="onTouchMove"
-        bindtouchend="onTouchEnd"
-      ></canvas>
+      <image wx:if="{{views.composite}}" class="avatar-img" src="{{views.composite}}" mode="widthFix" />
       <view wx:else class="stage-fallback">
-        <image class="avatar-img" src="/assets/img/p05-avatar.jpg" mode="aspectFill" />
-        <text class="fb-text">3D 渲染失败，已切换为预览图</text>
-        <btn class="fb-btn" type="secondary" size="sm" bindtap="retry">重新渲染</btn>
+        <text class="fb-text">尚未生成三视图，先完成生成</text>
+        <btn class="fb-btn" type="secondary" size="sm" bindtap="regenerate">去生成</btn>
+      </view>
+      <view wx:if="{{isExample}}" class="example-tag">示例</view>
+      <view class="view-labels">
+        <text>正面</text>
+        <text>侧面</text>
+        <text>背面</text>
       </view>
     </view>
-    <view class="meas-hint">{{measureOn ? '标注模式：身高 / 肩宽 / 胸围 / 腰围 / 臀围 / 腿长' : '单指旋转 · 双指缩放 · 点按标注查看尺寸'}}</view>
-
-    <view class="circle-actions">
-      <view class="circle-btn" hover-class="circle-hover" bindtap="onRotate">
-        <image class="ic-img" style="width:48rpx;height:48rpx" src="/assets/icons/png/icon-rotate-active.png" />
-        <text class="circle-label">旋转</text>
-      </view>
-      <view class="circle-btn" hover-class="circle-hover" bindtap="onMeasure">
-        <image class="ic-img" style="width:48rpx;height:48rpx" src="/assets/icons/png/icon-ruler-active.png" />
-        <text class="circle-label">标注</text>
-      </view>
-      <view class="circle-btn" hover-class="circle-hover" bindtap="onConfirm">
-        <image class="ic-img" style="width:48rpx;height:48rpx" src="/assets/icons/png/icon-ok-active.png" />
-        <text class="circle-label">确认</text>
-      </view>
-    </view>
+    <view class="meas-hint">同一人物 · 正面 / 左侧面 / 背面，AI 写实生成</view>
 
     <card class="profile-card">
       <view class="sec-hd">
@@ -51,5 +33,6 @@
 
   <view class="footer-bar">
     <btn class="footer-main" type="primary" bindtap="goTryon">去试穿</btn>
+    <btn class="footer-sub" type="secondary" bindtap="onConfirm">确认保存</btn>
   </view>
 </view>
