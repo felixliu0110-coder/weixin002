@@ -30,18 +30,22 @@ async function submit(event, openid) {
   const addRes = await db.collection("tryon_tasks").add({ data: task });
   const taskId = addRes._id;
   try {
-    // 试穿图 + 转身视频（P0 真实生成在 P1；此处调用适配器，mock 立即返回占位）
+    // 试穿效果图（agnes 同步生图，等待返回 URL）
     const imgRes = await aigc.generateImages({ prompt: "同人物穿着" + garmentName + "的照片级效果图", refImages: [], count: 1 });
     const vidRes = await aigc.generateVideo({ imageUrl: imgRes.urls[0], prompt: videoPrompt, durationSec: 5 });
-    const update = {
-      stage: "video",
-      status: "success",
-      tryon_image: imgRes.urls[0],
-      tryon_video: vidRes.videoUrl,
-      updated_at: Date.now()
-    };
+    const update = { stage: "video", tryon_image: imgRes.urls[0], updated_at: Date.now() };
+    if (vidRes.videoTaskId) {
+      // 异步视频服务（agnes）：创建任务后由 status 轮询完成
+      update.video_task_id = vidRes.videoTaskId;
+      update.provider = vidRes.provider || "agnes";
+    } else {
+      // 同步实现（mock）：直接落结果
+      update.status = "success";
+      update.tryon_video = vidRes.videoUrl;
+      update.provider = vidRes.provider || "mock";
+    }
     await db.collection("tryon_tasks").doc(taskId).update({ data: update });
-    return { ok: true, taskId, status: "success" };
+    return { ok: true, taskId, status: update.status || "processing" };
   } catch (e) {
     await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "failed", error: e.code || e.message, updated_at: Date.now() } });
     return { ok: false, taskId, error: e.code || e.message };
@@ -51,6 +55,32 @@ async function submit(event, openid) {
 async function status(event) {
   const res = await db.collection("tryon_tasks").doc(event.taskId).get();
   const d = res.data;
+  // 异步视频任务：轮询 agnes 状态，完成后写入 tryon_video
+  if (d.status === "processing" && d.video_task_id) {
+    const aigc = getAigc();
+    if (aigc && aigc.getVideoStatus) {
+      try {
+        const st = await aigc.getVideoStatus(d.video_task_id);
+        if (st.status === "completed" || st.status === "succeeded" || st.videoUrl) {
+          await db.collection("tryon_tasks").doc(event.taskId).update({
+            data: { status: "success", tryon_video: st.videoUrl, updated_at: Date.now() }
+          });
+          d.status = "success";
+          d.tryon_video = st.videoUrl;
+        } else if (st.status === "failed") {
+          const msg = st.error || "视频生成失败";
+          await db.collection("tryon_tasks").doc(event.taskId).update({
+            data: { status: "failed", error: msg, updated_at: Date.now() }
+          });
+          d.status = "failed";
+          d.error = msg;
+        }
+        // queued / in_progress：保持 processing，前端继续轮询
+      } catch (e) {
+        // 单次轮询失败不判死，保持 processing 让前端重试
+      }
+    }
+  }
   return { ok: true, taskId: event.taskId, status: d.status, stage: d.stage, tryonImage: d.tryon_image, tryonVideo: d.tryon_video, error: d.error };
 }
 

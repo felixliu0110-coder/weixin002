@@ -6,12 +6,14 @@ const root = path.resolve(__dirname, "..", "cloudfunctions");
 const src = path.join(root, "services");
 const SHARED_FILES = [
   "aigc.js",
+  "aigc-agnes.js",
   "aigc-mock.js",
-  "aigc-jimeng.js",
   "avatarViews.js",
   "garmentViews.js",
   "tryonVideo.js"
 ];
+// 已废弃的共享模块：从各云函数目录清理，避免随部署带上旧实现
+const STALE_FILES = ["aigc-jimeng.js"];
 
 const targets = fs.readdirSync(root).filter((name) => {
   return fs.statSync(path.join(root, name)).isDirectory() && name !== "services";
@@ -25,6 +27,13 @@ for (const name of targets) {
     if (fs.existsSync(from)) {
       fs.copyFileSync(from, to);
       console.log("synced ->", path.relative(path.resolve(__dirname, ".."), to));
+    }
+  }
+  for (const file of STALE_FILES) {
+    const to = path.join(dir, file);
+    if (fs.existsSync(to)) {
+      fs.unlinkSync(to);
+      console.log("removed stale ->", path.relative(path.resolve(__dirname, ".."), to));
     }
   }
 }

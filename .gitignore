@@ -1,7 +1,14 @@
+# 云函数目录内同步的共享模块副本（部署用），不入库；services/ 下的源码必须入库
 cloudfunctions/*/aigc.js
+cloudfunctions/*/aigc-agnes.js
 cloudfunctions/*/aigc-mock.js
-cloudfunctions/*/aigc-jimeng.js
 cloudfunctions/*/avatarViews.js
 cloudfunctions/*/garmentViews.js
 cloudfunctions/*/tryonVideo.js
+!cloudfunctions/services/aigc.js
+!cloudfunctions/services/aigc-agnes.js
+!cloudfunctions/services/aigc-mock.js
+!cloudfunctions/services/avatarViews.js
+!cloudfunctions/services/garmentViews.js
+!cloudfunctions/services/tryonVideo.js
 node_modules/

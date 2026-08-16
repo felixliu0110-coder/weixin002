@@ -275,10 +275,12 @@ cloudfunctions/
   ├─ aiTryon/                # 试穿：额度校验/扣减 → 效果图 → 视频 → 状态流转
   ├─ onTryonComplete/        # 第三方回调：更新任务 + 订阅消息通知
   └─ services/
-     ├─ aigc/index.js        # 统一接口 generateImages / generateVideo（供应商可替换）
-     ├─ aigc/jimeng.js       # 即梦/火山方舟实现（API Key 读云函数环境变量）
-     ├─ aigc/mock.js         # Key 未配置时返回占位素材，保证链路可跑通
-     └─ templates/           # 三份提示词模板（源自 .agnes）
+     ├─ aigc.js              # getAigc()：配置 AGNES_API_KEY 时选 agnes，否则 mock
+     ├─ aigc-agnes.js        # Agnes AIGC 实现（生图同步；视频异步任务 + 轮询）
+     ├─ aigc-mock.js         # Key 未配置时返回占位素材，保证链路可跑通
+     ├─ avatarViews.js       # 人物三视图提示词（源自 .agnes）
+     ├─ garmentViews.js      # 服装四视图提示词（源自 .agnes）
+     └─ tryonVideo.js        # 试穿转身视频提示词（源自 .agnes）
 ```
 
 适配器接口约定：
@@ -286,8 +288,9 @@ cloudfunctions/
 ```js
 // 生图
 generateImages({ prompt, refImages: [url], count, aspectRatio }) → [{ url }]
-// 生视频
-generateVideo({ imageUrl, prompt, durationSec }) → { videoUrl, taskId }
+// 生视频（agnes 为异步任务：先建任务，再由 getVideoStatus 轮询）
+generateVideo({ imageUrl, prompt, durationSec }) → { videoTaskId, provider } | { videoUrl, provider }
+getVideoStatus(taskId) → { status, progress, videoUrl, error }
 ```
 
 ---
@@ -320,7 +323,7 @@ generateVideo({ imageUrl, prompt, durationSec }) → { videoUrl, taskId }
 | 阶段 | 内容 | 产出 | 验收 |
 |------|------|------|------|
 | P0 云函数 + mock（2-3 天） | createAvatarViews / ensureGarmentViews / aiTryon 骨架、任务状态机、额度、mock 适配器、前端页面改造（三视图预览/进度/结果视频） | 全链路可跑通（mock 素材） | 三视图预览 → 选衣 → 生成 → 视频结果页；失败重试与退额度；删除联动 |
-| P1 真实生成接入（Key 到位后 1-2 天） | `jimeng.js` 适配器实现、环境变量配置、回调/轮询接入真实生成 | 真实三视图/四视图/视频 | demo 三视图同一人；换装不漂移；转身自然 |
+| P1 真实生成接入（已完成） | `aigc-agnes.js` 适配器实现、`AGNES_API_KEY` 环境变量配置、视频异步任务轮询接入 | 真实三视图/四视图/视频 | demo 三视图同一人；换装不漂移；转身自然 |
 | P2 合规与优化（并行） | 备案、内容安全、订阅消息、成本优化（VTON 模型评估）、云存储清理策略 | 上线就绪 | 合规清单全绿 |
 
 ---
@@ -350,3 +353,4 @@ generateVideo({ imageUrl, prompt, durationSec }) → { videoUrl, taskId }
 *文档创建：2026-08-16（v1.0，agnes）*
 *完善：2026-08-16（v1.1，对齐 PRD/云开发/免费版方案）*
 *定稿：2026-08-16（v1.2，替代免费 3D，方案 A 确认）*
+*更新：2026-08-16（v1.3，接入 Agnes AIGC：生图同步 + 视频异步任务轮询，替换即梦占位适配器）*

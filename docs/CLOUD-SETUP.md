@@ -58,23 +58,21 @@ node scripts/sync-cloud-services.js
 
 ## 五、配置环境变量（API Key）
 
-AI 生成服务（即梦/火山方舟）的密钥通过云函数环境变量注入，未配置时自动回退 mock 占位：
+AI 生成服务（Agnes AIGC）的密钥通过云函数环境变量注入，未配置时自动回退 mock 占位：
 
 1. 微信开发者工具 →「云开发」控制台 →「云函数」；
 2. 逐个选择 `createAvatarViews`、`ensureGarmentViews`、`aiTryon`，点「配置」；
-3. 在「环境变量」中添加：
+3. 在「环境变量」中添加 `AGNES_API_KEY`，值为你的 Agnes API Key；
+4. 同页把「执行超时时间」改为 **60 秒**（默认 3 秒不足以完成真实生图/视频任务创建）。
 
-| 键 | 值 |
-| --- | --- |
-| `JIMENG_API_KEY` | 你的即梦/火山方舟 API Key |
-
-> `onTryonComplete` 不需要该 Key。`aigc-jimeng.js` 是真实调用适配器（P1 待实现），Key 配置后会自动从 mock 切换。
+> `onTryonComplete` 不需要该 Key。`createAvatarViews`（人物三视图）、`ensureGarmentViews`（衣物四视图）、`aiTryon`（试穿效果图 + 转身视频）三个函数都需要配置。Key 配置后自动从 mock 切换为真实生成；其中 `aiTryon` 的视频为异步任务，前端会轮询到生成完成。
 
 ## 六、说明
 
 - 衣物模板数据为内置资源（未上云），后续可迁入 `garments` 集合；
 - 图片目前使用本地资源；如需把用户上传/生成的图片存入云存储，属于完整接入方案，可后续升级；
-- AI 生成当前为 mock 流程（云函数返回占位 URL），配置 Key 并实现 `aigc-jimeng.js` 后切换真实生成。
+- AI 生成未配置 Key 时走 mock（返回占位 URL，前端自动回退本地素材）；配置 `AGNES_API_KEY` 后走真实 Agnes 生图/生视频。
+- Agnes 图生图/图生视频的参考图需要**公网可访问的 HTTPS URL**（微信云存储的 `cloud://` 文件 ID 需先转临时链接）；当前内置素材为本地资源，真实上传衣物接入云存储后需在调用前转链，属后续接入项。
 
 ## 七、验证
 
