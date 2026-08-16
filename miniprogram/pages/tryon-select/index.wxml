@@ -133,9 +133,9 @@
         </view>
       </view>
     </view>
-    <view slot="actions">
-      <btn class="sheet-action" type="secondary" bindtap="closeInfo">取消</btn>
-      <btn class="sheet-action" type="primary" bindtap="confirmUpload">保存并预览</btn>
+    <view slot="actions" class="upload-actions">
+      <btn class="upload-action-btn" type="primary" bindtap="confirmUpload">保存并预览</btn>
+      <btn class="upload-action-btn" type="secondary" bindtap="closeInfo">取消</btn>
     </view>
   </sheet>
 </view>
