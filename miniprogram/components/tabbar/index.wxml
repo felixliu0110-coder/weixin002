@@ -8,7 +8,14 @@
     catchtap="onSelect"
   >
     <view class="tab-icon-wrap">
-      <image wx:if="{{item.icon}}" class="tab-icon" src="{{selected === index ? item.iconActive : item.icon}}" mode="aspectFit" />
+      <!-- 主页：房子 -->
+      <view wx:if="{{item.text === '主页'}}" class="ic-home {{selected === index ? 'on' : ''}}"></view>
+      <!-- 试衣：衣架 -->
+      <view wx:if="{{item.text === '试衣'}}" class="ic-tryon {{selected === index ? 'on' : ''}}"></view>
+      <!-- 收藏：心形 -->
+      <view wx:if="{{item.text === '收藏'}}" class="ic-heart {{selected === index ? 'on' : ''}}"></view>
+      <!-- 我的：人形 -->
+      <view wx:if="{{item.text === '我的'}}" class="ic-profile {{selected === index ? 'on' : ''}}"></view>
     </view>
     <text class="tab-label">{{item.text}}</text>
     <view class="tab-indicator"></view>
