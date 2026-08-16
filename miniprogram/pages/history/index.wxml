@@ -25,7 +25,7 @@
 
   <view wx:if="{{manageMode}}" class="delete-bar">
     <btn class="delete-btn" type="danger" bindtap="onDelete">
-      <image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-trash-white.png" />删除所选（{{delSelected.length}}）
+      删除所选（{{delSelected.length}}）
     </btn>
   </view>
 
