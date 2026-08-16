@@ -12,3 +12,6 @@ cloudfunctions/*/tryonVideo.js
 !cloudfunctions/services/garmentViews.js
 !cloudfunctions/services/tryonVideo.js
 node_modules/
+docs/qa/edge-profile/
+docs/qa/edge-profile2/
+docs/qa/edge-profiles/
