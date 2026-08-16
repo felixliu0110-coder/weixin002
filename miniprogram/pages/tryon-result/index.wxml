@@ -25,6 +25,7 @@
 
     <view class="action-row">
       <btn class="action-btn" type="secondary" bindtap="onCollect"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-heart-gray.png" />收藏</btn>
+      <btn class="action-btn" type="secondary" bindtap="onSaveTemplate"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-hanger-gray.png" />存模板</btn>
       <btn class="action-btn" type="dark" bindtap="onShare"><image class="ic-img" style="width:32rpx;height:32rpx" src="/assets/icons/png/icon-upload-white.png" />分享</btn>
     </view>
   </view>
@@ -42,6 +43,21 @@
         <btn class="collect-btn" type="primary" bindtap="collectYes">是，保存到相册</btn>
         <btn class="collect-btn" type="secondary" bindtap="collectNo">否，仅收藏</btn>
       </view>
+    </view>
+  </sheet>
+
+  <sheet visible="{{templateVisible}}" bind:cancel="closeTemplate">
+    <view class="sheet-head">
+      <view class="grab"></view>
+      <text class="sheet-title">保存到模板衣物</text>
+      <text class="sheet-desc">选择保存到哪个分类，可在「试衣-模板衣物」中使用</text>
+    </view>
+    <view class="template-options">
+      <view class="tpl-btn" hover-class="tpl-hover" data-category="上装" bindtap="confirmSaveTemplate">上装</view>
+      <view class="tpl-btn" hover-class="tpl-hover" data-category="下装" bindtap="confirmSaveTemplate">下装</view>
+    </view>
+    <view slot="actions">
+      <btn class="sheet-action" type="secondary" bindtap="closeTemplate">取消</btn>
     </view>
   </sheet>
 </view>

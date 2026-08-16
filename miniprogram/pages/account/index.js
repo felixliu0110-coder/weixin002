@@ -10,6 +10,27 @@ Page({
       this.setData({ user });
     });
   },
+  onEditName() {
+    wx.showModal({
+      title: "修改昵称",
+      editable: true,
+      placeholderText: "请输入新昵称",
+      content: this.data.user.nickname,
+      success: (res) => {
+        if (res.confirm) {
+          const nickname = (res.content || "").trim();
+          if (!nickname) {
+            toast("昵称不能为空");
+            return;
+          }
+          api.saveUserInfo({ nickname }).then((user) => {
+            this.setData({ user });
+            toast("昵称已更新");
+          });
+        }
+      }
+    });
+  },
   onWechat() {
     toast(this.data.user.wechatBound ? "已绑定微信账号" : "绑定微信账号（待接入真实登录）");
   },

@@ -20,7 +20,7 @@ const avatarProfile = {
 
 const quota = { userId: "u-demo", dailyFree: 3, used: 0, resetDate: "2026-08-16", isExample: true };
 
-const templates = [
+let templates = [
   { id: "g-tee", name: "白色基础T恤", category: "上装", image: "/assets/img/p06-tee.jpg" },
   { id: "g-shirt", name: "蓝色条纹衬衫", category: "上装", image: "/assets/img/p06-shirt.jpg" },
   { id: "g-hoodie", name: "米白连帽卫衣", category: "上装", image: "/assets/img/p06-hoodie.jpg" },
@@ -35,7 +35,7 @@ const homeTemplates = [
   { id: "t-white", name: "白色衬衫", category: "上装", image: "/assets/img/p17-white.jpg" }
 ];
 
-const history = [
+let history = [
   { id: "r1", garmentName: "针织连衣裙", date: "8月14日", image: "/assets/img/p13-1.jpg", aiTagged: true },
   { id: "r2", garmentName: "蓝色衬衫", date: "8月13日", image: "/assets/img/p13-2.jpg", aiTagged: true },
   { id: "r3", garmentName: "白色T恤", date: "8月12日", image: "/assets/img/p13-3.jpg", aiTagged: true },
@@ -43,7 +43,7 @@ const history = [
   { id: "r5", garmentName: "牛仔裤休闲裤", date: "8月11日", image: "/assets/img/p13-5.jpg", aiTagged: true }
 ];
 
-const favorites = [
+let favorites = [
   { id: "f1", garmentName: "粉色针织连衣裙", date: "8月15日", image: "/assets/img/p07-result.jpg", aiTagged: true },
   { id: "f2", garmentName: "蓝色衬衫搭配", date: "8月14日", image: "/assets/img/p14-right.jpg", aiTagged: true }
 ];
@@ -71,8 +71,31 @@ module.exports = {
   async getTryonStatus(taskId) { await delay(300); return { taskId, status: "success" }; },
   async getHistory() { await delay(400); return JSON.parse(JSON.stringify(history)); },
   async getFavorites() { await delay(300); return JSON.parse(JSON.stringify(favorites)); },
+  async deleteItems(kind, ids) {
+    await delay(300);
+    if (kind === "history") history = history.filter((i) => !ids.includes(i.id));
+    if (kind === "favorites") favorites = favorites.filter((i) => !ids.includes(i.id));
+    if (kind === "templates") templates = templates.filter((i) => !ids.includes(i.id));
+    return { ok: true };
+  },
+  async saveToTemplates(params) {
+    await delay(300);
+    const item = {
+      id: "t-user-" + Date.now(),
+      name: params.name || "我的保存",
+      category: params.category || "上装",
+      image: params.image || "/assets/img/p07-result.jpg"
+    };
+    templates.push(item);
+    return { ok: true, id: item.id };
+  },
   async getQuota() { await delay(200); return JSON.parse(JSON.stringify(quota)); },
   async getUserInfo() { await delay(200); return JSON.parse(JSON.stringify(userInfo)); },
+  async saveUserInfo(data) {
+    await delay(300);
+    if (data.nickname) userInfo.nickname = data.nickname;
+    return JSON.parse(JSON.stringify(userInfo));
+  },
   async logout() { await delay(300); return { ok: true }; },
   async saveResult(result) {
     await delay(300);

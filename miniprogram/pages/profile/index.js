@@ -2,10 +2,13 @@ const { toast, navigate } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
 Page({
-  data: { quota: { dailyFree: 3 } },
+  data: { quota: { dailyFree: 3 }, user: { nickname: "小云" } },
   onLoad() {
     api.getQuota().then((quota) => {
       this.setData({ quota });
+    });
+    api.getUserInfo().then((user) => {
+      this.setData({ user });
     });
   },
   onShow() {

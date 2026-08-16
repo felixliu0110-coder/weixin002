@@ -1,6 +1,7 @@
 Component({
   properties: {
-    data: { type: Object, value: {} }
+    data: { type: Object, value: {} },
+    selected: { type: Boolean, value: false }
   },
   methods: {
     onTap() {

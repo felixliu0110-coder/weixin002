@@ -126,6 +126,24 @@ module.exports = {
     }
   },
 
+  async deleteItems(kind, ids) {
+    // 模板衣物暂存本地（云上数据范围待定），历史/收藏在云模式下走云数据库
+    if (kind === "templates" || !cloudReady()) return mock.deleteItems(kind, ids);
+    try {
+      const collName = { history: "tryon_results", favorites: "favorites", templates: "garments" }[kind];
+      const coll = db().collection(collName);
+      for (const id of ids) {
+        await coll.doc(id).remove();
+      }
+      return { ok: true };
+    } catch (e) {
+      return mock.deleteItems(kind, ids);
+    }
+  },
+
+  // 模板衣物（含用户保存的）暂走本地模拟，等用户确认云上数据范围后接入
+  saveToTemplates: mock.saveToTemplates,
+
   async getQuota() {
     if (!cloudReady()) return mock.getQuota();
     try {
@@ -139,6 +157,7 @@ module.exports = {
 
   // 账户信息暂走本地模拟（云上数据范围待用户确认后接入）
   getUserInfo: mock.getUserInfo,
+  saveUserInfo: mock.saveUserInfo,
   logout: mock.logout,
 
   async saveResult(result) {

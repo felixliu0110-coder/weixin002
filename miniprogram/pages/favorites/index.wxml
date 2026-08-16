@@ -1,19 +1,26 @@
 <view class="wx-page">
-  <nav-bar title="收藏"></nav-bar>
+  <nav-bar title="收藏">
+    <view slot="right" class="manage-btn" hover-class="manage-hover" bindtap="toggleManage">{{manageMode ? '完成' : '管理'}}</view>
+  </nav-bar>
 
   <view class="content">
-    <view wx:if="{{favorites.length === 0}}" class="empty-state">
+    <view wx:if="{{favorites.length === 0 && !manageMode}}" class="empty-state">
       <view class="es-ic"><image class="es-img" src="/assets/icons/png/icon-heart-gray.png" mode="aspectFit" /></view>
       <text class="es-text">还没有收藏，试穿结果页点「收藏」即可加入</text>
     </view>
 
-    <view wx:else class="fav-grid">
+    <view wx:if="{{favorites.length > 0}}" class="fav-grid">
       <record-item
         wx:for="{{favorites}}"
         wx:key="id"
         data="{{item}}"
-        bindtap="openResult"
+        selected="{{manageMode && delSelected.includes(item.id)}}"
+        bindtap="onItemTap"
       />
     </view>
+  </view>
+
+  <view wx:if="{{manageMode}}" class="delete-bar">
+    <btn class="footer-main" type="danger" disabled="{{delSelected.length === 0}}" bindtap="onDelete">删除（{{delSelected.length}}）</btn>
   </view>
 </view>

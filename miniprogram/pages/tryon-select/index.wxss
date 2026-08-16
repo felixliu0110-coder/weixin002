@@ -1,4 +1,7 @@
 .wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
+.manage-btn { font-size: 26rpx; color: #7A5A4E; padding: 10rpx 16rpx; }
+.manage-hover { opacity: 0.8; }
+.delete-bar { flex: 0 0 auto; padding: 16rpx 0 calc(16rpx + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border-soft); }
 .empty-btn { display: block; width: auto; }
 .hint { font-size: 25rpx; color: var(--fg-2); margin: 20rpx 4rpx 24rpx; }
 .garment-grid { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 24rpx; row-gap: 52rpx; }

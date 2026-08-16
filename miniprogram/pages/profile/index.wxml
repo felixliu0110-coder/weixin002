@@ -9,7 +9,7 @@
     <view class="profile-head" hover-class="profile-hover" bindtap="goAccount">
       <view class="profile-avatar">云</view>
       <view class="profile-copy">
-        <view class="profile-name">小云</view>
+        <view class="profile-name">{{user.nickname}}</view>
         <view class="profile-sub">专属数字人已就绪 · 今天想怎么穿？</view>
       </view>
       <image class="ic-img arrow" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" />

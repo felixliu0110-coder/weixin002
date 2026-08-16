@@ -2,6 +2,7 @@
   <view class="r-img">
     <image src="{{data.image}}" mode="{{data.contain ? 'aspectFit' : 'aspectFill'}}" />
     <view wx:if="{{data.aiTagged}}" class="r-ai">AI 生成</view>
+    <view wx:if="{{selected}}" class="r-check"><image class="check-img" src="/assets/icons/png/icon-check-white.png" mode="aspectFit" /></view>
   </view>
   <view class="r-meta">
     <view class="r-name">{{data.garmentName}}</view>

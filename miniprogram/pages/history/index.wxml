@@ -1,5 +1,7 @@
 <view class="wx-page">
-  <nav-bar title="试穿记录" showBack="{{true}}" backRoute="/pages/profile/index"></nav-bar>
+  <nav-bar title="试穿记录" showBack="{{true}}" backRoute="/pages/profile/index">
+    <view slot="right" class="manage-btn" hover-class="manage-hover" bindtap="toggleManage">{{manageMode ? '完成' : '管理'}}</view>
+  </nav-bar>
 
   <view class="content">
     <view wx:if="{{records.length === 0}}" class="empty-state">
@@ -12,11 +14,16 @@
         wx:for="{{records}}"
         wx:key="id"
         data="{{item}}"
-        bindtap="openResult"
+        selected="{{manageMode && delSelected.includes(item.id)}}"
+        bindtap="onItemTap"
       />
     </view>
 
     <view class="hint center mt-16">以上为 AI 生成效果，仅供参考</view>
+  </view>
+
+  <view wx:if="{{manageMode}}" class="delete-bar">
+    <btn class="footer-main" type="danger" disabled="{{delSelected.length === 0}}" bindtap="onDelete">删除（{{delSelected.length}}）</btn>
   </view>
 
   <tab-bar selected="{{3}}" navMode="{{true}}"></tab-bar>
