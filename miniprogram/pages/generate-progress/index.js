@@ -1,6 +1,5 @@
 const { toast, navigate } = require("../../utils/interaction");
 const api = require("../../utils/api");
-const provider = require("../../utils/avatar3d/provider");
 
 Page({
   data: { percent: 0, error: false },
@@ -10,9 +9,12 @@ Page({
   async run() {
     try {
       const profile = await api.getAvatarProfile();
-      const model = await provider.generate(profile);
-      wx.setStorageSync("avatarModel", model);
-      await api.saveAvatarProfile({ modelVersion: model.version, status: "ready" });
+      const av = await api.createAvatarViews(profile);
+      if (av && av.avatarViewId) {
+        wx.setStorageSync("avatarViewId", av.avatarViewId);
+      } else {
+        wx.setStorageSync("avatarViewId", "av-current");
+      }
       this.animateTo100();
     } catch (e) {
       this.setData({ error: true });
