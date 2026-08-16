@@ -131,10 +131,12 @@ module.exports = {
   /* 轮询视频任务状态。 */
   async getVideoStatus(taskId) {
     const res = await requestJson("GET", "/agnesapi?video_id=" + encodeURIComponent(taskId), undefined, 60000);
+    // 完成响应的视频 URL 在顶层 url 字段（实测）；兼容 metadata.url / video_url / data.url 变体
+    const videoUrl = res.url || (res.metadata && res.metadata.url) || res.video_url || (res.data && res.data.url) || "";
     return {
       status: res.status,
       progress: res.progress,
-      videoUrl: (res.metadata && res.metadata.url) || "",
+      videoUrl,
       error: res.error || ""
     };
   }

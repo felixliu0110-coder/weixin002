@@ -60,8 +60,9 @@ async function submit(event, openid) {
 async function status(event) {
   const res = await db.collection("tryon_tasks").doc(event.taskId).get();
   const d = res.data;
-  // 异步视频任务：轮询 agnes 状态，完成后写入 tryon_video
-  if (d.status === "processing" && d.video_task_id) {
+  // 异步视频任务：生成中轮询；或已 success 但视频 URL 缺失（旧字段解析 bug）时补全
+  const needPoll = d.video_task_id && (d.status === "processing" || (d.status === "success" && !d.tryon_video));
+  if (needPoll) {
     const aigc = getAigc();
     if (aigc && aigc.getVideoStatus) {
       try {
