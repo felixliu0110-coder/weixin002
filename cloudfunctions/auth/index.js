@@ -77,14 +77,54 @@ async function profileSave(event, openid) {
 exports.main = async (event) => {
   try {
     const { openid } = cloud.getWXContext();
+
+    console.log(
+      "auth context",
+      "action=" + (event.action || ""),
+      "openid=" + (openid ? "set" : "EMPTY")
+    );
+
+    // 登录接口：不能先要求登录
+    if (event.action === "login") {
+      if (!openid) {
+        return {
+          ok: false,
+          error: "AUTH_REQUIRED",
+          message: "无法获取微信用户身份"
+        };
+      }
+
+      return {
+        ok: true,
+        loggedIn: true,
+        openid,
+        ts: Date.now()
+      };
+    }
+
+    // 业务接口才要求登录
     requireLogin(openid);
-    if (event.action === "profileGet") return profileGet(openid);
-    if (event.action === "profileSave") return profileSave(event, openid);
-    // 微信身份登录：openid 由平台自动注入，无需 wx.login/code2Session
-    console.log("auth login", "openid=" + (openid ? "set" : "EMPTY"));
-    return { ok: true, loggedIn: true, openid, ts: Date.now() };
+
+    if (event.action === "profileGet") {
+      return profileGet(openid);
+    }
+
+    if (event.action === "profileSave") {
+      return profileSave(event, openid);
+    }
+
+    return {
+      ok: false,
+      error: "INVALID_ACTION",
+      message: "未知操作"
+    };
   } catch (e) {
     console.log("auth fail", "error=" + fmtErr(e));
-    return { ok: false, error: e.appCode || "INTERNAL", message: e.appCode ? e.message : "内部错误" };
+
+    return {
+      ok: false,
+      error: e.appCode || "INTERNAL",
+      message: e.appCode ? e.message : "内部错误"
+    };
   }
 };
