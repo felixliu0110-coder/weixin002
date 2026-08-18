@@ -1,17 +1,22 @@
 .wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
 .ring-wrap { position: relative; width: 432rpx; height: 432rpx; margin: 68rpx auto 48rpx; }
-.ring { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(#E3A595 calc(var(--p) * 1%), #F0D6CC 0); }
+.ring { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(var(--accent) calc(var(--p) * 1%), var(--ring-track) 0); }
 .ring-hole { position: absolute; inset: 44rpx; border-radius: 50%; background: var(--bg); }
 .ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 92rpx; font-weight: 700; color: var(--fg); }
 .big-hero-center { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 16rpx; }
 .gen-title { text-align: center; font-size: 34rpx; font-weight: 600; }
 .gen-sub { text-align: center; font-size: 27rpx; color: var(--fg-2); margin-top: 16rpx; line-height: 1.6; }
-.gen-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 24rpx; margin-top: 44rpx; }
-.gen-card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-md); padding: 28rpx; text-align: center; }
-.gc-ic { width: 68rpx; height: 68rpx; border-radius: 20rpx; background: var(--accent-soft); color: var(--accent-deep); display: flex; align-items: center; justify-content: center; margin: 0 auto 16rpx; }
-.gc-ic .iconfont { font-size: 34rpx; }
-.gc-label { font-size: 24rpx; color: var(--fg-2); }
-.gc-val { font-size: 30rpx; font-weight: 600; margin-top: 6rpx; }
+
+/* 步骤列表：克制、无科技感 */
+.gen-steps { display: flex; flex-direction: column; gap: 8rpx; margin: 48rpx auto 0; width: 420rpx; }
+.gs-item { display: flex; align-items: center; gap: 20rpx; padding: 14rpx 8rpx; }
+.gs-dot { flex: 0 0 16rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: var(--border); transition: background 0.3s var(--ease); }
+.gs-item.on .gs-dot { background: var(--accent); }
+.gs-item.done .gs-dot { background: var(--accent-deep); }
+.gs-text { font-size: 28rpx; color: var(--fg-2); }
+.gs-item.on .gs-text { color: var(--fg); font-weight: 600; }
+.gs-item.done .gs-text { color: var(--fg); }
+
 .hint { font-size: 25rpx; color: var(--fg-2); line-height: 1.65; }
 .center { text-align: center; }
 .mt-20 { margin-top: 40rpx; }

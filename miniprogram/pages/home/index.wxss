@@ -12,7 +12,7 @@
 .ht-sub { font-size: 25rpx; opacity: 0.92; margin-top: 8rpx; line-height: 1.5; }
 .ht-ic { flex: 0 0 92rpx; width: 92rpx; height: 92rpx; border-radius: 30rpx; background: rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center; }
 .ht-ic .iconfont { font-size: 44rpx; }
-.quota-row { display: flex; align-items: center; gap: 10rpx; padding: 20rpx 28rpx; background: var(--accent-soft); border-radius: var(--radius-md); color: #7A5A4E; font-size: 25rpx; font-weight: 600; margin-top: 24rpx; }
+.quota-row { display: flex; align-items: center; gap: 10rpx; padding: 16rpx 24rpx; background: var(--surface); border: 1rpx solid var(--border-soft); border-radius: var(--radius-md); color: var(--fg-2); font-size: 25rpx; font-weight: 500; margin-top: 24rpx; }
 .quota-row .iconfont { font-size: 30rpx; }
 .sec-hd { display: flex; align-items: baseline; justify-content: space-between; margin: 44rpx 4rpx 24rpx; }
 .sec-avatar { margin-top: 44rpx; }
@@ -34,4 +34,4 @@
 .ar-copy { flex: 1; min-width: 0; }
 .ar-name { font-size: 32rpx; font-weight: 600; }
 .ar-sub { font-size: 25rpx; color: var(--fg-2); margin-top: 8rpx; line-height: 1.5; }
-.ar-btn { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 80rpx; padding: 0 36rpx; border-radius: 999rpx; background: var(--accent); color: var(--accent-on); font-size: 27rpx; font-weight: 600; }
+.ar-btn { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-height: 64rpx; padding: 0 28rpx; border-radius: 999rpx; background: var(--btn-soft); color: var(--accent-text); font-size: 26rpx; font-weight: 500; }

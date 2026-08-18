@@ -35,7 +35,7 @@ Page({
         if (p >= 100) {
           clearInterval(this._frameTimer);
           this._frameTimer = null;
-          toast("数字人已生成");
+          toast("人物三视图已生成");
           this._navTimer = setTimeout(() => navigate("/pages/avatar-3d/index"), 1200);
         }
       }, 40);

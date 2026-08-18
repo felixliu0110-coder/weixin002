@@ -3,7 +3,7 @@
 
   <view class="content">
     <view class="steps"><i class="on"></i><i class="on"></i><i class="on"></i></view>
-    <view class="subtitle">上传照片可以让数字人更像你，均为选填。</view>
+    <view class="subtitle">上传照片可以让人物形象更像你，均为选填。</view>
 
     <upload-card
       title="人脸正面照"
@@ -36,7 +36,7 @@
     <view class="sheet-head">
       <view class="grab"></view>
       <text class="sheet-title">选择照片</text>
-      <text class="sheet-desc">建议正面照、光线均匀；jpg / png ≤ 10MB，仅用于生成数字人。</text>
+      <text class="sheet-desc">建议正面照、光线均匀；jpg / png ≤ 10MB，仅用于生成人物形象。</text>
     </view>
     <view class="s-rows">
       <view class="s-row" hover-class="row-hover" data-mode="album" bindtap="choosePhoto">从相册选择</view>

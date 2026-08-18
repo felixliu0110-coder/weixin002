@@ -10,7 +10,7 @@
       <view class="profile-avatar">云</view>
       <view class="profile-copy">
         <view class="profile-name">{{user.nickname}}</view>
-        <view class="profile-sub">专属数字人已就绪 · 今天想怎么穿？</view>
+        <view class="profile-sub">人物形象已就绪 · 今天想怎么穿？</view>
       </view>
       <image class="ic-img arrow" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" />
     </view>
@@ -23,7 +23,7 @@
     <view class="row-list mt-16">
       <view class="row" hover-class="row-hover" bindtap="goAvatar">
         <view class="ri-ic"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-avatar-deep.png" /></view>
-        <view class="ri-main"><view class="ri-title">我的数字人</view><view class="ri-sub">查看、编辑或删除</view></view>
+        <view class="ri-main"><view class="ri-title">我的人物形象</view><view class="ri-sub">查看与编辑人物三视图</view></view>
         <view class="ri-end"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
       <view class="row" hover-class="row-hover" bindtap="goHistory">

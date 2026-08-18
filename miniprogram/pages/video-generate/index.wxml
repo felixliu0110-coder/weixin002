@@ -1,5 +1,5 @@
 <view class="wx-page">
-  <nav-bar title="360° 动态试穿" showBack="{{true}}"></nav-bar>
+  <nav-bar title="动态效果" showBack="{{true}}"></nav-bar>
 
   <view class="content big-hero-center">
     <!-- 展示当前试穿图片 -->
@@ -12,7 +12,7 @@
     <block wx:if="{{!generating && !videoUrl && !error}}">
       <view class="vg-intro">
         <view class="vg-intro-title">生成 180° 转身视频</view>
-        <view class="vg-intro-desc">基于 AI 三视图与衣物四视图，生成动态转身效果，全方位查看穿搭细节</view>
+        <view class="vg-intro-desc">以你的穿搭效果为基础，生成动态转身视频，全方位查看穿搭细节</view>
         <view class="vg-intro-features">
           <view class="vg-feature">
             <image class="vg-f-icon" src="/assets/icons/svg/ic-play.svg" mode="aspectFit" />

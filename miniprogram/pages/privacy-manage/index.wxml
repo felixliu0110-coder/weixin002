@@ -22,7 +22,7 @@
       </view>
       <view class="row" hover-class="row-hover" bindtap="openDel">
         <view class="ri-ic"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-avatar-deep.png" /></view>
-        <view class="ri-main"><view class="ri-title">删除数字人及关联数据</view><view class="ri-sub">数字人、照片与生成记录</view></view>
+        <view class="ri-main"><view class="ri-title">删除人物形象及关联数据</view><view class="ri-sub">人物形象、照片与生成记录</view></view>
         <view class="ri-end"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
       <view class="row" hover-class="row-hover" bindtap="openRevoke">
@@ -41,7 +41,7 @@
     <view class="sheet-head">
       <view class="grab"></view>
       <text class="sheet-title">确认删除</text>
-      <text class="sheet-desc">删除操作不可恢复：将同时移除数字人、照片与生成记录，异步清理 7 天内完成。</text>
+      <text class="sheet-desc">删除操作不可恢复：将同时移除人物形象、照片与生成记录，异步清理 7 天内完成。</text>
     </view>
     <view slot="actions" class="sheet-actions">
       <btn class="sheet-action" type="danger" bindtap="confirmDel">确认删除</btn>

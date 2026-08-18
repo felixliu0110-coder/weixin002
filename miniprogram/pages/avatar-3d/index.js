@@ -1,11 +1,11 @@
-const { toast, navigate } = require("../../utils/interaction");
 const api = require("../../utils/api");
+const { navigate } = require("../../utils/interaction");
 
 Page({
   data: {
     views: { composite: "" },
     isExample: false,
-    profile: { heightCm: "--", weightKg: "--", waistCm: "--", legLengthCm: "--" }
+    profile: { heightCm: "--", weightKg: "--", shoulderCm: "--", waistCm: "--", legLengthCm: "--" }
   },
   onLoad() {
     api.getAvatarProfile().then((profile) => {
@@ -14,10 +14,6 @@ Page({
     api.getAvatarViews().then((av) => {
       this.setData({ views: av.views || { composite: "" }, isExample: !!av.isExample });
     }).catch(() => this.setData({ views: { composite: "" }, isExample: true }));
-  },
-  onConfirm() {
-    toast("AI 三视图已确认");
-    navigate("/pages/home/index");
   },
   regenerate() {
     navigate("/pages/generate-progress/index");

@@ -9,6 +9,7 @@ Page({
     stageText: "提交任务中",
     error: false,
     errorMsg: "",
+    errorHint: "", // 用户可见的友好提示（技术错误码只进 console，不暴露给用户）
     submitting: true // 提交阶段状态：先展示"提交中"，不阻塞上一页
   },
   onLoad() {
@@ -46,10 +47,12 @@ Page({
       .then((res) => {
         // 云函数异常时返回 { ok:false, error } 而非抛异常：同样进入失败态
         if (res && res.error && !res.taskId) {
+          console.warn("[tryon-progress] submit error:", res.error);
           this.setData({
             submitting: false,
             error: true,
-            errorMsg: "生成失败：" + res.error
+            errorMsg: res.error,
+            errorHint: "这次没有生成成功，可以重新尝试。"
           });
           return;
         }
@@ -71,11 +74,13 @@ Page({
         this.poll();
       })
       .catch((err) => {
-        // 提交失败：展示失败态，允许重试
+        // 提交失败：展示失败态，允许重试（技术细节只记录，不展示给用户）
+        console.warn("[tryon-progress] submit exception:", err && err.message);
         this.setData({
           submitting: false,
           error: true,
-          errorMsg: (err && err.message) || "提交失败，请检查网络后重试"
+          errorMsg: (err && err.message) || "",
+          errorHint: "这次没有生成成功，可以重新尝试。"
         });
       });
   },
@@ -83,7 +88,8 @@ Page({
   poll() {
     api.getAiTryonStatus(this.taskId).then((st) => {
       if (st.status === "failed") {
-        this.setData({ error: true, errorMsg: (st && st.error) || "生成失败，请重试" });
+        console.warn("[tryon-progress] task failed:", st && st.error);
+        this.setData({ error: true, errorMsg: (st && st.error) || "", errorHint: "这次没有生成成功，可以重新尝试。" });
         return;
       }
       this.setData({
@@ -91,7 +97,7 @@ Page({
       });
       if (st.status !== "success") {
         if (Date.now() - this._pollStartedAt > POLL_MAX_MS) {
-          this.setData({ error: true, errorMsg: "生成仍在后台进行，可稍后在试穿记录查看" });
+          this.setData({ error: true, errorMsg: "", errorHint: "生成仍在后台进行，可稍后在试穿记录查看结果。" });
           return;
         }
         this._pollCount += 1;
@@ -101,7 +107,7 @@ Page({
       this.animateTo100(st);
     }).catch(() => {
       // 接口异常：展示失败态与重试入口，而不是伪造成功结果误导用户
-      this.setData({ error: true, errorMsg: "网络异常，无法获取生成进度" });
+      this.setData({ error: true, errorMsg: "", errorHint: "网络不太稳定，请再试一次。" });
     });
   },
 
@@ -109,7 +115,7 @@ Page({
     // 重试：读取 pending 重新提交，或继续轮询已有 task
     const pending = wx.getStorageSync("aiTryonPending");
     if (pending && pending.garmentIds) {
-      this.setData({ error: false, errorMsg: "", percent: 0, stageText: "提交任务中", submitting: true });
+      this.setData({ error: false, errorMsg: "", errorHint: "", percent: 0, stageText: "提交任务中", submitting: true });
       this.submitTask(pending);
       return;
     }
@@ -118,7 +124,7 @@ Page({
       this.clearTimers();
       this._pollCount = 0;
       this._pollStartedAt = Date.now();
-      this.setData({ error: false, errorMsg: "", percent: 0, stageText: "合成试穿效果图", submitting: false });
+      this.setData({ error: false, errorMsg: "", errorHint: "", percent: 0, stageText: "合成试穿效果图", submitting: false });
       this.poll();
     }
   },
@@ -154,7 +160,7 @@ Page({
               category: pending.garmentCategories[i] || "其他"
             })) : (prevResult.garments || [])
           });
-          toast("生成完成 · AI 生成效果，仅供参考");
+          toast("生成完成 · 效果仅供参考");
           this._navTimer = setTimeout(() => navigate("/pages/tryon-result/index"), 1400);
         }
       }, 40);

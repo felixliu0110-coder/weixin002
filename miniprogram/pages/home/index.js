@@ -24,7 +24,7 @@ Page({
       const remaining = Math.max(0, (quota.dailyFree || 0) - (quota.used || 0));
       this.setData({ quota: Object.assign({}, quota, { used: quota.used || 0, remaining }) });
     }).catch(() => {});
-    // 数字人是否已真实创建（示例档案 = 未创建）
+    // 人物形象是否已真实创建（示例档案 = 未创建）
     api.getAvatarProfile().then((profile) => {
       this.setData({ avatarReady: !!(profile && !profile.isExample) });
     }).catch(() => this.setData({ avatarReady: false }));

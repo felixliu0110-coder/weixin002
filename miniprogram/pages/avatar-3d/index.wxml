@@ -1,11 +1,11 @@
 <view class="wx-page">
-  <nav-bar title="我的 AI 数字人" showBack="{{true}}" backRoute="/pages/home/index"></nav-bar>
+  <nav-bar title="我的人物形象" showBack="{{true}}" backRoute="/pages/home/index"></nav-bar>
 
   <view class="content">
     <view class="avatar-stage">
       <image wx:if="{{views.composite}}" class="avatar-img" src="{{views.composite}}" mode="widthFix" />
       <view wx:else class="stage-fallback">
-        <text class="fb-text">尚未生成三视图，先完成生成</text>
+        <text class="fb-text">人物三视图还没生成</text>
         <btn class="fb-btn" type="secondary" size="sm" bindtap="regenerate">去生成</btn>
       </view>
       <view wx:if="{{isExample}}" class="example-tag">示例</view>
@@ -15,24 +15,23 @@
         <text>背面</text>
       </view>
     </view>
-    <view class="meas-hint">同一人物 · 正面 / 左侧面 / 背面，AI 写实生成</view>
+    <view class="meas-hint">人物三视图 · 正面 / 侧面 / 背面</view>
 
-    <card class="profile-card">
-      <view class="sec-hd">
-        <text class="sec-title">身材档案</text>
-        <view class="more" hover-class="more-hover" bindtap="edit">编辑<image class="ic-img" style="width:26rpx;height:26rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
-      </view>
-      <view class="profile-grid">
-        <view class="p-cell"><text class="pc-label">身高</text><text class="pc-val mono">{{profile.heightCm}}cm</text></view>
-        <view class="p-cell"><text class="pc-label">体重</text><text class="pc-val mono">{{profile.weightKg}}kg</text></view>
-        <view class="p-cell"><text class="pc-label">腰围</text><text class="pc-val mono">{{profile.waistCm}}cm</text></view>
-        <view class="p-cell"><text class="pc-label">腿长</text><text class="pc-val mono">{{profile.legLengthCm}}cm</text></view>
-      </view>
-    </card>
+    <view class="sec-hd">
+      <text class="sec-title">人物资料</text>
+      <view class="more" hover-class="more-hover" bindtap="edit">编辑资料<image class="ic-img" style="width:26rpx;height:26rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
+    </view>
+    <view class="profile-grid">
+      <view class="p-cell"><text class="pc-label">身高</text><text class="pc-val mono">{{profile.heightCm}}<small>cm</small></text></view>
+      <view class="p-cell"><text class="pc-label">体重</text><text class="pc-val mono">{{profile.weightKg}}<small>kg</small></text></view>
+      <view class="p-cell"><text class="pc-label">肩宽</text><text class="pc-val mono">{{profile.shoulderCm}}<small>cm</small></text></view>
+      <view class="p-cell"><text class="pc-label">腰围</text><text class="pc-val mono">{{profile.waistCm}}<small>cm</small></text></view>
+      <view class="p-cell"><text class="pc-label">腿长</text><text class="pc-val mono">{{profile.legLengthCm}}<small>cm</small></text></view>
+    </view>
   </view>
 
   <view class="footer-bar">
     <btn class="footer-main" type="primary" bindtap="goTryon">去试穿</btn>
-    <btn class="footer-sub" type="secondary" bindtap="onConfirm">确认保存</btn>
+    <btn class="footer-sub" type="secondary" bindtap="edit">编辑人物形象</btn>
   </view>
 </view>

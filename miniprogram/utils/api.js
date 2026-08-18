@@ -290,7 +290,7 @@ module.exports = {
         m.error = (e && (e.errMsg || e.message)) || "云函数调用失败";
         return m;
       }
-      throw serviceError("数字人生成失败");
+      throw serviceError("人物形象生成失败");
     }
   },
 
@@ -305,13 +305,13 @@ module.exports = {
       const r = res.result;
       if (!r || !r.ok || r.empty || isMockResult(r.views)) {
         if (mockAllowed()) return mock.getAvatarViews();
-        if (r && r.empty) return null; // 尚未生成数字人：空态
-        throw serviceError("数字人读取失败");
+        if (r && r.empty) return null; // 尚未生成人物形象：空态
+        throw serviceError("人物形象读取失败");
       }
       return { status: r.status, views: r.views, isExample: false };
     } catch (e) {
       if (mockAllowed()) return mock.getAvatarViews();
-      throw serviceError("数字人读取失败");
+      throw serviceError("人物形象读取失败");
     }
   },
 

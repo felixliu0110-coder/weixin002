@@ -3,8 +3,7 @@
 /* 图片卡片 */
 .photo-card { position: relative; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-soft); background: var(--surface); box-shadow: var(--shadow-card); }
 .result-img { width: 100%; display: block; }
-.badge-ai { position: absolute; top: 24rpx; left: 24rpx; background: rgba(31,29,27,0.76); color: var(--accent-on); font-size: 22rpx; font-weight: 500; padding: 10rpx 20rpx; border-radius: 999rpx; display: inline-flex; align-items: center; gap: 10rpx; }
-.wm { position: absolute; left: 50%; bottom: 24rpx; transform: translateX(-50%); background: rgba(31,29,27,0.66); color: rgba(255,255,255,0.92); font-size: 21rpx; padding: 8rpx 24rpx; border-radius: 999rpx; white-space: nowrap; }
+.wm { position: absolute; left: 50%; bottom: 24rpx; transform: translateX(-50%); background: rgba(31,29,27,0.6); color: rgba(255,255,255,0.92); font-size: 21rpx; padding: 8rpx 24rpx; border-radius: 999rpx; white-space: nowrap; }
 
 /* 穿搭信息 */
 .result-meta { display: block; margin-top: 28rpx; display: flex; align-items: flex-start; justify-content: space-between; gap: 20rpx; }

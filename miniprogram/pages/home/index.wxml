@@ -12,18 +12,18 @@
     <view class="hero-tryon" hover-class="hero-hover" bindtap="goTryon">
       <view class="ht-copy">
         <view class="ht-title">一键试穿</view>
-        <view class="ht-sub">上传衣物即刻看到上身效果</view>
+        <view class="ht-sub">选一件衣服，看看上身效果</view>
       </view>
       <view class="ht-ic"><image class="ic-img" style="width:44rpx;height:44rpx" src="/assets/icons/png/icon-hanger-white.png" /></view>
     </view>
 
     <view class="quota-row">
-      <image class="ic-img" style="width:30rpx;height:30rpx" src="/assets/icons/png/icon-star-deep.png" />
+      <image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-star-deep.png" />
       今日剩余 <text class="mono">{{quota.remaining}}</text> 次免费试穿
     </view>
 
     <view class="sec-hd">
-      <text class="sec-title">热门模板</text>
+      <text class="sec-title">热门穿搭</text>
       <view class="more" hover-class="more-hover" bindtap="onMore">查看全部<image class="ic-img" style="width:26rpx;height:26rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
     </view>
     <view class="template-grid">
@@ -34,16 +34,16 @@
     </view>
 
     <view class="sec-hd sec-avatar">
-      <text class="sec-title">我的数字人</text>
-      <text class="hint">{{avatarReady ? '已就绪' : '未创建'}}</text>
+      <text class="sec-title">我的人物形象</text>
+      <text class="hint">{{avatarReady ? '三视图已就绪' : '未创建'}}</text>
     </view>
     <view class="avatar-row" hover-class="avatar-hover" bindtap="goAvatar">
       <view class="ar-img"><image src="/assets/img/p05-avatar.jpg" mode="aspectFill" /></view>
       <view class="ar-copy">
-        <view class="ar-name">小云的专属数字人</view>
-        <view class="ar-sub">点击查看和编辑身材档案</view>
+        <view class="ar-name">我的人物形象</view>
+        <view class="ar-sub">{{avatarReady ? '人物三视图已就绪' : '完善身材资料，生成人物三视图'}}</view>
       </view>
-      <view class="ar-btn">去试穿</view>
+      <view class="ar-btn">查看</view>
     </view>
   </view>
 </view>

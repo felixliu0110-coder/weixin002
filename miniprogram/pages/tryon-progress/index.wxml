@@ -1,5 +1,5 @@
 <view class="wx-page">
-  <nav-bar title="试穿生成中" showBack="{{true}}"></nav-bar>
+  <nav-bar title="正在生成穿搭" showBack="{{true}}"></nav-bar>
 
   <view class="content gen-layout">
     <!-- 提交任务阶段 -->
@@ -9,14 +9,14 @@
         <view class="pulse-dot d2"></view>
         <view class="pulse-dot d3"></view>
       </view>
-      <view class="gen-title">正在提交任务</view>
-      <view class="gen-sub">AI 预处理衣物视图并创建生成任务</view>
+      <view class="gen-title">正在准备生成</view>
+      <view class="gen-sub">正在把衣物与人物形象组合起来</view>
 
       <view class="gen-cards">
         <view class="gen-card">
           <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-star-deep.png" /></view>
           <view class="gc-label">当前阶段</view>
-          <view class="gc-val">提交中</view>
+          <view class="gc-val">准备中</view>
         </view>
         <view class="gen-card">
           <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-clock-deep.png" /></view>
@@ -35,8 +35,8 @@
         <view class="ring-hole"></view>
         <view class="ring-num mono">{{percent}}<text class="pct">%</text></view>
       </view>
-      <view class="gen-title">正在为你试穿{{garmentName}}...</view>
-      <view class="gen-sub">AI 三视图 + 衣物四视图 → 试穿效果图</view>
+      <view class="gen-title">正在生成穿搭效果</view>
+      <view class="gen-sub">正在把「{{garmentName}}」穿到你的人物形象上</view>
 
       <view class="gen-cards">
         <view class="gen-card">
@@ -56,8 +56,8 @@
 
     <!-- 失败态 -->
     <block wx:if="{{error}}">
-      <view class="gen-title">生成失败</view>
-      <view class="gen-sub">{{errorMsg || '生成异常，请重试'}}</view>
+      <view class="gen-title">暂时没生成成功</view>
+      <view class="gen-sub">{{errorHint || '这次没有生成成功，可以重新尝试。'}}</view>
       <view class="err-actions">
         <btn class="retry-btn" type="primary" bindtap="retry">重新生成</btn>
         <btn class="back-btn" bindtap="backToSelect">返回重选衣物</btn>

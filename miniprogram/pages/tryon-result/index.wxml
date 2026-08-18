@@ -1,15 +1,11 @@
 <view class="wx-page">
-  <nav-bar title="今日穿搭灵感" showBack="{{true}}"></nav-bar>
+  <nav-bar title="穿搭效果" showBack="{{true}}"></nav-bar>
 
   <view class="content">
     <!-- 主展示：图片 -->
     <view class="photo-card">
       <image src="{{result.tryonImage}}" mode="widthFix" class="result-img" />
-      <view class="badge-ai">
-        <image class="ic-img" style="width:24rpx;height:24rpx" src="/assets/icons/png/icon-star-white.png" />
-        AI 生成
-      </view>
-      <view class="wm">AI 生成效果，仅供参考</view>
+      <view class="wm">效果示意，仅供参考</view>
     </view>
 
     <!-- 穿搭信息 -->
@@ -41,7 +37,7 @@
       <view class="action-item action-video" hover-class="action-hover" bindtap="goToVideoGenerate">
         <image class="action-icon" src="/assets/icons/svg/ic-play.svg" mode="aspectFit" />
         <text class="action-label">{{result.tryonVideo ? '观看动态视频' : '生成动态视频'}}</text>
-        <text class="action-hint">{{result.tryonVideo ? '360° 转身效果' : 'AI 生成转身动画'}}</text>
+        <text class="action-hint">{{result.tryonVideo ? '动态转身效果' : '生成转身动态效果'}}</text>
       </view>
     </view>
   </view>
