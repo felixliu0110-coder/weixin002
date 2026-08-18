@@ -37,6 +37,7 @@ Page({
     // 衣物信息优先取生成结果（aiTryonPending 在进度页提交成功后已被清除）
     const result = wx.getStorageSync("aiTryonResult") || {};
     const garments = result.garments || [];
+    const imageTaskId = result.imageTaskId || "";
     let garmentIds = garments.map((g) => g.id);
     let garmentNames = garments.map((g) => g.name);
     if (!garmentIds.length) {
@@ -52,21 +53,24 @@ Page({
       });
       return;
     }
+    if (!imageTaskId) {
+      this.setData({
+        generating: false,
+        error: true,
+        errorMsg: "缺少效果图任务，请从生成结果页进入"
+      });
+      return;
+    }
 
-    // 视频生成前并行确保四视图就绪（四视图为内部素材，供视频链路使用；失败不阻塞提交）
-    const pending = wx.getStorageSync("aiTryonPending") || {};
-    const garmentImages = result.garments && result.garments.length
-      ? result.garments.map((g) => g.image)
-      : (pending.garmentImages || []);
-    Promise.all(garments.map((g, i) => api.ensureGarmentViews(g.id, g.name, garmentImages[i] || g.image)))
+    // 视频生成前并行确保四视图就绪（只传业务 ID，服务端解析衣物；失败不阻塞提交）
+    Promise.all(garments.map((g) => api.ensureGarmentViews(g.id)))
       .catch(() => null)
       .then(() => api.submitAiTryon({
         avatarViewId,
         garmentIds,
         garmentNames,
         mode: "video",
-        tryonImage: result.tryonImage || "",
-        tryonImageUrl: result.tryonImageUrl || ""
+        imageTaskId
       }))
       .then((res) => {
       // 云函数异常返回 { error } 而非抛异常：同样进入失败态，不静默回退

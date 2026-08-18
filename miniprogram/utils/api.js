@@ -7,6 +7,16 @@ function cloudReady() {
   return typeof wx !== "undefined" && wx.cloud && config.cloudEnv && config.cloudEnv.trim() !== "";
 }
 
+function mockAllowed() {
+  return config.mockEnabled === true;
+}
+
+function serviceError(message) {
+  const e = new Error(message || "服务暂不可用，请稍后重试");
+  e.appCode = "SERVICE_UNAVAILABLE";
+  return e;
+}
+
 function isMockResult(r) {
   // 云函数未配置 AIGC Key 时返回占位 URL（provider=mock / placeholder），前端回退本地素材
   if (!r) return true;
@@ -34,45 +44,35 @@ async function firstDoc(collName) {
 
 module.exports = {
   async getAvatarProfile() {
-    if (!cloudReady()) return mock.getAvatarProfile();
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.getAvatarProfile();
+      throw serviceError("云环境未配置");
+    }
     try {
-      const doc = await firstDoc("avatar_profiles");
-      if (!doc) return mock.getAvatarProfile();
-      return {
-        id: doc._id,
-        gender: doc.gender,
-        heightCm: doc.heightCm,
-        weightKg: doc.weightKg,
-        bustCm: doc.bustCm,
-        waistCm: doc.waistCm,
-        hipCm: doc.hipCm,
-        legLengthCm: doc.legLengthCm,
-        neckLengthCm: doc.neckLengthCm,
-        shoulderCm: doc.shoulderCm,
-        armLengthCm: doc.armLengthCm,
-        shoeSize: doc.shoeSize,
-        skinTone: doc.skinTone,
-        estimate: doc.estimate,
-        isExample: false
-      };
+      const res = await wx.cloud.callFunction({ name: "auth", data: { action: "profileGet" } });
+      const r = res.result;
+      if (!r || !r.ok) throw serviceError((r && r.message) || "档案读取失败");
+      if (r.empty) return mockAllowed() ? mock.getAvatarProfile() : null;
+      return Object.assign({ isExample: false }, r.profile);
     } catch (e) {
-      return mock.getAvatarProfile();
+      if (mockAllowed()) return mock.getAvatarProfile();
+      throw serviceError("档案读取失败");
     }
   },
 
   async saveAvatarProfile(data) {
-    if (!cloudReady()) return mock.saveAvatarProfile(data);
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.saveAvatarProfile(data);
+      throw serviceError("云环境未配置");
+    }
     try {
-      const coll = db().collection("avatar_profiles");
-      const doc = await firstDoc("avatar_profiles");
-      if (doc) {
-        await coll.doc(doc._id).update({ data });
-      } else {
-        await coll.add({ data: Object.assign({}, data, { createdAt: Date.now() }) });
-      }
-      return { ok: true };
+      const res = await wx.cloud.callFunction({ name: "auth", data: Object.assign({ action: "profileSave" }, data) });
+      const r = res.result;
+      if (!r || !r.ok) throw serviceError((r && r.message) || "档案保存失败");
+      return { ok: true, id: r.id };
     } catch (e) {
-      return mock.saveAvatarProfile(data);
+      if (mockAllowed()) return mock.saveAvatarProfile(data);
+      throw serviceError("档案保存失败");
     }
   },
 
@@ -82,10 +82,45 @@ module.exports = {
   addToMyTemplates: mock.addToMyTemplates,
   getHomeTemplates: mock.getHomeTemplates,
 
-  uploadGarment: mock.uploadGarment,
+  async uploadGarment(fileID, params) {
+    // 上传衣物：云存储文件已由客户端上传，服务端落库并返回服务端生成的 garmentId
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.uploadGarment(fileID, params);
+      throw serviceError("云环境未配置");
+    }
+    try {
+      const res = await wx.cloud.callFunction({
+        name: "uploadGarment",
+        data: {
+          action: "create",
+          fileID,
+          name: params.name,
+          category: params.category
+        }
+      });
+      const r = res.result;
+      if (!r || !r.ok) throw new Error((r && r.error) || "上传失败");
+      if (!r.pass) {
+        return { ok: true, pass: false, reason: r.reason || "图片内容违规，请更换后重试" };
+      }
+      return {
+        id: r.garmentId,
+        image: fileID,
+        name: r.name,
+        category: r.category,
+        status: "ok"
+      };
+    } catch (e) {
+      if (mockAllowed()) return mock.uploadGarment(fileID, params);
+      throw serviceError("上传失败");
+    }
+  },
 
   async submitTryon(params) {
-    if (!cloudReady()) return mock.submitTryon(params);
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.submitTryon(params);
+      throw serviceError("云环境未配置");
+    }
     try {
       const task = {
         avatarId: params.avatarId,
@@ -98,28 +133,61 @@ module.exports = {
       const res = await db().collection("tryon_tasks").add({ data: task });
       return { taskId: res._id, status: "success", pose: task.pose, resultUrls: task.resultUrls };
     } catch (e) {
-      return mock.submitTryon(params);
+      if (mockAllowed()) return mock.submitTryon(params);
+      throw serviceError("试穿提交失败");
     }
   },
 
   async getTryonStatus(taskId) {
-    if (!cloudReady()) return mock.getTryonStatus(taskId);
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.getTryonStatus(taskId);
+      throw serviceError("云环境未配置");
+    }
     try {
       const res = await db().collection("tryon_tasks").doc(taskId).get();
       return { taskId, status: res.data.status };
     } catch (e) {
-      return mock.getTryonStatus(taskId);
+      if (mockAllowed()) return mock.getTryonStatus(taskId);
+      throw serviceError("状态查询失败");
     }
   },
 
   async getHistory() {
-    if (!cloudReady()) return mock.getHistory();
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.getHistory();
+      throw serviceError("云环境未配置");
+    }
     try {
       // 由云函数管理权限读取（云函数写入的记录无客户端 _openid 归属，直接读库会因权限读不到）
       const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "history" } });
       const r = res.result;
-      if (!r || !r.ok) return mock.getHistory();
+      if (!r || !r.ok) throw serviceError((r && r.message) || "历史记录读取失败");
       if (!r.list || r.list.length === 0) return [];   // 确实无记录 → 空态，不再显示示例
+      return r.list.map((d) => ({
+        id: d.id,
+        taskId: d.taskId || "",
+        garmentName: d.garmentName,
+        date: fmtDate(d.createdAt),
+        image: d.image,
+        aiTagged: true,
+        videoUrl: d.videoUrl || ""
+      }));
+    } catch (e) {
+      if (mockAllowed()) return mock.getHistory();
+      throw serviceError("历史记录读取失败");
+    }
+  },
+
+  async getFavorites() {
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.getFavorites();
+      throw serviceError("云环境未配置");
+    }
+    try {
+      const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "favorites" } });
+      const r = res.result;
+      if (!r || !r.ok) throw serviceError((r && r.message) || "收藏读取失败");
+      if (!r.list || r.list.length === 0) return [];
       return r.list.map((d) => ({
         id: d.id,
         garmentName: d.garmentName,
@@ -129,58 +197,49 @@ module.exports = {
         videoUrl: d.videoUrl || ""
       }));
     } catch (e) {
-      return mock.getHistory();
-    }
-  },
-
-  async getFavorites() {
-    if (!cloudReady()) return mock.getFavorites();
-    try {
-      const res = await db().collection("favorites").orderBy("createdAt", "desc").limit(50).get();
-      if (res.data.length === 0) return mock.getFavorites();
-      return res.data.map((d) => ({
-        id: d._id,
-        garmentName: d.garmentName,
-        date: fmtDate(d.createdAt),
-        image: d.image,
-        aiTagged: true,
-        videoUrl: d.videoUrl || ""
-      }));
-    } catch (e) {
-      return mock.getFavorites();
+      if (mockAllowed()) return mock.getFavorites();
+      throw serviceError("收藏读取失败");
     }
   },
 
   async deleteItems(kind, ids, opts) {
-    const fileIDs = (opts && opts.fileIDs) || [];
-    // 模板衣物暂存本地（云上数据范围待定），历史/收藏在云模式下走云数据库
-    if (kind === "myTemplates" || !cloudReady()) return mock.deleteItems(kind, ids);
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.deleteItems(kind, ids);
+      throw serviceError("云环境未配置");
+    }
+    // 已选穿搭引用暂存本地（云上数据范围待定）
+    if (kind === "myTemplates") return mock.deleteItems(kind, ids);
     if (kind === "library") {
-      // 衣物本体删除：先云端联动清理（原图 + 对应四视图记录/文件，1:1 联动），成功后再删本地记录
+      // 衣物本体删除：服务端按 garments 记录联动清理（原图 + 四视图 1:1），客户端 fileID 不作为删除依据
       const res = await wx.cloud.callFunction({
         name: "uploadGarment",
-        data: { action: "deleteGarment", garmentIds: ids, fileIDs }
+        data: { action: "deleteGarment", garmentIds: ids }
       });
       const r = res.result;
       if (!r || !r.ok) throw new Error((r && r.error) || "云端清理失败");
       return mock.deleteItems(kind, ids);
     }
     try {
-      if (kind === "history") {
+      if (kind === "history" || kind === "favorites") {
         // 云函数删除（云函数写入的记录无客户端 _openid 归属，直接删会因权限失败；同时删云存储文件）
-        const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "deleteHistory", ids } });
+        const res = await wx.cloud.callFunction({
+          name: "aiTryon",
+          data: { action: kind === "history" ? "deleteHistory" : "favoriteDelete", ids }
+        });
         const r = res.result;
         if (!r || !r.ok) throw new Error((r && r.error) || "删除失败");
         return { ok: true, removed: r.removed };
       }
-      const collName = { history: "tryon_results", favorites: "favorites", templates: "garments" }[kind];
-      const coll = db().collection(collName);
-      for (const id of ids) {
-        await coll.doc(id).remove();
+      if (kind === "templates") {
+        const coll = db().collection("garments");
+        for (const id of ids) {
+          await coll.doc(id).remove();
+        }
       }
       return { ok: true };
     } catch (e) {
-      return mock.deleteItems(kind, ids);
+      if (mockAllowed()) return mock.deleteItems(kind, ids);
+      throw serviceError("删除失败");
     }
   },
 
@@ -189,107 +248,159 @@ module.exports = {
   recognizeGarment: mock.recognizeGarment,
 
   async getQuota() {
-    if (!cloudReady()) return mock.getQuota();
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.getQuota();
+      throw serviceError("云环境未配置");
+    }
     try {
-      const doc = await firstDoc("quotas");
-      if (!doc) return mock.getQuota();
-      return { userId: doc._openid, dailyFree: doc.dailyFree, used: doc.used, isExample: false };
+      const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "quota" } });
+      const r = res.result;
+      if (!r || !r.ok) throw serviceError((r && r.message) || "额度查询失败");
+      return Object.assign({ isExample: false }, r.quota);
     } catch (e) {
-      return mock.getQuota();
+      if (mockAllowed()) return mock.getQuota();
+      throw serviceError("额度查询失败");
     }
   },
 
   async createAvatarViews(profile) {
-    if (!cloudReady()) return mock.createAvatarViews(profile);
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.createAvatarViews(profile);
+      throw serviceError("云环境未配置");
+    }
     try {
-      const res = await wx.cloud.callFunction({ name: "createAvatarViews", data: { profile } });
+      // 客户端只传档案业务 ID，照片参考图由服务端从档案取 fileID 生成临时链接
+      const res = await wx.cloud.callFunction({
+        name: "createAvatarViews",
+        data: { profileId: (profile && profile.id) || "" }
+      });
       const r = res.result;
       if (!r.ok || isMockResult(r)) {
-        const m = await mock.createAvatarViews(profile);
-        m.error = r.error || "云函数未返回真实 AI 结果";
-        return m;
+        if (mockAllowed()) {
+          const m = await mock.createAvatarViews(profile);
+          m.error = r.error || "云函数未返回真实 AI 结果";
+          return m;
+        }
+        throw serviceError(r.error || "云函数未返回真实 AI 结果");
       }
       return r;
     } catch (e) {
-      const m = await mock.createAvatarViews(profile);
-      m.error = (e && (e.errMsg || e.message)) || "云函数调用失败";
-      return m;
+      if (mockAllowed()) {
+        const m = await mock.createAvatarViews(profile);
+        m.error = (e && (e.errMsg || e.message)) || "云函数调用失败";
+        return m;
+      }
+      throw serviceError("数字人生成失败");
     }
   },
 
   async getAvatarViews() {
-    if (!cloudReady()) return mock.getAvatarViews();
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.getAvatarViews();
+      throw serviceError("云环境未配置");
+    }
     try {
       // 由云函数管理权限读取最新三视图（不依赖客户端 _openid 权限匹配）
       const res = await wx.cloud.callFunction({ name: "createAvatarViews", data: { action: "get" } });
       const r = res.result;
-      if (!r || !r.ok || r.empty || isMockResult(r.views)) return mock.getAvatarViews();
+      if (!r || !r.ok || r.empty || isMockResult(r.views)) {
+        if (mockAllowed()) return mock.getAvatarViews();
+        if (r && r.empty) return null; // 尚未生成数字人：空态
+        throw serviceError("数字人读取失败");
+      }
       return { status: r.status, views: r.views, isExample: false };
     } catch (e) {
-      return mock.getAvatarViews();
+      if (mockAllowed()) return mock.getAvatarViews();
+      throw serviceError("数字人读取失败");
     }
   },
 
   async ensureGarmentViews(garmentId, garmentName, garmentImage) {
-    // 仅公网 HTTPS 图才调用云函数生成四视图；本地/临时路径直接回退 mock，避免白调 Agnes
-    if (!cloudReady() || !isPublicHttpUrl(garmentImage)) return mock.ensureGarmentViews(garmentId, garmentName);
+    // 只提交业务 ID，衣物信息由服务端解析（内置模板白名单 / garments 集合）
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.ensureGarmentViews(garmentId, garmentName);
+      throw serviceError("云环境未配置");
+    }
     try {
       const res = await wx.cloud.callFunction({
         name: "ensureGarmentViews",
-        data: { garmentId, garmentName, garmentImage }
+        data: { garmentId }
       });
       const r = res.result;
-      if (!r.ok || isMockResult(r)) return mock.ensureGarmentViews(garmentId, garmentName);
+      if (!r.ok || isMockResult(r)) {
+        if (mockAllowed()) return mock.ensureGarmentViews(garmentId, garmentName);
+        throw serviceError(r.error || "四视图生成失败");
+      }
       return r;
     } catch (e) {
-      return mock.ensureGarmentViews(garmentId, garmentName);
+      if (mockAllowed()) return mock.ensureGarmentViews(garmentId, garmentName);
+      throw serviceError("四视图生成失败");
     }
   },
 
   async submitAiTryon(params) {
-    if (!cloudReady()) return mock.submitAiTryon(params);
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.submitAiTryon(params);
+      throw serviceError("云环境未配置");
+    }
     try {
       const res = await wx.cloud.callFunction({ name: "aiTryon", data: Object.assign({ action: "submit" }, params) });
       const r = res.result;
       if (!r.ok || isMockResult(r)) {
-        const m = await mock.submitAiTryon(params);
-        m.error = r.error || "AI 生成服务暂不可用，请稍后重试";
-        return m;
+        if (mockAllowed()) {
+          const m = await mock.submitAiTryon(params);
+          m.error = r.error || "AI 生成服务暂不可用，请稍后重试";
+          return m;
+        }
+        throw serviceError(r.error || "AI 生成服务暂不可用，请稍后重试");
       }
       return r;
     } catch (e) {
-      const m = await mock.submitAiTryon(params);
-      m.error = (e && (e.errMsg || e.message)) || "云函数调用失败";
-      return m;
+      if (mockAllowed()) {
+        const m = await mock.submitAiTryon(params);
+        m.error = (e && (e.errMsg || e.message)) || "云函数调用失败";
+        return m;
+      }
+      throw serviceError("试穿提交失败");
     }
   },
 
   async getAiTryonStatus(taskId) {
-    if (!cloudReady()) return mock.getAiTryonStatus(taskId);
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.getAiTryonStatus(taskId);
+      throw serviceError("云环境未配置");
+    }
     try {
       const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "status", taskId } });
       const r = res.result;
-      if (!r.ok || isMockResult(r)) return mock.getAiTryonStatus(taskId);
+      if (!r.ok || isMockResult(r)) {
+        if (mockAllowed()) return mock.getAiTryonStatus(taskId);
+        throw serviceError("进度查询失败");
+      }
       return r;
     } catch (e) {
-      return mock.getAiTryonStatus(taskId);
+      if (mockAllowed()) return mock.getAiTryonStatus(taskId);
+      throw serviceError("进度查询失败");
     }
   },
 
   async saveAiResult(result) {
-    if (!cloudReady()) return mock.saveAiResult(result);
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.saveAiResult(result);
+      throw serviceError("云环境未配置");
+    }
     try {
-      const item = {
-        garmentName: result.garmentName || "AI 试穿",
-        image: result.tryonImage || "/assets/img/p07-result.jpg",
-        videoUrl: result.tryonVideo || "",
-        aiTagged: true,
-        createdAt: Date.now()
-      };
-      const res = await db().collection("favorites").add({ data: item });
-      return { ok: true, id: res._id };
+      // 服务端按 taskId 解析结果记录，user_id + result_id 唯一且幂等
+      const res = await wx.cloud.callFunction({
+        name: "aiTryon",
+        data: { action: "favoriteAdd", taskId: result.taskId || result.imageTaskId || "" }
+      });
+      const r = res.result;
+      if (!r || !r.ok) throw new Error((r && r.message) || "收藏失败");
+      return { ok: true, id: r.favoriteId, duplicate: r.duplicate };
     } catch (e) {
-      return mock.saveAiResult(result);
+      if (mockAllowed()) return mock.saveAiResult(result);
+      throw serviceError("收藏失败");
     }
   },
 
@@ -299,7 +410,10 @@ module.exports = {
   logout: mock.logout,
 
   async saveResult(result) {
-    if (!cloudReady()) return mock.saveResult(result);
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.saveResult(result);
+      throw serviceError("云环境未配置");
+    }
     try {
       const item = {
         garmentName: result.garmentName || "新收藏试穿",
@@ -310,27 +424,25 @@ module.exports = {
       const res = await db().collection("favorites").add({ data: item });
       return { ok: true, id: res._id };
     } catch (e) {
-      return mock.saveResult(result);
+      if (mockAllowed()) return mock.saveResult(result);
+      throw serviceError("保存失败");
     }
   },
 
   async deleteUserData() {
-    if (!cloudReady()) return mock.deleteUserData();
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.deleteUserData();
+      throw serviceError("云环境未配置");
+    }
     try {
-      for (const collName of ["avatar_profiles", "tryon_tasks", "tryon_results", "favorites", "quotas"]) {
-        const coll = db().collection(collName);
-        // 小程序端单次 get 最多返回 20 条：分页循环直到清空，避免超过 20 条的数据残留
-        for (;;) {
-          const res = await coll.limit(20).get();
-          if (!res.data || res.data.length === 0) break;
-          for (const doc of res.data) {
-            await coll.doc(doc._id).remove();
-          }
-        }
-      }
-      return { ok: true };
+      // 账户删除走服务端作业（幂等、可重试、联动清理云存储文件）
+      const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "deleteAccount" } });
+      const r = res.result;
+      if (!r || !r.ok) throw new Error((r && r.message) || "删除失败");
+      return { ok: true, jobId: r.jobId, status: r.status };
     } catch (e) {
-      return mock.deleteUserData();
+      if (mockAllowed()) return mock.deleteUserData();
+      throw serviceError("账户删除失败");
     }
   },
   isMockResult,

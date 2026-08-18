@@ -33,7 +33,7 @@ Page({
       if (typeof p.estimate === "boolean") patch.estimate = p.estimate;
       if (SKIN_TO_SLIDER[p.skinTone]) patch.skin = SKIN_TO_SLIDER[p.skinTone];
       if (Object.keys(patch).length > 0) this.setData(patch);
-    });
+    }).catch(() => {});
   },
   onEstimate(e) {
     const on = e.detail.value;

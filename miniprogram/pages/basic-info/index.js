@@ -33,7 +33,7 @@ Page({
         waist: p.waistCm || this.data.waist,
         hip: p.hipCm || this.data.hip
       });
-    });
+    }).catch(() => {});
   },
   onGender(e) {
     const gender = e.detail.value;

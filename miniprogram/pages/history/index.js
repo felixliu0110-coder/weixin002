@@ -11,7 +11,7 @@ Page({
   loadRecords() {
     api.getHistory().then((records) => {
       this.setData({ records });
-    });
+    }).catch(() => this.setData({ records: [] }));
   },
   toggleManage() {
     this.setData({ manageMode: !this.data.manageMode, delSelectedMap: {}, delCount: 0 });

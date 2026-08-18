@@ -23,11 +23,11 @@ Page({
       // 文案为「今日剩余」：必须展示 dailyFree - used，而非每日总额
       const remaining = Math.max(0, (quota.dailyFree || 0) - (quota.used || 0));
       this.setData({ quota: Object.assign({}, quota, { used: quota.used || 0, remaining }) });
-    });
+    }).catch(() => {});
     // 数字人是否已真实创建（示例档案 = 未创建）
     api.getAvatarProfile().then((profile) => {
       this.setData({ avatarReady: !!(profile && !profile.isExample) });
-    });
+    }).catch(() => this.setData({ avatarReady: false }));
   },
   onShow() {
     if (typeof this.getTabBar === "function" && this.getTabBar()) {

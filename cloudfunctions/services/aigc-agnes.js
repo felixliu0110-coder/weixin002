@@ -58,6 +58,7 @@ function requestJson(method, path, body, timeoutMs) {
 
 module.exports = {
   name: "agnes",
+  isContentRejected,
   isConfigured() {
     return !!getKey();
   },

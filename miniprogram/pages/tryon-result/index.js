@@ -57,6 +57,7 @@ Page({
     this._collecting = true;
     this.setData({ collectVisible: false });
     api.saveAiResult({
+      taskId: this.data.result.imageTaskId || this.data.result.taskId || "",
       garmentName: this.data.result.garmentName,
       tryonImage: this.data.result.tryonImage,
       saved: true
@@ -78,6 +79,7 @@ Page({
     this._collecting = true;
     this.setData({ collectVisible: false });
     api.saveAiResult({
+      taskId: this.data.result.imageTaskId || this.data.result.taskId || "",
       garmentName: this.data.result.garmentName,
       tryonImage: this.data.result.tryonImage,
       saved: false

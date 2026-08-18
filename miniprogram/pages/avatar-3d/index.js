@@ -8,10 +8,12 @@ Page({
     profile: { heightCm: "--", weightKg: "--", waistCm: "--", legLengthCm: "--" }
   },
   onLoad() {
-    api.getAvatarProfile().then((profile) => this.setData({ profile }));
+    api.getAvatarProfile().then((profile) => {
+      if (profile) this.setData({ profile });
+    }).catch(() => {});
     api.getAvatarViews().then((av) => {
       this.setData({ views: av.views || { composite: "" }, isExample: !!av.isExample });
-    });
+    }).catch(() => this.setData({ views: { composite: "" }, isExample: true }));
   },
   onConfirm() {
     toast("AI 三视图已确认");

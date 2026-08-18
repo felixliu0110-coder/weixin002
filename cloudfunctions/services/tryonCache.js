@@ -17,8 +17,7 @@ function isImageCacheHit(doc, now) {
     doc.status === "success" &&
     !!doc.tryon_image &&
     !!doc.user_id &&
-    typeof doc.createdAt === "number" &&
-    now - doc.createdAt < CACHE_TTL_MS;
+    (now - (doc.created_at || doc.createdAt)) < CACHE_TTL_MS;
 }
 
 /* 视频任务缓存命中：必须有真实视频与用户归属，7 天内复用 */
@@ -27,18 +26,18 @@ function isCacheHit(doc, now) {
     doc.status === "success" &&
     !!doc.tryon_video &&                       // 必须有真实视频链接，视频缺失的成功任务不参与复用
     !!doc.user_id &&                           // 必须有用户归属（测试/无身份任务不参与复用，否则订阅通知无法发送）
-    typeof doc.createdAt === "number" &&
-    now - doc.createdAt < CACHE_TTL_MS;
+    typeof (doc.created_at || doc.createdAt) === "number" &&
+    (now - (doc.created_at || doc.createdAt)) < CACHE_TTL_MS;
 }
 
 function isCleanupCandidate(doc, now) {
   if (!doc) return false;
   if (doc.status === "failed") {
-    const t = doc.updated_at || doc.updatedAt || doc.createdAt || 0;
+    const t = doc.updated_at || doc.updatedAt || doc.created_at || doc.createdAt || 0;
     return typeof t === "number" && now - t > FAILED_TTL_MS;
   }
   if (doc.status === "success") {
-    return typeof doc.createdAt === "number" && now - doc.createdAt > SUCCESS_TTL_MS;
+    return typeof (doc.created_at || doc.createdAt) === "number" && (now - (doc.created_at || doc.createdAt)) > SUCCESS_TTL_MS;
   }
   return false;
 }

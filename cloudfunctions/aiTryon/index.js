@@ -4,14 +4,16 @@ const { buildTryonVideoPrompt } = require("./tryonVideo");
 const { buildTryonImagePrompt } = require("./tryonImage");
 const { buildTryonCacheKey, isImageCacheHit, isCacheHit } = require("./tryonCache");
 const { saveRemoteImage } = require("./storage");
+const { requireLogin, requireId, requireString, requireArray } = require("./validation");
+const { assertOwner, getOwnedDoc } = require("./ownership");
+const { resolveGarments } = require("./garments");
+const { fmtErr } = require("./errors");
+const { assertTransition } = require("./taskState");
+const { dateStr, consumeQuota, refundQuota, getQuota } = require("./quota");
+const { requestDeletion, runDeletion } = require("./deletion");
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
-
-function fmtErr(e) {
-  const detail = (e && e.message) ? e.message : String(e);
-  return (e && e.code) ? e.code + ": " + detail : detail;
-}
 
 /* 生图参考图要求公网 HTTPS URL：cloud:// 的云存储文件批量换临时链接；
    转换失败的单项跳过（降级为剩余参考图生成，不阻塞主流程） */
@@ -120,22 +122,35 @@ async function submit(event, openid) {
   const mode = event.mode === "video" ? "video" : "image";
   const t0 = Date.now();
   console.log("aiTryon submit entry", "openid=" + (openid ? "set" : "EMPTY"), "mode=" + mode, "avatarViewId=" + (avatarViewId || "none"), "garmentCount=" + ((garmentIds || []).length));
-  if (!avatarViewId || !garmentIds || garmentIds.length === 0) {
-    return { ok: false, error: "avatarViewId/garmentIds 必填" };
-  }
-  const av = await db.collection("avatar_views").doc(avatarViewId).get();
-  const profile = av.data.profile_snapshot || {};
-  const garmentName = (garmentNames && garmentNames[0]) || "所选衣物";
+  requireLogin(openid);
+  const avId = requireId(avatarViewId, "avatarViewId");
+  const gIds = requireArray(garmentIds, "garmentIds", { min: 1, max: 10 }).map((v) => requireId(v, "garmentId"));
+  // 人物三视图必须属于当前用户
+  const av = await getOwnedDoc(db, "avatar_views", avId, openid);
+  const profile = av.profile_snapshot || {};
+  // 衣物由服务端解析（garments 集合 / 内置白名单），客户端 garmentNames/garmentImages 不作为生成依据
+  const garments = await resolveGarments(db, gIds, openid);
+  const garmentName = garments[0].name || "所选衣物";
   const aigc = getAigc();
   const videoPrompt = buildTryonVideoPrompt(profile, garmentName);
-  const cacheKey = buildTryonCacheKey({ openid, avatarViewId, garmentIds, kind: mode === "video" ? "ai_video" : "ai_image" });
+  const cacheKey = buildTryonCacheKey({ openid, avatarViewId: avId, garmentIds: gIds, kind: mode === "video" ? "ai_video" : "ai_image" });
 
-  // 缓存复用（图片/视频分开）：同一用户+数字人+衣物组合 7 天内成功结果不重复调用 Agnes
+  // 缓存复用（图片/视频分开）：严格按 user_id + cache_key 隔离，7 天内成功结果不重复调用 Agnes
   const prev = await db.collection("tryon_tasks")
-    .where({ cache_key: cacheKey })
+    .where({ cache_key: cacheKey, user_id: openid })
     .orderBy("createdAt", "desc")
     .limit(5)
     .get();
+  // 幂等：同组合已有进行中任务（queued/processing）则复用，不重复创建/扣费
+  const pendingHit = prev.data.find((d) => d.status === "queued" || d.status === "processing");
+  if (pendingHit) {
+    console.log("aiTryon pending hit", "taskId=" + pendingHit._id, "mode=" + mode, "costMs=" + (Date.now() - t0));
+    return {
+      ok: true, taskId: pendingHit._id, status: pendingHit.status, pending: true,
+      tryonImage: pendingHit.tryon_image || "", tryonImageUrl: pendingHit.tryon_image_url || "",
+      tryonVideo: pendingHit.tryon_video || "", garmentName
+    };
+  }
   if (mode === "video") {
     const hit = prev.data.find((d) => isCacheHit(d, Date.now()));
     if (hit) {
@@ -159,29 +174,51 @@ async function submit(event, openid) {
   const base = {
     _openid: openid,
     user_id: openid,
-    avatar_view_id: avatarViewId,
-    garment_ids: garmentIds,
+    avatar_view_id: avId,
+    garment_ids: gIds,
     garment_name: garmentName,
     cache_key: cacheKey,
     retry_count: 0,
+    created_at: Date.now(),
     createdAt: Date.now(),
     updated_at: Date.now()
   };
 
+  // 服务端额度：图片/视频生成各扣 1 次；额度不足直接拒绝（不产生任务）
+  const date = dateStr();
+  let quota = null;
+  try {
+    quota = await consumeQuota(db, openid, date);
+  } catch (e) {
+    if (e && e.appCode === "RATE_LIMITED") {
+      return { ok: false, error: "RATE_LIMITED", message: e.message };
+    }
+    throw e;
+  }
+  console.log("aiTryon quota consumed", "openid=" + openid, "mode=" + mode, "date=" + date, "used=" + quota.used);
+
   // ---- 视频模式：直接用已生成的效果图创建视频任务，不重新生图 ----
   if (mode === "video") {
-    const imageUrl = event.tryonImageUrl || event.tryonImage || "";
-    if (!imageUrl) return { ok: false, error: "视频生成缺少效果图，请先完成穿搭图片" };
+    // 客户端只提交图片任务 ID：服务端查询 → owner check → 取服务端保存的效果图 URL
+    const imageTaskId = requireId(event.imageTaskId, "imageTaskId");
+    const imgTask = await getOwnedDoc(db, "tryon_tasks", imageTaskId, openid);
+    if (imgTask.type !== "ai_image" || imgTask.status !== "success" || !imgTask.tryon_image_url) {
+      throw appError("INVALID_ARGUMENT", "效果图任务未完成，请先完成穿搭图片");
+    }
+    const imageUrl = imgTask.tryon_image_url;
     const task = Object.assign({}, base, {
       type: "ai_video",
       stage: "video",
-      status: "processing",
-      tryon_image: event.tryonImage || "",
+      status: "queued",
+      tryon_image: imgTask.tryon_image || "",
       tryon_image_url: imageUrl,
-      image_cache_key: buildTryonCacheKey({ openid, avatarViewId, garmentIds, kind: "ai_image" })
+      image_task_id: imageTaskId,
+      image_cache_key: buildTryonCacheKey({ openid, avatarViewId: avId, garmentIds: gIds, kind: "ai_image" })
     });
     const addRes = await db.collection("tryon_tasks").add({ data: task });
     const taskId = addRes._id;
+    assertTransition("queued", "processing");
+    await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "processing", updated_at: Date.now() } });
     let vidRes = null;
     let lastErr = null;
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -196,32 +233,42 @@ async function submit(event, openid) {
       }
     }
     if (lastErr) {
-      await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "failed", error: fmtErr(lastErr), updated_at: Date.now() } });
+      assertTransition("processing", "failed");
+      await refundQuota(db, openid, date);
+      await db.collection("tryon_tasks").doc(taskId).update({
+        data: { status: "failed", error: fmtErr(lastErr), error_code: lastErr.code || "PROVIDER_ERROR", error_message: fmtErr(lastErr), updated_at: Date.now(), completed_at: Date.now() }
+      });
       console.log("aiTryon video submit fail", "taskId=" + taskId, "error=" + fmtErr(lastErr), "costMs=" + (Date.now() - t0));
       return { ok: false, taskId, error: fmtErr(lastErr) };
     }
     const update = { stage: "video", updated_at: Date.now() };
     if (vidRes.videoTaskId) {
       update.video_task_id = vidRes.videoTaskId;
+      update.provider_task_id = vidRes.videoTaskId;
       update.provider = vidRes.provider || "agnes";
     } else {
+      assertTransition("processing", "success");
       update.status = "success";
       update.tryon_video = vidRes.videoUrl;
       update.provider = vidRes.provider || "mock";
+      update.completed_at = Date.now();
     }
     await db.collection("tryon_tasks").doc(taskId).update({ data: update });
     console.log("aiTryon video submit ok", "taskId=" + taskId, "status=" + (update.status || "processing"), "costMs=" + (Date.now() - t0));
-    return { ok: true, taskId, status: update.status || "processing", tryonImage: event.tryonImage || "", tryonImageUrl: imageUrl };
+    return { ok: true, taskId, status: update.status || "processing", tryonImage: imgTask.tryon_image || "", tryonImageUrl: imageUrl };
   }
 
   // ---- 图片模式：只生成穿搭效果图，视频由用户后续在结果页选择生成 ----
-  const task = Object.assign({}, base, { type: "ai_image", stage: "image", status: "processing" });
+  const task = Object.assign({}, base, { type: "ai_image", stage: "image", status: "queued" });
   const addRes = await db.collection("tryon_tasks").add({ data: task });
   const taskId = addRes._id;
-  // 参考图（与提示词锚定顺序一致）：第 1 张人物三视图 + 其后各衣物原图；cloud:// 批量换公网临时链接
-  const avatarComposite = (av.data.views && av.data.views.composite) || "";
-  const refImages = await toHttpsRefs([avatarComposite].concat(event.garmentImages || []));
-  const imagePrompt = buildTryonImagePrompt(profile, garmentNames, refImages.length);
+  // 参考图（与提示词锚定顺序一致）：第 1 张人物三视图 + 其后各上传衣物原图；cloud:// 批量换公网临时链接
+  const avatarComposite = (av.views && av.views.composite) || "";
+  const fileRefs = [avatarComposite].concat(garments.map((g) => g.originalFileId));
+  const refImages = await toHttpsRefs(fileRefs);
+  const imagePrompt = buildTryonImagePrompt(profile, garments.map((g) => g.name), refImages.length);
+  assertTransition("queued", "processing");
+  await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "processing", updated_at: Date.now() } });
   let lastErr = null;
   let imgRes = null;
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -240,7 +287,11 @@ async function submit(event, openid) {
     }
   }
   if (lastErr) {
-    await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "failed", error: fmtErr(lastErr), updated_at: Date.now() } });
+    assertTransition("processing", "failed");
+    await refundQuota(db, openid, date);
+    await db.collection("tryon_tasks").doc(taskId).update({
+      data: { status: "failed", error: fmtErr(lastErr), error_code: lastErr.code || "PROVIDER_ERROR", error_message: fmtErr(lastErr), updated_at: Date.now(), completed_at: Date.now() }
+    });
     console.log("aiTryon submit fail", "taskId=" + taskId, "error=" + fmtErr(lastErr), "costMs=" + (Date.now() - t0));
     return { ok: false, taskId, error: fmtErr(lastErr) };
   }
@@ -251,17 +302,18 @@ async function submit(event, openid) {
   } catch (e) {
     console.log("aiTryon storage save fail", "taskId=" + taskId, "error=" + e.message);
   }
-  const update = { stage: "image", status: "success", tryon_image: tryonImage, tryon_image_url: rawUrl, provider: imgRes.provider || "agnes", updated_at: Date.now() };
+  assertTransition("processing", "success");
+  const update = { stage: "image", status: "success", tryon_image: tryonImage, tryon_image_url: rawUrl, provider: imgRes.provider || "agnes", updated_at: Date.now(), completed_at: Date.now() };
   await db.collection("tryon_tasks").doc(taskId).update({ data: update });
   await saveTryonResult(Object.assign({ _id: taskId }, task, update));
   console.log("aiTryon image ok", "taskId=" + taskId, "status=success", "costMs=" + (Date.now() - t0));
   return { ok: true, taskId, status: "success", tryonImage, tryonImageUrl: rawUrl, garmentName };
 }
 
-async function status(event) {
+async function status(event, openid) {
   const t0 = Date.now();
-  const res = await db.collection("tryon_tasks").doc(event.taskId).get();
-  const d = res.data;
+  // 任务必须属于当前用户
+  const d = await getOwnedDoc(db, "tryon_tasks", requireId(event.taskId, "taskId"), openid);
   // 异步视频任务：生成中轮询；或已 success 但视频 URL 缺失（旧字段解析 bug）时补全
   const needPoll = d.video_task_id && (d.status === "processing" || (d.status === "success" && !d.tryon_video));
   if (needPoll) {
@@ -270,8 +322,9 @@ async function status(event) {
       try {
         const st = await aigc.getVideoStatus(d.video_task_id);
         if (st.status === "completed" || st.status === "succeeded" || st.videoUrl) {
+          if (d.status !== "success") assertTransition(d.status, "success");
           await db.collection("tryon_tasks").doc(event.taskId).update({
-            data: { status: "success", tryon_video: st.videoUrl, updated_at: Date.now() }
+            data: { status: "success", tryon_video: st.videoUrl, updated_at: Date.now(), completed_at: Date.now() }
           });
           d.status = "success";
           d.tryon_video = st.videoUrl;
@@ -279,8 +332,9 @@ async function status(event) {
           console.log("aiTryon video completed", "taskId=" + event.taskId, "costMs=" + (Date.now() - t0));
         } else if (st.status === "failed") {
           const msg = st.error || "视频生成失败";
+          assertTransition(d.status, "failed");
           await db.collection("tryon_tasks").doc(event.taskId).update({
-            data: { status: "failed", error: msg, updated_at: Date.now() }
+            data: { status: "failed", error: msg, error_code: "PROVIDER_ERROR", error_message: msg, updated_at: Date.now(), completed_at: Date.now() }
           });
           d.status = "failed";
           d.error = msg;
@@ -306,51 +360,120 @@ async function status(event) {
   return {
     ok: true, taskId: event.taskId, status: d.status, stage: d.stage,
     tryonImage: d.tryon_image, tryonImageUrl: d.tryon_image_url || "",
-    tryonVideo: d.tryon_video, error: d.error
+    tryonVideo: d.tryon_video, error: d.error, errorCode: d.error_code || "", errorMessage: d.error_message || ""
   };
 }
 
+/* 收藏（服务端解析结果记录，user_id + result_id 唯一且幂等） */
+async function addFavorite(event, openid) {
+  const taskId = requireId(event.taskId, "taskId");
+  const task = await getOwnedDoc(db, "tryon_tasks", taskId, openid);
+  const imageTaskId = task.image_task_id || (task.type === "ai_image" ? task._id : "");
+  const _ = db.command;
+  const qIds = imageTaskId ? [imageTaskId, taskId] : [taskId];
+  const res = await db.collection("tryon_results").where({ task_id: _.in(qIds) }).limit(1).get();
+  const rec = res.data && res.data[0];
+  if (!rec) throw appError("NOT_FOUND", "试穿结果不存在，无法收藏");
+  const dup = await db.collection("favorites").where({ user_id: openid, result_id: rec._id }).limit(1).get();
+  if (dup.data.length > 0) return { ok: true, favoriteId: dup.data[0]._id, duplicate: true };
+  const now = Date.now();
+  const add = await db.collection("favorites").add({
+    data: {
+      _openid: openid,
+      user_id: openid,
+      result_id: rec._id,
+      garment_name: rec.garment_name || task.garment_name || "AI 试穿",
+      image: rec.tryon_image || "",
+      video_url: rec.tryon_video || "",
+      ai_tagged: true,
+      created_at: now,
+      updated_at: now
+    }
+  });
+  return { ok: true, favoriteId: add._id, duplicate: false };
+}
+
+async function listFavorites(openid) {
+  const res = await db.collection("favorites").where({ user_id: openid }).limit(100).get();
+  const list = (res.data || [])
+    .map((d) => ({
+      id: d._id,
+      garmentName: d.garment_name || "AI 试穿",
+      createdAt: d.created_at || d.createdAt || 0,
+      image: d.image || "",
+      videoUrl: d.video_url || ""
+    }))
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, 50);
+  return { ok: true, list };
+}
+
+async function deleteFavorites(event, openid) {
+  const ids = requireArray(event.ids || [], "ids", { max: 50 }).map((v) => requireId(v, "id"));
+  let removed = 0;
+  for (const id of ids) {
+    try {
+      await getOwnedDoc(db, "favorites", id, openid);
+      await db.collection("favorites").doc(id).remove();
+      removed++;
+    } catch (e) {
+      if (e && e.appCode === "NOT_FOUND") continue; // 幂等：不存在跳过
+      throw e;
+    }
+  }
+  return { ok: true, removed };
+}
+
 exports.main = async (event) => {
-  const { openid } = cloud.getWXContext();
-  if (event.action === "deleteHistory") {
-    const ids = event.ids || [];
-    let removed = 0;
-    for (const id of ids) {
-      try {
-        const doc = await db.collection("tryon_results").doc(id).get();
-        const image = doc.data && doc.data.tryon_image;
+  try {
+    const { openid } = cloud.getWXContext();
+    requireLogin(openid);
+    if (event.action === "deleteHistory") {
+      const ids = requireArray(event.ids || [], "ids", { max: 50 }).map((v) => requireId(v, "id"));
+      let removed = 0;
+      for (const id of ids) {
+        // 逐条校验归属：A 不能删 B 的记录
+        const doc = await getOwnedDoc(db, "tryon_results", id, openid);
+        const image = doc.tryon_image;
         if (image && image.indexOf("cloud://") === 0) {
           try { await cloud.deleteFile({ fileList: [image] }); } catch (e) { console.log("deleteFile fail", "error=" + e.message); }
         }
         await db.collection("tryon_results").doc(id).remove();
         removed += 1;
-      } catch (e) {
-        console.log("deleteHistory item fail", "id=" + id, "error=" + fmtErr(e));
       }
+      return { ok: true, removed };
     }
-    return { ok: true, removed };
-  }
-  if (event.action === "history") {
-    try {
+    if (event.action === "history") {
       const coll = db.collection("tryon_results");
-      // 单用户阶段：直接取最新记录（测试环境记录无 user_id 归属，按身份过滤会查不到）；
-      // 正式多用户时恢复 where({ user_id: openid }) 过滤
-      const res = await coll.orderBy("createdAt", "desc").limit(50).get();
+      // 严格按当前用户隔离
+      const res = await coll.where({ user_id: openid }).orderBy("createdAt", "desc").limit(50).get();
       console.log("aiTryon history query", "openid=" + (openid ? "set" : "EMPTY"), "count=" + res.data.length);
       return {
         ok: true,
         list: res.data.map((d) => ({
           id: d._id,
+          taskId: d.task_id || "",
           garmentName: d.garment_name,
           createdAt: d.createdAt,
           image: d.tryon_image,
           videoUrl: d.tryon_video || ""
         }))
       };
-    } catch (e) {
-      return { ok: false, error: fmtErr(e) };
     }
+    if (event.action === "quota") {
+      return { ok: true, quota: await getQuota(db, openid, dateStr()) };
+    }
+    if (event.action === "favoriteAdd") return addFavorite(event, openid);
+    if (event.action === "favorites") return listFavorites(openid);
+    if (event.action === "favoriteDelete") return deleteFavorites(event, openid);
+    if (event.action === "deleteAccount") {
+      const req = await requestDeletion(db, openid);
+      return runDeletion(db, cloud, openid, req.jobId);
+    }
+    if (event.action === "status") return status(event, openid);
+    return submit(event, openid);
+  } catch (e) {
+    console.log("aiTryon main fail", "error=" + fmtErr(e));
+    return { ok: false, error: e.appCode || "INTERNAL", message: e.appCode ? e.message : "内部错误" };
   }
-  if (event.action === "status") return status(event);
-  return submit(event, openid);
 };

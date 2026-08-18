@@ -1,81 +1,124 @@
 const cloud = require("wx-server-sdk");
+const { requireLogin, requireId, requireString, requireEnum, requireArray } = require("./validation");
+const { appError, fmtErr } = require("./errors");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
-/* 删除衣物（原图 + 对应四视图 1:1 联动清理）：
-   - garmentIds：衣物记录 ID（对应 garment_views.garment_id）
-   - fileIDs：原图云存储文件 ID（cloud://）
-   四视图是内部生成素材，不直接展示；原图删除时四视图记录与文件一并删除。 */
-async function deleteGarment(event) {
-  const garmentIds = Array.isArray(event.garmentIds) ? event.garmentIds : [];
-  const fileIDs = Array.isArray(event.fileIDs) ? event.fileIDs : [];
-  const toDelete = new Set();
-  let removedViews = 0;
-  try {
-    // 1. 按 garment_id 查四视图记录，收集四视图云存储文件并删除记录
-    if (garmentIds.length > 0) {
-      const _ = db.command;
-      try {
-        const res = await db.collection("garment_views")
-          .where({ garment_id: _.in(garmentIds) })
-          .limit(100)
-          .get();
-        for (const doc of res.data) {
-          const composite = doc.views && doc.views.composite;
-          if (composite && composite.indexOf("cloud://") === 0) toDelete.add(composite);
-          try {
-            await db.collection("garment_views").doc(doc._id).remove();
-            removedViews++;
-          } catch (e) {
-            console.log("deleteGarment view remove fail", "id=" + doc._id, "error=" + ((e && (e.errMsg || e.message)) || e));
-          }
-        }
-      } catch (e) {
-        // 集合不存在等视为无四视图记录
-        console.log("deleteGarment query views fail", "error=" + ((e && (e.errMsg || e.message)) || e));
-      }
-    }
-    // 2. 收集原图云存储文件
-    for (const f of fileIDs) {
-      if (f && f.indexOf("cloud://") === 0) toDelete.add(f);
-    }
-    // 3. 批量删除云存储文件（deleteFile 单次上限 50，分批）
-    const fileList = Array.from(toDelete);
-    for (let i = 0; i < fileList.length; i += 50) {
-      const batch = fileList.slice(i, i + 50);
-      try {
-        const del = await cloud.deleteFile({ fileList: batch });
-        console.log("deleteGarment files", "count=" + batch.length, "result=" + JSON.stringify(del && del.fileList));
-      } catch (e) {
-        console.log("deleteGarment deleteFile fail", "error=" + ((e && (e.errMsg || e.message)) || e));
-      }
-    }
-    return { ok: true, removedViews, removedFiles: fileList.length };
-  } catch (e) {
-    console.log("deleteGarment fail", "error=" + ((e && (e.errMsg || e.message)) || e));
-    return { ok: false, error: (e && (e.errMsg || e.message)) || String(e) };
+const CATEGORIES = ["上衣", "裤子", "头饰", "鞋子", "其他"];
+const MAX_FILE_BYTES = 10 * 1024 * 1024; // 与 storage.MAX_BYTES 一致
+
+/* 内容安全检测（下载 → 大小校验 → imgSecCheck） */
+async function checkFile(fileID) {
+  const dl = await cloud.downloadFile({ fileID });
+  const buf = dl.fileContent || Buffer.alloc(0);
+  if (buf.length > MAX_FILE_BYTES) throw appError("PAYLOAD_TOO_LARGE", "文件过大");
+  const res = await cloud.openapi.security.imgSecCheck({
+    media: { contentType: "image/png", value: buf }
+  });
+  const pass = !res || res.errCode === 0;
+  return { pass, label: (res && res.result && res.result.label) || 0 };
+}
+
+/* 上传衣物落库：服务端保存 original_file_id，返回服务端生成的 garmentId */
+async function createGarment(event, openid) {
+  const fileID = requireId(event.fileID, "fileID");
+  if (fileID.indexOf("cloud://") !== 0) throw appError("INVALID_ARGUMENT", "fileID 不合法");
+  const name = requireString(event.name, "name", 40);
+  const category = requireEnum(event.category, "category", CATEGORIES);
+  const { pass, label } = await checkFile(fileID);
+  if (!pass) {
+    return { ok: true, pass: false, label, reason: "图片内容违规，请更换后重试" };
   }
+  const now = Date.now();
+  const addRes = await db.collection("garments").add({
+    data: {
+      _openid: openid,
+      user_id: openid,
+      name,
+      category,
+      original_file_id: fileID,
+      type: "upload",
+      status: "ready",
+      created_at: now,
+      updated_at: now
+    }
+  });
+  return { ok: true, pass: true, garmentId: addRes._id, id: addRes._id, name, category };
+}
+
+/* 删除衣物（原图 + 对应四视图 1:1 联动）：
+   - 只按当前用户拥有的 garments 记录删除（客户端 fileIDs 不再可信）；
+   - 内置模板不可删；不存在/非本人记录幂等跳过。 */
+async function deleteGarment(event, openid) {
+  const garmentIds = requireArray(event.garmentIds || [], "garmentIds", { max: 50 }).map((v) => requireId(v, "garmentId"));
+  const toDelete = new Set();
+  let removedGarments = 0;
+  let removedViews = 0;
+  for (const id of garmentIds) {
+    let doc;
+    try {
+      const res = await db.collection("garments").doc(id).get();
+      doc = res.data;
+    } catch (e) {
+      continue; // 不存在：幂等跳过
+    }
+    const owner = (doc && (doc.user_id || doc._openid)) || "";
+    if (!owner || owner !== openid || doc.type === "builtin") continue; // 非本人/内置：不可删
+    if (doc.original_file_id && doc.original_file_id.indexOf("cloud://") === 0) toDelete.add(doc.original_file_id);
+    try {
+      await db.collection("garments").doc(id).remove();
+      removedGarments++;
+    } catch (e) {
+      console.log("deleteGarment garment remove fail", "id=" + id, "error=" + fmtErr(e));
+    }
+  }
+  // 四视图联动（按 garment_id + 当前用户）
+  if (garmentIds.length > 0) {
+    const _ = db.command;
+    try {
+      const res = await db.collection("garment_views")
+        .where({ garment_id: _.in(garmentIds), user_id: openid })
+        .limit(100)
+        .get();
+      for (const doc of res.data) {
+        const composite = doc.views && doc.views.composite;
+        if (composite && composite.indexOf("cloud://") === 0) toDelete.add(composite);
+        try {
+          await db.collection("garment_views").doc(doc._id).remove();
+          removedViews++;
+        } catch (e) {
+          console.log("deleteGarment view remove fail", "id=" + doc._id, "error=" + fmtErr(e));
+        }
+      }
+    } catch (e) {
+      console.log("deleteGarment query views fail", "error=" + fmtErr(e));
+    }
+  }
+  const fileList = Array.from(toDelete);
+  for (let i = 0; i < fileList.length; i += 50) {
+    const batch = fileList.slice(i, i + 50);
+    try {
+      await cloud.deleteFile({ fileList: batch });
+    } catch (e) {
+      console.log("deleteGarment deleteFile fail", "error=" + fmtErr(e));
+    }
+  }
+  return { ok: true, removedGarments, removedViews, removedFiles: fileList.length };
 }
 
 exports.main = async (event) => {
-  if (event && event.action === "deleteGarment") return deleteGarment(event);
-  const { fileID } = event;
-  if (!fileID) return { ok: false, error: "fileID 必填" };
   try {
-    // 下载云存储图片 → 微信内容安全检测（C-04）
-    const dl = await cloud.downloadFile({ fileID });
-    const res = await cloud.openapi.security.imgSecCheck({
-      media: { contentType: "image/png", value: dl.fileContent }
-    });
-    const pass = !res || res.errCode === 0;
-    console.log("uploadGarment check", "fileID=" + fileID, "pass=" + pass);
-    return { ok: true, pass, label: (res && res.result && res.result.label) || 0 };
+    const { openid } = cloud.getWXContext();
+    requireLogin(openid);
+    if (event && event.action === "deleteGarment") return deleteGarment(event, openid);
+    if (event && event.action === "create") return createGarment(event, openid);
+    // 兼容旧调用：无 action 视为纯内容检测（不落库）
+    const fileID = requireId(event.fileID, "fileID");
+    if (fileID.indexOf("cloud://") !== 0) throw appError("INVALID_ARGUMENT", "fileID 不合法");
+    const { pass, label } = await checkFile(fileID);
+    return { ok: true, pass, label };
   } catch (e) {
-    // 87014 = 内容违规（微信标准错误码）
-    if (e && e.errCode === 87014) {
-      return { ok: true, pass: false, label: 100, reason: "图片内容违规，请更换后重试" };
-    }
-    console.log("uploadGarment check fail", "error=" + ((e && (e.errMsg || e.message)) || e));
-    return { ok: false, error: (e && (e.errMsg || e.message)) || String(e) };
+    console.log("uploadGarment fail", "error=" + fmtErr(e));
+    return { ok: false, error: e.appCode || "INTERNAL", message: e.appCode ? e.message : "内部错误" };
   }
 };

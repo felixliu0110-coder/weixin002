@@ -10,14 +10,14 @@ Page({
       const remaining = Math.max(0, dailyFree - used);
       const quotaPercent = dailyFree > 0 ? Math.min(100, Math.round(used / dailyFree * 100)) : 0;
       this.setData({ quota: Object.assign({}, quota, { used, remaining }), quotaPercent });
-    });
+    }).catch(() => {});
     api.getUserInfo().then((user) => {
       this.setData({ user });
     });
     // 试穿记录数动态获取（原为硬编码 12）
     api.getHistory().then((records) => {
       this.setData({ historyCount: (records || []).length });
-    });
+    }).catch(() => this.setData({ historyCount: 0 }));
   },
   onShow() {
     if (typeof this.getTabBar === "function" && this.getTabBar()) {

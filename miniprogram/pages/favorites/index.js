@@ -13,7 +13,7 @@ Page({
   loadFavorites() {
     api.getFavorites().then((favorites) => {
       this.setData({ favorites });
-    });
+    }).catch(() => this.setData({ favorites: [] }));
   },
   toggleManage() {
     this.setData({ manageMode: !this.data.manageMode, delSelectedMap: {}, delCount: 0 });

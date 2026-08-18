@@ -28,6 +28,13 @@ test("agnes 未配置时抛 AIGC_NOT_CONFIGURED", async () => {
   await assert.rejects(() => agnes.generateVideo({}), (e) => e.code === "AIGC_NOT_CONFIGURED");
 });
 
+test("agnes.isContentRejected 识别 400 Unable to generate（内容安全概率性拒绝）", () => {
+  const e = { statusCode: 400, message: "Unable to generate this content" };
+  assert.strictEqual(agnes.isContentRejected(e), true);
+  assert.strictEqual(agnes.isContentRejected({ statusCode: 429, message: "rate limit" }), false);
+  assert.strictEqual(agnes.isContentRejected({ statusCode: 500, message: "boom" }), false);
+});
+
 test("mock.generateImages 返回指定数量占位 URL", async () => {
   const res = await mock.generateImages({ count: 3 });
   assert.strictEqual(res.urls.length, 3);

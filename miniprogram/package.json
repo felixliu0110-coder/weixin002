@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "node --test utils/*.test.js",
+    "verify": "node scripts/verify.js",
     "icons": "npx -y node@18 scripts/generate-icons.js"
   },
   "keywords": [],

@@ -1,6 +1,12 @@
 {
-  "permissions": { "openapi": [] },
+  "permissions": {
+    "openapi": []
+  },
   "triggers": [
-    { "name": "cleanup-daily", "type": "timer", "config": "0 0 2 * * * *" }
+    {
+      "name": "cleanup-daily",
+      "type": "timer",
+      "config": "0 0 4 * * * *"
+    }
   ]
 }

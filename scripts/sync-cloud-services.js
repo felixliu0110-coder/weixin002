@@ -9,11 +9,21 @@ const SHARED_FILES = [
   "aigc-agnes.js",
   "aigc-mock.js",
   "avatarViews.js",
+  "builtinGarments.js",
+  "callback.js",
+  "deletion.js",
+  "errors.js",
+  "garments.js",
   "garmentViews.js",
+  "migration.js",
+  "ownership.js",
+  "quota.js",
   "storage.js",
+  "taskState.js",
   "tryonCache.js",
   "tryonImage.js",
-  "tryonVideo.js"
+  "tryonVideo.js",
+  "validation.js"
 ];
 // 已废弃的共享模块：从各云函数目录清理，避免随部署带上旧实现
 const STALE_FILES = ["aigc-jimeng.js"];

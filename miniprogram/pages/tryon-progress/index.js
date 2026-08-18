@@ -144,6 +144,7 @@ Page({
           wx.setStorageSync("aiTryonResult", {
             tryonImage: st.tryonImage || "/assets/img/p07-result.jpg",
             tryonImageUrl: st.tryonImageUrl || "",
+            imageTaskId: st.taskId || "",
             tryonVideo: st.tryonVideo || "",
             garmentName: this.data.garmentName,
             garments: pending.garmentIds ? pending.garmentIds.map((id, i) => ({

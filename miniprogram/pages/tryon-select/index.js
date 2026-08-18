@@ -120,7 +120,6 @@ Page({
   confirmDelLib() {
     const items = this.data.libItems.filter((t) => t.delLib);
     const ids = items.map((t) => t.id);
-    const fileIDs = items.map((t) => t.image).filter((u) => u && u.indexOf("cloud://") === 0);
     if (ids.length === 0) {
       toast("请先选择要删除的衣物");
       return;
@@ -132,7 +131,7 @@ Page({
       confirmColor: "#C0392B",
       success: (res) => {
         if (res.confirm) {
-          api.deleteItems("library", ids, { fileIDs })
+          api.deleteItems("library", ids)
             .then(() => {
               toast("已删除");
               this.loadAll();
@@ -281,25 +280,21 @@ Page({
     this._picking = true;
     this.setData({ infoVisible: false });
     wx.showLoading({ title: "上传中", mask: true });
-    let uploadedFileID = "";
     wx.cloud.uploadFile({
       cloudPath: "garments/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + ".jpg",
       filePath: this._uploadTempPath
     }).then((up) => {
-      uploadedFileID = up.fileID;
-      return wx.cloud.callFunction({ name: "uploadGarment", data: { fileID: up.fileID } });
-    }).then((res) => {
-      const r = res.result;
-      if (!r || !r.ok) throw new Error((r && r.error) || "内容检测失败，请重试");
-      if (!r.pass) {
-        this._picking = false;
-        wx.hideLoading();
-        toast(r.reason || "图片内容违规，请更换后重试", 2600);
-        return;
-      }
-      return api.uploadGarment(uploadedFileID, { name, category: this.data.uploadCategory });
+      // 服务端落库 + 内容安全检测，返回服务端生成的 garmentId
+      return api.uploadGarment(up.fileID, { name, category: this.data.uploadCategory });
     }).then((garment) => {
       if (!garment) return;
+      if (garment.pass === false) {
+        this._picking = false;
+        wx.hideLoading();
+        toast(garment.reason || "图片内容违规，请更换后重试", 2600);
+        return;
+      }
+      if (!garment.id) throw new Error("上传失败");
       this._picking = false;
       wx.hideLoading();
       wx.setStorageSync("uploadedGarment", garment);
