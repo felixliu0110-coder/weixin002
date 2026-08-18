@@ -426,7 +426,7 @@ async function deleteFavorites(event, openid) {
 
 exports.main = async (event) => {
   try {
-    const { openid } = cloud.getWXContext();
+    const { OPENID: openid } = cloud.getWXContext();
     requireLogin(openid);
     if (event.action === "deleteHistory") {
       const ids = requireArray(event.ids || [], "ids", { max: 50 }).map((v) => requireId(v, "id"));
