@@ -11,7 +11,7 @@ const db = cloud.database();
 
 exports.main = async (event) => {
   try {
-    const { openid } = cloud.getWXContext();
+    const { OPENID: openid } = cloud.getWXContext();
     requireLogin(openid);
     // 查询最新三视图：云函数管理权限读取，严格按当前用户归属过滤
     if (event.action === "get") {

@@ -11,7 +11,7 @@ const db = cloud.database();
 
 exports.main = async (event) => {
   try {
-    const { openid } = cloud.getWXContext();
+    const { OPENID: openid } = cloud.getWXContext();
     requireLogin(openid);
     const garmentId = requireId(event.garmentId, "garmentId");
     // 衣物信息由服务端解析（内置模板白名单 / garments 集合），不信任客户端 garmentName/garmentImage
