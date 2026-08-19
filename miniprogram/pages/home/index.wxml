@@ -11,8 +11,8 @@
 
     <view class="hero-tryon" hover-class="hero-hover" bindtap="goTryon">
       <view class="ht-copy">
-        <view class="ht-title">一键试穿</view>
-        <view class="ht-sub">选一件衣服，看看上身效果</view>
+        <view class="ht-title">从一件衣服开始</view>
+        <view class="ht-sub">看看它穿在你的身形上，会是什么样子</view>
       </view>
       <view class="ht-ic"><image class="ic-img" style="width:44rpx;height:44rpx" src="/assets/icons/png/icon-hanger-white.png" /></view>
     </view>
@@ -34,14 +34,14 @@
     </view>
 
     <view class="sec-hd sec-avatar">
-      <text class="sec-title">我的人物形象</text>
-      <text class="hint">{{avatarReady ? '三视图已就绪' : '未创建'}}</text>
+      <text class="sec-title">我的人物三视图</text>
+      <text class="hint">{{avatarReady ? '已建立' : '未建立'}}</text>
     </view>
     <view class="avatar-row" hover-class="avatar-hover" bindtap="goAvatar">
       <view class="ar-img"><image src="/assets/img/p05-avatar.jpg" mode="aspectFill" /></view>
       <view class="ar-copy">
-        <view class="ar-name">我的人物形象</view>
-        <view class="ar-sub">{{avatarReady ? '人物三视图已就绪' : '完善身材资料，生成人物三视图'}}</view>
+        <view class="ar-name">我的人物三视图</view>
+        <view class="ar-sub">{{avatarReady ? '正面、侧面、背面已就绪' : '完善身材资料，建立你的专属三视图'}}</view>
       </view>
       <view class="ar-btn">查看</view>
     </view>
