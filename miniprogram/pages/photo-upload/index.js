@@ -1,6 +1,18 @@
 const { toast, navigate } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
+const DRAFT_KEY = "avatarPhotoDraft";
+const DRAFT_TTL = 30 * 60 * 1000;
+
+function readDraft() {
+  const draft = wx.getStorageSync(DRAFT_KEY) || {};
+  if (draft.updatedAt && Date.now() - draft.updatedAt > DRAFT_TTL) {
+    wx.removeStorageSync(DRAFT_KEY);
+    return {};
+  }
+  return draft;
+}
+
 Page({
   data: {
     faceState: "none",
@@ -9,8 +21,8 @@ Page({
   },
 
   onLoad() {
-    // 编辑已有的人物时恢复已经保存的照片。
-    // 首次创建没有照片时保持空状态。
+    const draft = readDraft();
+
     api.getAvatarProfile().then((profile) => {
       if (!profile) return;
 
@@ -20,12 +32,23 @@ Page({
       this._existingFacePhoto = facePhoto;
       this._existingBodyPhoto = bodyPhoto;
 
+      const nextDraft = Object.assign({}, readDraft(), {
+        existingFacePhoto: facePhoto,
+        existingBodyPhoto: bodyPhoto,
+        updatedAt: Date.now()
+      });
+
+      wx.setStorageSync(DRAFT_KEY, nextDraft);
+
       this.setData({
-        faceState: facePhoto ? "done" : "none",
-        bodyState: bodyPhoto ? "done" : "none"
+        faceState: draft.faceTempPath || facePhoto ? "done" : "none",
+        bodyState: draft.bodyTempPath || bodyPhoto ? "done" : "none"
       });
     }).catch(() => {
-      // 获取已有档案失败时保持空状态，不阻断照片页面。
+      this.setData({
+        faceState: draft.faceTempPath ? "done" : "none",
+        bodyState: draft.bodyTempPath ? "done" : "none"
+      });
     });
   },
 
@@ -49,11 +72,11 @@ Page({
       ? ["camera"]
       : ["album"];
 
-    if (this._uploadingPhoto) return;
+    if (this._choosingPhoto) return;
 
-    this._uploadingPhoto = true;
+    this._choosingPhoto = true;
     this.setData({ sheetVisible: false });
-    wx.showLoading({ title: "上传中", mask: true });
+    wx.showLoading({ title: "读取中", mask: true });
 
     new Promise((resolve, reject) => {
       wx.chooseMedia({
@@ -75,70 +98,46 @@ Page({
           throw new Error("照片大小不能超过10MB");
         }
 
-        const match = (f.tempFilePath || "").match(/\.([a-zA-Z0-9]+)$/);
-        const ext = match ? match[1].toLowerCase() : "jpg";
-
-        const cloudPath =
-          "avatar-photos/" +
-          Date.now() +
-          "-" +
-          Math.random().toString(36).slice(2, 8) +
-          "." +
-          ext;
-
-        return wx.cloud.uploadFile({
-          cloudPath,
-          filePath: f.tempFilePath
+        const draft = Object.assign({}, readDraft(), {
+          updatedAt: Date.now()
         });
-      })
-      .then((up) => {
-        if (!up || !up.fileID) {
-          throw new Error("照片上传失败");
-        }
 
         if (target === "face") {
-          this._existingFacePhoto = up.fileID;
+          draft.faceTempPath = f.tempFilePath;
+          draft.facePhoto = "";
           this.setData({ faceState: "done" });
         } else {
-          this._existingBodyPhoto = up.fileID;
+          draft.bodyTempPath = f.tempFilePath;
+          draft.bodyPhoto = "";
           this.setData({ bodyState: "done" });
         }
 
-        toast("照片上传成功");
+        wx.setStorageSync(DRAFT_KEY, draft);
+        toast("照片已选择");
       })
       .catch((err) => {
-        const message =
-          err && err.message
-            ? err.message
-            : "照片上传失败，请重试";
+        if (err && err.errMsg && /cancel/i.test(err.errMsg)) return;
 
-        toast(message, 2400);
+        toast(
+          (err && err.message) || "照片选择失败，请重试",
+          2400
+        );
       })
       .finally(() => {
-        this._uploadingPhoto = false;
+        this._choosingPhoto = false;
         wx.hideLoading();
       });
   },
 
   generate() {
-    const data = {};
+    const draft = Object.assign({}, readDraft(), {
+      existingFacePhoto: this._existingFacePhoto || "",
+      existingBodyPhoto: this._existingBodyPhoto || "",
+      updatedAt: Date.now()
+    });
 
-    // 有已有照片或刚刚上传的新照片时，继续保存对应 cloud:// fileID。
-    // 没有照片时不传字段，避免用空字符串覆盖已有照片。
-    if (this._existingFacePhoto) {
-      data.facePhoto = this._existingFacePhoto;
-    }
+    wx.setStorageSync(DRAFT_KEY, draft);
 
-    if (this._existingBodyPhoto) {
-      data.bodyPhoto = this._existingBodyPhoto;
-    }
-
-    api.saveAvatarProfile(data)
-      .then(() => {
-        navigate("/pages/privacy-auth/index");
-      })
-      .catch(() => {
-        toast("保存失败，请重试");
-      });
+    navigate("/pages/privacy-auth/index");
   }
 });
