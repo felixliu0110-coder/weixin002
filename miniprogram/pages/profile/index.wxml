@@ -10,7 +10,7 @@
       <view class="profile-avatar">云</view>
       <view class="profile-copy">
         <view class="profile-name">{{user.nickname}}</view>
-        <view class="profile-sub">人物形象已就绪 · 今天想怎么穿？</view>
+        <view class="profile-sub">{{avatarReady ? '人物三视图已建立 · 今天想怎么穿？' : '还没有建立人物三视图 · 先建立你的穿衣基准'}}</view>
       </view>
       <image class="ic-img arrow" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" />
     </view>
@@ -23,24 +23,31 @@
     <view class="row-list mt-16">
       <view class="row" hover-class="row-hover" bindtap="goAvatar">
         <view class="ri-ic"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-avatar-deep.png" /></view>
-        <view class="ri-main"><view class="ri-title">我的人物形象</view><view class="ri-sub">查看与编辑人物三视图</view></view>
+        <view class="ri-main">
+          <view class="ri-title">我的人物三视图</view>
+          <view class="ri-sub">{{avatarReady ? '查看与编辑你的穿衣基准' : '建立你的专属穿衣基准'}}</view>
+        </view>
         <view class="ri-end"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
+
       <view class="row" hover-class="row-hover" bindtap="goHistory">
         <view class="ri-ic"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-photo-deep.png" /></view>
         <view class="ri-main"><view class="ri-title">试穿记录</view><view class="ri-sub">历史效果图 · 示例数据</view></view>
         <view class="ri-end"><view class="ri-badge">{{historyCount}}</view><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
+
       <view class="row" hover-class="row-hover" bindtap="onQuota">
         <view class="ri-ic"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-star-deep.png" /></view>
         <view class="ri-main"><view class="ri-title">今日剩余次数</view><view class="ri-sub">每日 0 点重置 · 失败自动退回</view></view>
         <view class="ri-end">剩余 {{quota.remaining}} 次<image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
+
       <view class="row" hover-class="row-hover" bindtap="goPrivacy">
         <view class="ri-ic neu"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-shield-check-gray.png" /></view>
         <view class="ri-main"><view class="ri-title">隐私与数据管理</view><view class="ri-sub">查看已授权数据、导出与删除</view></view>
         <view class="ri-end"><image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
       </view>
+
       <view class="row" hover-class="row-hover" bindtap="goFeedback">
         <view class="ri-ic neu"><image class="ic-img" style="width:38rpx;height:38rpx" src="/assets/icons/png/icon-feedback-gray.png" /></view>
         <view class="ri-main"><view class="ri-title">意见反馈</view><view class="ri-sub">帮助我们把产品做得更好</view></view>
