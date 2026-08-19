@@ -2,19 +2,19 @@
 .nav-btn { width: 80rpx; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--fg); transition: background 0.15s ease; }
 .nav-btn-hover { background: var(--surface-2); }
 .nav-btn .iconfont { font-size: 42rpx; }
-.profile-head { display: flex; align-items: center; gap: 28rpx; padding: 36rpx 8rpx 40rpx; border-radius: var(--radius-md); transition: background 0.15s ease; }
+.profile-head { display: flex; align-items: center; gap: 28rpx; padding: 36rpx 24rpx 40rpx; border-radius: var(--radius-md); transition: background 0.15s ease; }
 .profile-hover { background: var(--surface-2); }
 .profile-head .arrow { margin-left: auto; }
 .profile-avatar { flex: 0 0 128rpx; width: 128rpx; height: 128rpx; border-radius: 50%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-tab) 100%); color: var(--accent-on); font-size: 48rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 6rpx 20rpx rgba(227, 165, 149, 0.30); }
 .profile-copy { flex: 1; min-width: 0; }
 .profile-name { font-size: 40rpx; font-weight: 700; }
-.profile-sub { font-size: 25rpx; color: var(--fg-2); margin-top: 10rpx; }
-.quota-pill { display: inline-flex; align-items: center; gap: 12rpx; background: var(--accent-soft); color: var(--accent-deep); border-radius: 999rpx; padding: 14rpx 28rpx; font-size: 24rpx; font-weight: 600; margin-top: 28rpx; }
+.profile-sub { font-size: 27rpx; color: var(--fg-2); margin-top: 10rpx; }
+.quota-pill { display: inline-flex; align-items: center; gap: 12rpx; background: var(--accent-soft); color: var(--accent-deep); border-radius: 999rpx; padding: 14rpx 28rpx; font-size: 26rpx; font-weight: 600; margin-top: 28rpx; }
 .quota-pill .iconfont { font-size: 28rpx; }
 .mt-16 { margin-top: 32rpx; }
 .quota-note { margin-top: 36rpx; padding: 28rpx 36rpx; }
 .quota-head { display: flex; justify-content: space-between; align-items: baseline; }
-.hint { font-size: 24rpx; color: var(--fg-2); }
-.quota-num { font-size: 26rpx; font-weight: 600; }
+.hint { font-size: 26rpx; color: var(--fg-2); }
+.quota-num { font-size: 28rpx; font-weight: 600; }
 .quota-meter { height: 16rpx; border-radius: 8rpx; background: var(--surface-2); overflow: hidden; margin-top: 20rpx; }
 .quota-fill { display: block; height: 100%; width: 33%; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-deep) 100%); border-radius: 8rpx; transition: width 0.3s var(--ease); }
