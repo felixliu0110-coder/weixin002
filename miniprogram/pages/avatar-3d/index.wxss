@@ -2,7 +2,7 @@
 .nav-btn { width: 80rpx; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--fg); transition: background 0.15s ease; }
 .nav-btn-hover { background: var(--surface-2); }
 .nav-btn .iconfont { font-size: 42rpx; }
-.content { flex: 1; overflow-y: auto; padding: 8rpx 0 48rpx; }
+.content { flex: 1; overflow-y: auto; padding: 8rpx 24rpx 48rpx; }
 .avatar-preview { width: 100%; height: 560rpx; border-radius: var(--radius-lg); overflow: hidden; border: 1rpx solid var(--border-soft); background: var(--surface); box-shadow: var(--shadow-raise); }
 .avatar-preview image { width: 100%; height: 100%; }
 .avatar-info { margin-top: 32rpx; text-align: center; }
