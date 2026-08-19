@@ -20,7 +20,7 @@
       />
     </view>
 
-    <view wx:if="{{favorites.length > 0}}" class="hint center mt-16">以上为 AI 生成效果，仅供参考</view>
+    <view wx:if="{{favorites.length > 0}}" class="hint center mt-32">以上为 AI 生成效果，仅供参考</view>
   </view>
 
   <view wx:if="{{manageMode}}" class="delete-bar">

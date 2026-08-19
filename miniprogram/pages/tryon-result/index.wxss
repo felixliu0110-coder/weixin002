@@ -12,8 +12,8 @@
 .rm-sub { font-size: 25rpx; color: var(--fg-2); margin-top: 10rpx; line-height: 1.6; }
 
 /* 操作按钮列表：纵向排列 */
-.action-list { margin-top: 32rpx; display: flex; flex-direction: column; gap: 16rpx; }
-.action-item { display: flex; align-items: center; gap: 24rpx; padding: 28rpx 32rpx; border-radius: var(--radius-md); background: var(--surface); border: 1rpx solid var(--border-soft); box-shadow: var(--shadow-card); position: relative; transition: all 0.2s var(--ease); }
+.action-list { margin-top: 36rpx; display: flex; flex-direction: column; gap: 20rpx; }
+.action-item { display: flex; align-items: center; gap: 28rpx; padding: 32rpx 36rpx; border-radius: var(--radius-md); background: var(--surface); border: 1rpx solid var(--border-soft); box-shadow: var(--shadow-card); position: relative; transition: all 0.2s var(--ease); }
 .action-hover { background: var(--accent-soft); box-shadow: var(--shadow-card-hover); }
 .action-active { background: var(--accent-soft); border-color: var(--accent); }
 .action-icon { width: 44rpx; height: 44rpx; flex-shrink: 0; }

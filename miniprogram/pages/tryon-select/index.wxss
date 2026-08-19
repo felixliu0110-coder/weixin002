@@ -1,7 +1,7 @@
 .wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
 .manage-btn { font-size: 26rpx; color: var(--accent-text); padding: 10rpx 16rpx; font-weight: 500; }
 .manage-hover { opacity: 0.8; }
-.delete-bar { flex: 0 0 auto; padding: 24rpx 28rpx calc(24rpx + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1rpx solid var(--border-soft); display: flex; gap: 20rpx; }
+.delete-bar { flex: 0 0 auto; padding: 28rpx 28rpx calc(28rpx + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1rpx solid var(--border-soft); display: flex; gap: 24rpx; }
 .delete-bar-btn, .delete-btn-sm { flex: 1; min-width: 0; }
 .delete-bar-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0 28rpx; }
 .delete-btn-sm { display: inline-flex; align-items: center; justify-content: center; gap: 8rpx; padding: 0 28rpx; }

@@ -5,7 +5,7 @@
 .manage-btn { font-size: 26rpx; color: var(--accent-text); padding: 10rpx 16rpx; font-weight: 500; }
 .manage-hover { opacity: 0.8; }
 .content { flex: 1; overflow-y: auto; padding: 8rpx 0 8rpx; }
-.hint { font-size: 25rpx; color: var(--fg-2); margin: 16rpx 4rpx 24rpx; }
+.hint { font-size: 25rpx; color: var(--fg-2); margin: 32rpx 4rpx 40rpx; }
 .fav-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24rpx; }
 .fav-hover .fav-card { box-shadow: var(--shadow-card-hover); transform: scale(0.985); }
 .fav-card { position: relative; border-radius: var(--radius-lg); overflow: hidden; border: 1rpx solid var(--border-soft); background: var(--surface); box-shadow: var(--shadow-card); transition: all 0.2s var(--ease); }
