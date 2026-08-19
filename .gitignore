@@ -43,3 +43,6 @@ docs/qa/edge-profile2/
 docs/qa/edge-profiles/
 # 本机/IDE 配置（提供 example 模板）
 project.private.config.json
+
+# 防止误提交系统/软件缓存目录
+%SystemDrive%/
