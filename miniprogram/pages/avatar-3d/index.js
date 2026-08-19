@@ -7,14 +7,26 @@ Page({
     isExample: false,
     profile: { heightCm: "--", weightKg: "--", shoulderCm: "--", waistCm: "--", legLengthCm: "--" }
   },
-  onLoad() {
+
+  loadData() {
     api.getAvatarProfile().then((profile) => {
       if (profile) this.setData({ profile });
     }).catch(() => {});
+
     api.getAvatarViews().then((av) => {
-      this.setData({ views: av.views || { composite: "" }, isExample: !!av.isExample });
-    }).catch(() => this.setData({ views: { composite: "" }, isExample: true }));
+      this.setData({
+        views: av && av.views ? av.views : { composite: "" },
+        isExample: !!(av && av.isExample)
+      });
+    }).catch(() => {
+      this.setData({ views: { composite: "" }, isExample: false });
+    });
   },
+
+  onShow() {
+    this.loadData();
+  },
+
   regenerate() {
     navigate("/pages/generate-progress/index");
   },
