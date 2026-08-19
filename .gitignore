@@ -46,3 +46,5 @@ project.private.config.json
 
 # 防止误提交系统/软件缓存目录
 %SystemDrive%/
+.cozeproj/reduction
+.codegraph
