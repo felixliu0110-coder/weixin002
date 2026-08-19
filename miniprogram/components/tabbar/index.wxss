@@ -1,14 +1,15 @@
 /* ===== TabBar 统一视觉（SVG 矢量图标，lucide 线条风格）===== */
 .tabbar {
   display: flex;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(20rpx);
   -webkit-backdrop-filter: blur(20rpx);
-  border-top: 0.5px solid var(--border-soft);
+  border-top: 1rpx solid var(--border-soft);
   padding: 10rpx 24rpx calc(10rpx + env(safe-area-inset-bottom));
   min-height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   position: relative;
   z-index: 60;
+  box-shadow: 0 -2rpx 12rpx rgba(70, 52, 40, 0.04);
 }
 
 .tab {
@@ -19,6 +20,7 @@
   justify-content: center;
   gap: 6rpx;
   padding: 6rpx 0;
+  transition: all 0.2s var(--ease);
 }
 
 /* 图标：SVG data URI，48rpx 视觉尺寸，矢量渲染任意 DPR 不发虚 */
@@ -41,29 +43,9 @@
 
 /* ===== 选中态：图标换色 + 微弹上浮，文字变色加粗 ===== */
 .tab.on .tab-ic {
-  transform: translateY(-2rpx) scale(1.06);
+  transform: translateY(-2rpx) scale(1.08);
 }
 .tab.on .tab-label {
   color: var(--accent-text);
   font-weight: 600;
 }
-
-.tab-hover { opacity: 0.7; }
-
-/* ===== 图标集（默认 muted #8F8378 / 选中 accent-text #7A5A4E）===== */
-
-/* 主页：房子 */
-.ic-home { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238F8378' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5'/%3E%3Cpath d='M5 9.5V21h14V9.5'/%3E%3Cpath d='M9 21v-6h6v6'/%3E%3C/svg%3E"); }
-.tab.on .ic-home { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A5A4E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 10.5 12 3l9 7.5'/%3E%3Cpath d='M5 9.5V21h14V9.5'/%3E%3Cpath d='M9 21v-6h6v6'/%3E%3C/svg%3E"); }
-
-/* 试衣：衣架 */
-.ic-hanger { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238F8378' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 6a2 2 0 1 1 2-2'/%3E%3Cpath d='M12 6 3.7 12.9a1.2 1.2 0 0 0 .8 2.1h15a1.2 1.2 0 0 0 .8-2.1L12 6Z'/%3E%3C/svg%3E"); }
-.tab.on .ic-hanger { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A5A4E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 6a2 2 0 1 1 2-2'/%3E%3Cpath d='M12 6 3.7 12.9a1.2 1.2 0 0 0 .8 2.1h15a1.2 1.2 0 0 0 .8-2.1L12 6Z'/%3E%3C/svg%3E"); }
-
-/* 收藏：心形 */
-.ic-heart { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238F8378' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/%3E%3C/svg%3E"); }
-.tab.on .ic-heart { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A5A4E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/%3E%3C/svg%3E"); }
-
-/* 我的：人形 */
-.ic-user { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238F8378' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E"); }
-.tab.on .ic-user { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A5A4E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E"); }
