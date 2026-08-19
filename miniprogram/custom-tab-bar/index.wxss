@@ -1,14 +1,15 @@
 /* ===== TabBar 统一视觉（SVG 矢量图标，lucide 线条风格）===== */
 .tabbar {
   display: flex;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(20rpx);
-  -webkit-backdrop-filter: blur(20rpx);
-  border-top: 0.5px solid var(--border-soft);
-  padding: 10rpx 24rpx calc(10rpx + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(24rpx);
+  -webkit-backdrop-filter: blur(24rpx);
+  border-top: 1rpx solid var(--border-soft);
+  padding: 12rpx 24rpx calc(12rpx + env(safe-area-inset-bottom));
   min-height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   position: relative;
   z-index: 60;
+  box-shadow: 0 -2rpx 12rpx rgba(0,0,0,0.03);
 }
 
 .tab {
@@ -18,7 +19,8 @@
   align-items: center;
   justify-content: center;
   gap: 6rpx;
-  padding: 6rpx 0;
+  padding: 8rpx 0;
+  transition: all 0.2s var(--ease);
 }
 
 .tab-ic {
@@ -34,11 +36,11 @@
   font-size: 21rpx;
   color: var(--muted);
   line-height: 1.2;
-  transition: color 0.25s ease;
+  transition: color 0.25s ease, font-weight 0.2s ease;
 }
 
 .tab.on .tab-ic {
-  transform: translateY(-2rpx) scale(1.06);
+  transform: translateY(-3rpx) scale(1.08);
 }
 .tab.on .tab-label {
   color: var(--accent-text);

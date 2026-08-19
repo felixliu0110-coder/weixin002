@@ -1,17 +1,17 @@
 .wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
-.content { flex: 1; padding: 4px 20px 24px; overflow-y: auto; }
+.content { flex: 1; padding: 4px 24rpx 24px; overflow-y: auto; }
 .big-hero-center { display: flex; flex-direction: column; justify-content: center; padding-bottom: 16rpx; }
-.login-title { font-size: 64rpx; font-weight: 700; letter-spacing: 0.1em; text-align: center; margin-top: 68rpx; color: var(--fg); }
+.login-title { font-size: 68rpx; font-weight: 700; letter-spacing: 0.12em; text-align: center; margin-top: 72rpx; color: var(--fg); }
 .accent-word { color: var(--accent-deep); font-weight: 700; }
-.login-tag { text-align: center; font-size: 27rpx; color: var(--fg-2); margin-top: 18rpx; }
-.hero-art { margin-top: 48rpx; border-radius: 52rpx; overflow: hidden; border: 1px solid var(--border-soft); box-shadow: var(--shadow-raise); background: var(--surface); }
+.login-tag { text-align: center; font-size: 27rpx; color: var(--fg-2); margin-top: 20rpx; letter-spacing: 0.02em; }
+.hero-art { margin-top: 52rpx; border-radius: var(--radius-xl); overflow: hidden; border: 1rpx solid var(--border-soft); box-shadow: var(--shadow-raise); background: var(--surface); }
 .hero-art image { width: 100%; }
-.check-row { display: flex; align-items: flex-start; gap: 18rpx; width: 100%; padding: 36rpx 8rpx 0; }
-.box { flex: 0 0 40rpx; width: 40rpx; height: 40rpx; border-radius: 14rpx; border: 1.5px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; margin-top: 2rpx; }
+.check-row { display: flex; align-items: flex-start; gap: 18rpx; width: 100%; padding: 40rpx 12rpx 0; }
+.box { flex: 0 0 42rpx; width: 42rpx; height: 42rpx; border-radius: 14rpx; border: 2rpx solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; margin-top: 2rpx; transition: all 0.2s var(--ease); }
 .box .iconfont { font-size: 26rpx; color: transparent; }
-.check-row.on .box { background: var(--accent); border-color: var(--accent); }
+.check-row.on .box { background: var(--accent); border-color: var(--accent); box-shadow: 0 2rpx 8rpx rgba(227, 165, 149, 0.30); }
 .check-row.on .box .iconfont { color: var(--accent-on); }
-.check-copy { font-size: 24rpx; color: var(--fg-2); line-height: 1.65; }
+.check-copy { font-size: 24rpx; color: var(--fg-2); line-height: 1.7; }
 .strong { color: var(--fg); font-weight: 500; }
 .check-hover { opacity: 0.85; }
-.login-cta { display: block; margin-top: 44rpx; width: 100%; }
+.login-cta { display: block; margin-top: 48rpx; width: 100%; }

@@ -1,4 +1,4 @@
-.seg { display: flex; gap: 16rpx; background: var(--surface-2); border-radius: var(--radius-md); padding: 8rpx; }
-.seg-item { flex: 1; min-height: 88rpx; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--fg-2); font-size: 30rpx; font-weight: 500; }
+.seg { display: flex; gap: 8rpx; background: var(--surface-2); border-radius: var(--radius-md); padding: 8rpx; }
+.seg-item { flex: 1; min-height: 88rpx; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--fg-2); font-size: 28rpx; font-weight: 500; transition: all 0.2s var(--ease); }
 .seg-hover { opacity: 0.85; }
-.seg-item.on { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
+.seg-item.on { background: var(--surface); color: var(--accent-text); font-weight: 600; box-shadow: 0 2rpx 8rpx rgba(70, 52, 40, 0.06); }

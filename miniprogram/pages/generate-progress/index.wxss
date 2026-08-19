@@ -1,23 +1,20 @@
 .wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
-.ring-wrap { position: relative; width: 432rpx; height: 432rpx; margin: 68rpx auto 48rpx; }
-.ring { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(var(--accent) calc(var(--p) * 1%), var(--ring-track) 0); }
-.ring-hole { position: absolute; inset: 44rpx; border-radius: 50%; background: var(--bg); }
-.ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 92rpx; font-weight: 700; color: var(--fg); }
-.big-hero-center { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 16rpx; }
-.gen-title { text-align: center; font-size: 34rpx; font-weight: 600; }
-.gen-sub { text-align: center; font-size: 27rpx; color: var(--fg-2); margin-top: 16rpx; line-height: 1.6; }
-
-/* 步骤列表：克制、无科技感 */
-.gen-steps { display: flex; flex-direction: column; gap: 8rpx; margin: 48rpx auto 0; width: 420rpx; }
-.gs-item { display: flex; align-items: center; gap: 20rpx; padding: 14rpx 8rpx; }
-.gs-dot { flex: 0 0 16rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: var(--border); transition: background 0.3s var(--ease); }
-.gs-item.on .gs-dot { background: var(--accent); }
-.gs-item.done .gs-dot { background: var(--accent-deep); }
-.gs-text { font-size: 28rpx; color: var(--fg-2); }
-.gs-item.on .gs-text { color: var(--fg); font-weight: 600; }
-.gs-item.done .gs-text { color: var(--fg); }
-
-.hint { font-size: 25rpx; color: var(--fg-2); line-height: 1.65; }
-.center { text-align: center; }
-.mt-20 { margin-top: 40rpx; }
-.retry-btn { display: block; width: 70%; margin: 56rpx auto 0; }
+.nav-btn { width: 80rpx; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--fg); transition: background 0.15s ease; }
+.nav-btn-hover { background: var(--surface-2); }
+.nav-btn .iconfont { font-size: 42rpx; }
+.content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48rpx 0; }
+.progress-ring { position: relative; width: 280rpx; height: 280rpx; }
+.progress-ring .ring-bg { stroke: var(--border-soft); }
+.progress-ring .ring-fill { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 0.3s var(--ease); }
+.progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+.progress-percent { font-size: 56rpx; font-weight: 700; color: var(--fg); }
+.progress-label { font-size: 24rpx; color: var(--fg-2); margin-top: 8rpx; }
+.step-list { margin-top: 56rpx; width: 100%; max-width: 560rpx; }
+.step-item { display: flex; align-items: center; gap: 20rpx; padding: 20rpx 0; }
+.step-dot { width: 24rpx; height: 24rpx; border-radius: 50%; background: var(--border); flex-shrink: 0; transition: all 0.3s var(--ease); }
+.step-item.done .step-dot { background: var(--accent); box-shadow: 0 0 0 6rpx var(--accent-soft); }
+.step-item.active .step-dot { background: var(--accent); animation: pulse 1.5s infinite; }
+.step-text { font-size: 28rpx; color: var(--fg-2); }
+.step-item.done .step-text { color: var(--fg); font-weight: 500; }
+.step-item.active .step-text { color: var(--accent-text); font-weight: 600; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }

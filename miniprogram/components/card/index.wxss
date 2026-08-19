@@ -1,1 +1,1 @@
-.card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-lg); padding: 32rpx; box-shadow: var(--shadow-card); }
+.card { background: var(--surface); border: 1rpx solid var(--border-soft); border-radius: var(--radius-lg); padding: 36rpx; box-shadow: var(--shadow-card); transition: box-shadow 0.2s ease; }
