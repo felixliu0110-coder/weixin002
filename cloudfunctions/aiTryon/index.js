@@ -7,7 +7,7 @@ const { saveRemoteImage } = require("./storage");
 const { requireLogin, requireId, requireString, requireArray } = require("./validation");
 const { assertOwner, getOwnedDoc } = require("./ownership");
 const { resolveGarments } = require("./garments");
-const { fmtErr } = require("./errors");
+const { appError, fmtErr } = require("./errors");
 const { assertTransition } = require("./taskState");
 const { dateStr, consumeQuota, refundQuota, getQuota } = require("./quota");
 const { requestDeletion, runDeletion } = require("./deletion");
@@ -131,6 +131,25 @@ async function submit(event, openid) {
   // 衣物由服务端解析（garments 集合 / 内置白名单），客户端 garmentNames/garmentImages 不作为生成依据
   const garments = await resolveGarments(db, gIds, openid);
   const garmentName = garments[0].name || "所选衣物";
+
+  // 视频模式必须先验证客户端引用的图片任务，验证通过后才允许进入缓存/额度流程。
+  let imageTaskId = "";
+  let imgTask = null;
+  if (mode === "video") {
+    imageTaskId = requireId(event.imageTaskId, "imageTaskId");
+    imgTask = await getOwnedDoc(db, "tryon_tasks", imageTaskId, openid);
+    if (imgTask.type !== "ai_image" || imgTask.status !== "success" || !imgTask.tryon_image_url) {
+      throw appError("INVALID_ARGUMENT", "效果图任务未完成，请先完成穿搭图片");
+    }
+    if (imgTask.avatar_view_id !== avId) {
+      throw appError("INVALID_ARGUMENT", "效果图人物与当前人物不一致，请重新生成");
+    }
+    const normalizedImageGarments = (imgTask.garment_ids || []).slice().sort().join(",");
+    const normalizedCurrentGarments = gIds.slice().sort().join(",");
+    if (normalizedImageGarments !== normalizedCurrentGarments) {
+      throw appError("INVALID_ARGUMENT", "效果图衣物与当前穿搭不一致，请重新生成");
+    }
+  }
   const aigc = getAigc();
   const videoPrompt = buildTryonVideoPrompt(profile, garmentName);
   const cacheKey = buildTryonCacheKey({ openid, avatarViewId: avId, garmentIds: gIds, kind: mode === "video" ? "ai_video" : "ai_image" });
@@ -199,12 +218,6 @@ async function submit(event, openid) {
 
   // ---- 视频模式：直接用已生成的效果图创建视频任务，不重新生图 ----
   if (mode === "video") {
-    // 客户端只提交图片任务 ID：服务端查询 → owner check → 取服务端保存的效果图 URL
-    const imageTaskId = requireId(event.imageTaskId, "imageTaskId");
-    const imgTask = await getOwnedDoc(db, "tryon_tasks", imageTaskId, openid);
-    if (imgTask.type !== "ai_image" || imgTask.status !== "success" || !imgTask.tryon_image_url) {
-      throw appError("INVALID_ARGUMENT", "效果图任务未完成，请先完成穿搭图片");
-    }
     const imageUrl = imgTask.tryon_image_url;
     const task = Object.assign({}, base, {
       type: "ai_video",

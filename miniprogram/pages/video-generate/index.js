@@ -62,16 +62,13 @@ Page({
       return;
     }
 
-    // 视频生成前并行确保四视图就绪（只传业务 ID，服务端解析衣物；失败不阻塞提交）
-    Promise.all(garments.map((g) => api.ensureGarmentViews(g.id)))
-      .catch(() => null)
-      .then(() => api.submitAiTryon({
-        avatarViewId,
-        garmentIds,
-        garmentNames,
-        mode: "video",
-        imageTaskId
-      }))
+    api.submitAiTryon({
+      avatarViewId,
+      garmentIds,
+      garmentNames,
+      mode: "video",
+      imageTaskId
+    })
       .then((res) => {
       // 云函数异常返回 { error } 而非抛异常：同样进入失败态，不静默回退
       if (res && res.error && !res.taskId) {
@@ -97,16 +94,14 @@ Page({
         this.setData({ error: true, errorMsg: (st && st.error) || "生成失败，请重试", generating: false });
         return;
       }
-      this.setData({
-        stageText: st.stage === "garment_views" ? "预处理衣物视图" : "生成 180° 转身视频"
-      });
+      this.setData({ stageText: "生成 180° 转身视频" });
       if (st.status !== "success") {
         this._pollCount += 1;
         if (this._pollCount >= POLL_MAX) {
           this.setData({ error: true, errorMsg: "生成超时，请稍后在试穿记录中查看结果", generating: false });
           return;
         }
-        // 模拟进度：前 30% 预处理，后 70% 视频生成
+        // 模拟进度：视频任务处理中
         const fakePercent = Math.min(95, Math.floor((this._pollCount / POLL_MAX) * 100));
         this.setData({ percent: fakePercent });
         this._pollTimer = setTimeout(() => this.poll(), POLL_INTERVAL);

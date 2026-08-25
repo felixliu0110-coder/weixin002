@@ -25,13 +25,11 @@ Page({
     const g = this.data.garment;
     const garmentId = (g && g.id) || "g-upload-" + Date.now();
     const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
-    requestSubscribe().then(() => api.ensureGarmentViews(garmentId, g.name, g.image)).then(() => {
-      return api.submitAiTryon({
-        avatarViewId,
-        garmentIds: [garmentId],
-        garmentNames: [g.name]
-      });
-    }).then((res) => {
+    requestSubscribe().then(() => api.submitAiTryon({
+      avatarViewId,
+      garmentIds: [garmentId],
+      garmentNames: [g.name]
+    })).then((res) => {
       if (res && res.error) {
         this._submitting = false;
         toast("生成失败：" + res.error);
