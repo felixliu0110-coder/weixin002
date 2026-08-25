@@ -1,5 +1,5 @@
 const cloud = require("wx-server-sdk");
-const { requireLogin, requireId, requireString, requireEnum, requireArray } = require("./validation");
+const { requireLogin, requireId, requireString, requireEnum, requireArray, parseSizeLabel, parseMeasurements } = require("./validation");
 const { appError, fmtErr } = require("./errors");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -106,12 +106,78 @@ async function deleteGarment(event, openid) {
   return { ok: true, removedGarments, removedViews, removedFiles: fileList.length };
 }
 
+/* 用户真实衣物列表：仅当前用户 upload + ready，返回前端所需最小字段 */
+async function listGarments(event, openid) {
+  const res = await db.collection("garments")
+    .where({ user_id: openid, type: "upload", status: "ready" })
+    .orderBy("created_at", "desc")
+    .limit(100)
+    .get();
+  const list = (res.data || []).map((d) => ({
+    id: d._id,
+    image: d.original_file_id || "",
+    name: d.name || "",
+    category: d.category || "其他",
+    size_label: d.size_label || undefined,
+    measurements: d.measurements || undefined
+  }));
+  return { ok: true, list };
+}
+
+/* 更新衣物：只允许修改 name / category / size_label / measurements */
+async function updateGarment(event, openid) {
+  const garmentId = requireId(event.garmentId, "garmentId");
+  const doc = await db.collection("garments").doc(garmentId).get().catch(() => ({ data: null }));
+  if (!doc.data) throw appError("NOT_FOUND");
+  const owner = (doc.data && (doc.data.user_id || doc.data._openid)) || "";
+  if (!owner || owner !== openid || doc.data.type === "builtin") throw appError("FORBIDDEN");
+
+  const allowFields = {
+    name: (v) => v === undefined ? undefined : requireString(v, "name", 40),
+    category: (v) => v === undefined ? undefined : requireEnum(v, "category", CATEGORIES),
+    size_label: (v) => parseSizeLabel(v),
+    measurements: (v) => parseMeasurements(v)
+  };
+  const updates = {};
+  for (const [field, fn] of Object.entries(allowFields)) {
+    if (event[field] !== undefined) {
+      const parsed = fn(event[field]);
+      if (parsed !== undefined) updates[field] = parsed;
+    }
+  }
+  if (Object.keys(updates).length === 0) {
+    // 无实际变更，直接返回
+    const fresh = await db.collection("garments").doc(garmentId).get();
+    return {
+      ok: true,
+      id: fresh.data._id,
+      name: fresh.data.name,
+      category: fresh.data.category,
+      size_label: fresh.data.size_label || undefined,
+      measurements: fresh.data.measurements || undefined
+    };
+  }
+  updates.updated_at = Date.now();
+  await db.collection("garments").doc(garmentId).update({ data: updates });
+  const fresh = await db.collection("garments").doc(garmentId).get();
+  return {
+    ok: true,
+    id: fresh.data._id,
+    name: fresh.data.name,
+    category: fresh.data.category,
+    size_label: fresh.data.size_label || undefined,
+    measurements: fresh.data.measurements || undefined
+  };
+}
+
 exports.main = async (event) => {
   try {
-    const { openid } = cloud.getWXContext();
+    const { OPENID: openid } = cloud.getWXContext();
     requireLogin(openid);
+    if (event && event.action === "list") return listGarments(event, openid);
     if (event && event.action === "deleteGarment") return deleteGarment(event, openid);
     if (event && event.action === "create") return createGarment(event, openid);
+    if (event && event.action === "update") return updateGarment(event, openid);
     // 兼容旧调用：无 action 视为纯内容检测（不落库）
     const fileID = requireId(event.fileID, "fileID");
     if (fileID.indexOf("cloud://") !== 0) throw appError("INVALID_ARGUMENT", "fileID 不合法");

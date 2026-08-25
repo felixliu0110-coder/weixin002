@@ -116,6 +116,60 @@ module.exports = {
     }
   },
 
+  async getMyGarments() {
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.getMyGarments();
+      throw serviceError("云环境未配置");
+    }
+    try {
+      const res = await wx.cloud.callFunction({ name: "uploadGarment", data: { action: "list" } });
+      const r = res.result;
+      if (!r || !r.ok) throw serviceError((r && r.message) || "衣物列表读取失败");
+      return (r.list || []).map((g) => ({ id: g.id, image: g.image, name: g.name, category: g.category, size_label: g.size_label || undefined, measurements: g.measurements || undefined }));
+    } catch (e) {
+      if (mockAllowed()) return mock.getMyGarments();
+      throw serviceError("衣物列表读取失败");
+    }
+  },
+
+  async deleteMyGarments(ids) {
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.deleteItems("myGarments", ids);
+      throw serviceError("云环境未配置");
+    }
+    try {
+      const res = await wx.cloud.callFunction({
+        name: "uploadGarment",
+        data: { action: "deleteGarment", garmentIds: ids }
+      });
+      const r = res.result;
+      if (!r || !r.ok) throw new Error((r && r.error) || "删除失败");
+      return { ok: true, removed: r.removedGarments || 0 };
+    } catch (e) {
+      if (mockAllowed()) return mock.deleteItems("myGarments", ids);
+      throw serviceError("删除失败");
+    }
+  },
+
+  async updateGarment(id, data) {
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.updateGarment(id, data);
+      throw serviceError("云环境未配置");
+    }
+    try {
+      const res = await wx.cloud.callFunction({
+        name: "uploadGarment",
+        data: { action: "update", garmentId: id, ...data }
+      });
+      const r = res.result;
+      if (!r || !r.ok) throw new Error((r && r.error) || "更新失败");
+      return { id: r.id, name: r.name, category: r.category, size_label: r.size_label, measurements: r.measurements };
+    } catch (e) {
+      if (mockAllowed()) return mock.updateGarment(id, data);
+      throw serviceError("更新失败");
+    }
+  },
+
   async submitTryon(params) {
     if (!cloudReady()) {
       if (mockAllowed()) return mock.submitTryon(params);

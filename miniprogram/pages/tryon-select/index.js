@@ -18,6 +18,7 @@ Page({
     libManageMode: false,
     libDelCount: 0,
     myTemplates: [],
+    myGarments: [],
     catCounts: {},
     selectedIds: [],
     selectedCount: 0,
@@ -27,7 +28,17 @@ Page({
     uploadName: "",
     uploadCategory: "上衣",
     uploadVisible: false,
-    infoVisible: false
+    infoVisible: false,
+    editVisible: false,
+    helpVisible: false,
+    editingGarment: null,
+    editName: "",
+    editCategory: "上衣",
+    editSizeLabel: "",
+    editLengthCm: "",
+    editChestWidthCm: "",
+    editShoulderWidthCm: "",
+    editSleeveLengthCm: ""
   },
   onLoad() {
     this.loadAll();
@@ -60,6 +71,18 @@ Page({
     api.getMyTemplates().then((my) => {
       this.setData({ myTemplates: my.map((t) => Object.assign({}, t, { selected: false, del: false })) });
     });
+    api.getMyGarments().then((my) => {
+      this.setData({ myGarments: my.map((g) => Object.assign({}, g, { selected: false })) });
+    });
+  },
+  computeSelectInfo(myTemplates, myGarments) {
+    const count =
+      myTemplates.filter((t) => t.selected).length +
+      (myGarments || []).filter((t) => t.selected).length;
+    return {
+      selectedCount: count,
+      buttonText: count > 0 ? "生成穿搭（已选 " + count + " 件）" : "生成穿搭"
+    };
   },
   computeCatCounts(lib) {
     const counts = {};
@@ -162,13 +185,23 @@ Page({
     const myTemplates = this.data.myTemplates.map((t) =>
       t.id === id ? Object.assign({}, t, { selected: !t.selected }) : t
     );
-    const count = myTemplates.filter((t) => t.selected).length;
     const chosen = myTemplates.find((t) => t.id === id);
-    this.setData({
-      myTemplates,
-      selectedCount: count,
-      buttonText: count > 0 ? "生成穿搭（已选 " + count + " 件）" : "生成穿搭"
-    });
+    const info = this.computeSelectInfo(myTemplates, this.data.myGarments);
+    this.setData(Object.assign({ myTemplates }, info));
+    toast(chosen.selected ? "已选择「" + name + "」" : "已取消选择");
+  },
+  onMyGarmentTap(e) {
+    this.toggleMyGarment(e);
+  },
+  toggleMyGarment(e) {
+    const id = e.detail.id;
+    const name = e.detail.name;
+    const myGarments = this.data.myGarments.map((t) =>
+      t.id === id ? Object.assign({}, t, { selected: !t.selected }) : t
+    );
+    const chosen = myGarments.find((t) => t.id === id);
+    const info = this.computeSelectInfo(this.data.myTemplates, myGarments);
+    this.setData(Object.assign({ myGarments }, info));
     toast(chosen.selected ? "已选择「" + name + "」" : "已取消选择");
   },
   startTryon() {
@@ -178,7 +211,9 @@ Page({
     }
     if (this._submitting) return;
     this._submitting = true;
-    const items = this.data.myTemplates.filter((t) => t.selected);
+    const items = this.data.myTemplates
+      .filter((t) => t.selected)
+      .concat(this.data.myGarments.filter((t) => t.selected));
     const names = items.map((g) => g.name).join("、");
     // 订阅消息授权需在用户点击的调用栈中请求（微信限制）；
     // 授权完成后立即跳转进度页，实际的四视图预处理与任务提交由 tryon-progress 页内完成，本页不等待
@@ -299,6 +334,9 @@ Page({
       wx.hideLoading();
       wx.setStorageSync("uploadedGarment", garment);
       toast("已上传「" + name + "」");
+      // 真实 garmentId 立即进入当前列表，不依赖 storage.uploadedGarment
+      const myGarments = this.data.myGarments.concat(Object.assign({}, garment, { selected: false }));
+      this.setData({ myGarments });
       setTimeout(() => navigate("/pages/image-preview/index"), 600);
     }).catch(() => {
       // 失败必须重置标记，否则上传按钮永久失效
@@ -306,5 +344,88 @@ Page({
       wx.hideLoading();
       toast("上传失败，请重试");
     });
+  },
+
+  onMyGarmentLongPress(e) {
+    const id = e.detail.id;
+    const item = this.data.myGarments.find((g) => g.id === id);
+    if (!item) return;
+    wx.showModal({
+      title: "删除衣物",
+      content: `将删除「${item.name}」及其云端原图，删除后不可恢复。`,
+      confirmText: "删除",
+      confirmColor: "#C0392B",
+      success: (res) => {
+        if (res.confirm) this.doDeleteMyGarments([id]);
+      }
+    });
+  },
+
+  doDeleteMyGarments(ids) {
+    api.deleteMyGarments(ids)
+      .then(() => {
+        toast("已删除");
+        this.setData({ myGarments: this.data.myGarments.filter((g) => !ids.includes(g.id)) });
+      })
+      .catch(() => toast("删除失败，请重试"));
+  },
+
+  /* ---------- 编辑入口 ---------- */
+  openEditSheet(e) {
+    const id = e.detail.id;
+    const item = this.data.myGarments.find((g) => g.id === id);
+    if (!item) return;
+    const m = item.measurements || {};
+    this.setData({
+      editVisible: true,
+      editingGarment: item,
+      editName: item.name || "",
+      editCategory: item.category || "上衣",
+      editSizeLabel: item.size_label || "",
+      editLengthCm: m.lengthCm !== undefined ? String(m.lengthCm) : "",
+      editChestWidthCm: m.chestWidthCm !== undefined ? String(m.chestWidthCm) : "",
+      editShoulderWidthCm: m.shoulderWidthCm !== undefined ? String(m.shoulderWidthCm) : "",
+      editSleeveLengthCm: m.sleeveLengthCm !== undefined ? String(m.sleeveLengthCm) : ""
+    });
+  },
+  closeEditSheet() {
+    this.setData({ editVisible: false, editingGarment: null });
+  },
+  onEditName(e) { this.setData({ editName: e.detail.value }); },
+  onEditCategory(e) { this.setData({ editCategory: e.currentTarget.dataset.cat }); },
+  onEditSizeLabel(e) { this.setData({ editSizeLabel: e.detail.value }); },
+  onEditLengthCm(e) { this.setData({ editLengthCm: e.detail.value }); },
+  onEditChestWidthCm(e) { this.setData({ editChestWidthCm: e.detail.value }); },
+  onEditShoulderWidthCm(e) { this.setData({ editShoulderWidthCm: e.detail.value }); },
+  onEditSleeveLengthCm(e) { this.setData({ editSleeveLengthCm: e.detail.value }); },
+
+  showMeasureHelp() { this.setData({ helpVisible: true }); },
+  closeMeasureHelp() { this.setData({ helpVisible: false }); },
+
+  saveEdit() {
+    const item = this.data.editingGarment;
+    if (!item) return;
+    const name = (this.data.editName || "").trim();
+    if (!name) { toast("请输入衣物名称"); return; }
+    const category = this.data.editCategory;
+    const size_label = (this.data.editSizeLabel || "").trim() || undefined;
+    const measurements = {};
+    if (this.data.editLengthCm.trim()) measurements.lengthCm = parseFloat(this.data.editLengthCm);
+    if (this.data.editChestWidthCm.trim()) measurements.chestWidthCm = parseFloat(this.data.editChestWidthCm);
+    if (this.data.editShoulderWidthCm.trim()) measurements.shoulderWidthCm = parseFloat(this.data.editShoulderWidthCm);
+    if (this.data.editSleeveLengthCm.trim()) measurements.sleeveLengthCm = parseFloat(this.data.editSleeveLengthCm);
+    wx.showLoading({ title: "保存中", mask: true });
+    api.updateGarment(item.id, { name, category, size_label, measurements })
+      .then((updated) => {
+        const myGarments = this.data.myGarments.map((g) =>
+          g.id === item.id ? Object.assign({}, g, updated) : g
+        );
+        this.setData({ myGarments, editVisible: false, editingGarment: null });
+        toast("已保存");
+      })
+      .catch((e) => {
+        wx.hideLoading();
+        toast((e && e.message) || "保存失败，请重试");
+      });
   }
 });

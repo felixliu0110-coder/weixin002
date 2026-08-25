@@ -42,6 +42,24 @@
             bind:longpress="onLongPress"
           />
         </view>
+
+        <view class="sec-hd">
+          <text class="sec-title">我的衣物</text>
+          <text class="hint">上传的衣物 · 长按可删除</text>
+        </view>
+        <view wx:if="{{myGarments.length === 0}}" class="cat-empty">还没有上传衣物，切换到「上传」页添加</view>
+        <view class="garment-grid">
+          <garment-item
+            wx:for="{{myGarments}}"
+            wx:key="id"
+            editable="{{true}}"
+            data="{{item}}"
+            selected="{{item.selected}}"
+            bindtap="onMyGarmentTap"
+            bind:longpress="onMyGarmentLongPress"
+            bind:edit="openEditSheet"
+          />
+        </view>
       </block>
 
       <!-- 分类内选择衣物 -->
@@ -144,6 +162,111 @@
     <view slot="actions" class="upload-actions">
       <btn class="upload-action-btn" type="primary" bindtap="confirmUpload">保存并预览</btn>
       <btn class="upload-action-btn" type="secondary" bindtap="closeInfo">取消</btn>
+    </view>
+  </sheet>
+
+  <sheet visible="{{editVisible}}" bind:cancel="closeEditSheet">
+    <view class="sheet-head">
+      <view class="grab"></view>
+      <text class="sheet-title">编辑衣物</text>
+      <text class="sheet-desc">{{editingGarment.name}}</text>
+    </view>
+    <view class="edit-form">
+      <view class="edit-field">
+        <text class="edit-label">衣物名称</text>
+        <input class="edit-input" value="{{editName}}" bindinput="onEditName" placeholder="衣物名称" maxlength="20" />
+      </view>
+      <view class="edit-field">
+        <text class="edit-label">衣物分类</text>
+        <view class="cat-grid">
+          <view
+            wx:for="{{categories}}"
+            wx:key="*this"
+            class="cat-chip {{editCategory === item ? 'on' : ''}}"
+            hover-class="cat-chip-hover"
+            data-cat="{{item}}"
+            bindtap="onEditCategory"
+          >{{item}}</view>
+        </view>
+      </view>
+      <view class="edit-field">
+        <view class="edit-label-row">
+          <text class="edit-label">尺码</text>
+          <text class="edit-hint">选填</text>
+        </view>
+        <input class="edit-input" value="{{editSizeLabel}}" bindinput="onEditSizeLabel" placeholder="如：M / L / XL" maxlength="20" />
+      </view>
+      <view class="edit-field" wx:if="{{editCategory === '上衣'}}">
+        <view class="edit-label-row">
+          <text class="edit-label">实际尺寸（选填）</text>
+          <text class="edit-help-btn" catchtap="showMeasureHelp">如何测量？</text>
+        </view>
+        <view class="measure-row">
+          <view class="measure-item">
+            <text class="measure-label">衣长</text>
+            <view class="measure-input-wrap">
+              <input class="measure-input" type="number" value="{{editLengthCm}}" bindinput="onEditLengthCm" placeholder="—" />
+              <text class="measure-unit">cm</text>
+            </view>
+          </view>
+          <view class="measure-item">
+            <text class="measure-label">胸宽</text>
+            <view class="measure-input-wrap">
+              <input class="measure-input" type="number" value="{{editChestWidthCm}}" bindinput="onEditChestWidthCm" placeholder="—" />
+              <text class="measure-unit">cm</text>
+            </view>
+          </view>
+        </view>
+        <view class="measure-row">
+          <view class="measure-item">
+            <text class="measure-label">肩宽</text>
+            <view class="measure-input-wrap">
+              <input class="measure-input" type="number" value="{{editShoulderWidthCm}}" bindinput="onEditShoulderWidthCm" placeholder="—" />
+              <text class="measure-unit">cm</text>
+            </view>
+          </view>
+          <view class="measure-item">
+            <text class="measure-label">袖长</text>
+            <view class="measure-input-wrap">
+              <input class="measure-input" type="number" value="{{editSleeveLengthCm}}" bindinput="onEditSleeveLengthCm" placeholder="—" />
+              <text class="measure-unit">cm</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view slot="actions" class="edit-actions">
+      <btn class="edit-action-btn" type="primary" bindtap="saveEdit">保存</btn>
+      <btn class="edit-action-btn" type="secondary" bindtap="closeEditSheet">取消</btn>
+    </view>
+  </sheet>
+
+  <sheet visible="{{helpVisible}}" bind:cancel="closeMeasureHelp">
+    <view class="sheet-head">
+      <view class="grab"></view>
+      <text class="sheet-title">如何测量？</text>
+      <text class="sheet-desc">衣物平铺后测量，以下为各维度定义：</text>
+    </view>
+    <view class="help-list">
+      <view class="help-item">
+        <text class="help-term">衣长</text>
+        <text class="help-desc">从肩部最高点到下摆</text>
+      </view>
+      <view class="help-item">
+        <text class="help-term">胸宽</text>
+        <text class="help-desc">腋下位置左右平量</text>
+      </view>
+      <view class="help-item">
+        <text class="help-term">肩宽</text>
+        <text class="help-desc">左右肩点之间</text>
+      </view>
+      <view class="help-item">
+        <text class="help-term">袖长</text>
+        <text class="help-desc">肩点到袖口</text>
+      </view>
+    </view>
+    <view slot="actions" class="help-actions">
+      <btn class="help-action-btn" type="primary" bindtap="closeMeasureHelp">知道了</btn>
     </view>
   </sheet>
 </view>

@@ -124,6 +124,9 @@ module.exports = {
   getGarmentTemplates() { return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary))); },
   getGarmentLibrary() { return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary))); },
   getMyTemplates() { return Promise.resolve(JSON.parse(JSON.stringify(myTemplates))); },
+    getMyGarments() {
+    return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary.filter((i) => String(i.id).indexOf("g-upload-") === 0).map((g) => ({ id: g.id, image: g.image, name: g.name, category: g.category, size_label: g.size_label, measurements: g.measurements })))));
+  },
   async addToMyTemplates(ids) {
     const items = garmentLibrary.filter(
       (i) => ids.includes(i.id) && !myTemplates.some((m) => m.id === i.id)
@@ -143,6 +146,22 @@ module.exports = {
     garmentLibrary.push(item);
     return item;
   },
+  async updateGarment(id, data) {
+    const idx = garmentLibrary.findIndex((g) => g.id === id && String(g.id).indexOf("g-upload-") === 0);
+    if (idx < 0) throw new Error("NOT_FOUND");
+    const item = garmentLibrary[idx];
+    if (data.name !== undefined) item.name = data.name;
+    if (data.category !== undefined) item.category = data.category;
+    if (data.size_label !== undefined) {
+      if (data.size_label === null || data.size_label === "") delete item.size_label;
+      else item.size_label = data.size_label;
+    }
+    if (data.measurements !== undefined) {
+      if (!data.measurements || Object.keys(data.measurements).length === 0) delete item.measurements;
+      else item.measurements = Object.assign(item.measurements || {}, data.measurements);
+    }
+    return { id: item.id, name: item.name, category: item.category, size_label: item.size_label, measurements: item.measurements };
+  },
   async submitTryon(params) {
     return { taskId: "task-" + Date.now(), status: "success", pose: params.pose || "front", resultUrls: ["/assets/img/p07-result.jpg"] };
   },
@@ -154,6 +173,7 @@ module.exports = {
     if (kind === "favorites") favorites = favorites.filter((i) => !ids.includes(i.id));
     if (kind === "myTemplates") myTemplates = myTemplates.filter((i) => !ids.includes(i.id));
     if (kind === "library") garmentLibrary = garmentLibrary.filter((i) => !ids.includes(i.id));
+    if (kind === "myGarments") garmentLibrary = garmentLibrary.filter((i) => !ids.includes(i.id));
     if (kind === "library" || kind === "myTemplates") {
       ids.forEach((id) => { delete garmentViewsCache[id]; });
     }

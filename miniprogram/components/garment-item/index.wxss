@@ -9,3 +9,26 @@
 .pick-img { width: 26rpx; height: 26rpx; opacity: 0; }
 .garment.on .pick { opacity: 1; transform: scale(1); background: var(--accent); border-color: var(--accent); }
 .garment.on .pick-img { opacity: 1; }
+
+.g-edit {
+  position: absolute;
+  top: 14rpx;
+  left: 14rpx;
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1rpx solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: all 0.2s var(--ease);
+}
+.g-edit-hover {
+  opacity: 0.75;
+}
+.g-edit-icon {
+  width: 28rpx;
+  height: 28rpx;
+}

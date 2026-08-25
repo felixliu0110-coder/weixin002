@@ -27,6 +27,15 @@ test("getQuota 返回每日 3 次示例额度", async () => {
   assert.strictEqual(quota.used, 0);
 });
 
+test("getMyGarments 返回上传衣物（mock），deleteItems(myGarments) 可删除", async () => {
+  const item = await mock.uploadGarment("cloud://mock/x.png", { name: "测试上衣", category: "上衣" });
+  const list = await mock.getMyGarments();
+  assert.ok(list.some((g) => g.id === item.id && g.image === "cloud://mock/x.png"));
+  await mock.deleteItems("myGarments", [item.id]);
+  const after = await mock.getMyGarments();
+  assert.ok(!after.some((g) => g.id === item.id));
+});
+
 test("submitTryon 生成任务并在默认策略下成功", async () => {
   const task = await mock.submitTryon({ avatarId: "a1", garmentId: "g1", pose: "front" });
   assert.strictEqual(task.status, "success");
@@ -58,4 +67,26 @@ test("mock AI 接口可用且返回占位素材", async () => {
   await mock.deleteItems("library", ["g-del-test"]);
   const after = await mock.ensureGarmentViews("g-del-test", "测试衣物");
   assert.strictEqual(after.cached, false);
+});
+
+test("mock uploadGarment + updateGarment size_label / measurements 兼容旧数据", async () => {
+  const item = await mock.uploadGarment("cloud://mock/x2.png", { name: "兼容测试", category: "上衣" });
+  // 旧数据：无 size_label / measurements
+  const list = await mock.getMyGarments();
+  const oldItem = list.find((g) => g.id === item.id);
+  assert.ok(oldItem);
+  assert.strictEqual(oldItem.size_label, undefined);
+  assert.strictEqual(oldItem.measurements, undefined);
+  // 更新尺寸
+  const updated = await mock.updateGarment(item.id, { size_label: "XL", measurements: { lengthCm: 75.5 } });
+  assert.strictEqual(updated.size_label, "XL");
+  assert.strictEqual(updated.measurements.lengthCm, 75.5);
+  // 再查一次确认
+  const list2 = await mock.getMyGarments();
+  const reloaded = list2.find((g) => g.id === item.id);
+  assert.strictEqual(reloaded.size_label, "XL");
+  assert.strictEqual(reloaded.measurements.lengthCm, 75.5);
+  // 清空尺码
+  const cleared = await mock.updateGarment(item.id, { size_label: null });
+  assert.strictEqual(cleared.size_label, undefined);
 });
