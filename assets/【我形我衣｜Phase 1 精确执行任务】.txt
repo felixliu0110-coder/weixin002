@@ -1,0 +1,737 @@
+【我形我衣｜Phase 1 精确执行任务】
+
+仓库：
+https://github.com/felixliu0110-coder/weixin002
+
+基准：
+main
+commit:
+fa69e0f6c9faa98e6326b5f678f4bb8d9adfcb5f
+
+你的身份：
+你只负责把下面明确指定的修改上传到 GitHub。
+
+绝对禁止：
+1. 自行设计
+2. 自行重构
+3. 自行增加 AI Provider
+4. 自行修改数据库结构
+5. 自行增加 FitEngine / BodyProfile / GarmentProfile
+6. 自行新增 TryOnPlanner
+7. 自行修改缓存协议
+8. 自行更换生产 Provider
+9. 自行增加 npm 依赖
+10. 自行增加 Redis / MQ / GPU / 服务器
+11. 自行删除三视图
+12. 自行删除四视图
+13. 自行修改 UI 视觉设计
+14. 自行修改其他未明确要求的业务逻辑
+15. 发现其他问题时自行修复
+
+如果发现与下面要求不一致的代码：
+只报告，不自行猜测。
+
+==================================================
+一、本阶段目标
+==================================================
+
+本阶段只做：
+
+1. 删除当前实际没有进入图片 Try-On 输入链路的衣物四视图前置 AI 调用
+2. 删除视频流程中同样没有进入视频输入链路的衣物四视图前置 AI 调用
+3. 修复 aiTryon 的 appError import
+4. 修复视频 imageTaskId 在 quota 之后才验证的问题
+5. 防止视频引用当前用户其他人物/其他衣物组合的历史图片
+6. 同步修正 PRD / architecture 中“四视图是强制试穿前置步骤”的错误描述
+7. 做现有测试与真实诊断
+
+本阶段绝不改变当前 AI 图片输入。
+
+当前 AI 图片输入必须继续保持：
+
+人物：
+avatar_views.views.composite
+
+服装：
+garments.originalFileId
+
+不要改变。
+
+==================================================
+二、文件范围
+==================================================
+
+允许修改的生产文件只有：
+
+1.
+miniprogram/pages/image-preview/index.js
+
+2.
+miniprogram/pages/video-generate/index.js
+
+3.
+cloudfunctions/aiTryon/index.js
+
+允许修改的文档：
+
+4.
+docs/PRD-我形我衣-v1.0.md
+
+5.
+docs/architecture.md
+
+可以增加：
+6.
+docs/architecture-v2-proposed.md
+
+但如果这个文件尚不存在，内容必须严格按照 ChatGPT 后续提供的最终文本创建，不允许自行设计。
+
+禁止修改：
+
+cloudfunctions/services/quota.js
+cloudfunctions/services/tryonCache.js
+cloudfunctions/services/tryonImage.js
+cloudfunctions/services/tryonVideo.js
+cloudfunctions/services/aigc.js
+cloudfunctions/services/aigc-agnes.js
+cloudfunctions/ensureGarmentViews/*
+cloudfunctions/createAvatarViews/*
+miniprogram/utils/api.js
+数据库结构
+package.json
+任何 Provider 配置
+任何 GPU / 云基础设施
+
+==================================================
+三、image-preview 修改
+==================================================
+
+文件：
+miniprogram/pages/image-preview/index.js
+
+当前确认存在：
+
+requestSubscribe()
+↓
+api.ensureGarmentViews(...)
+↓
+api.submitAiTryon(...)
+
+必须修改为：
+
+requestSubscribe()
+↓
+api.submitAiTryon(...)
+
+删除正式试穿提交前的 ensureGarmentViews 调用。
+
+禁止修改：
+
+avatarViewId
+garmentId
+garmentName
+submitAiTryon 参数结构
+页面跳转逻辑
+错误处理
+防重复提交
+
+不要删除 api.js 中 ensureGarmentViews 接口。
+
+不要删除 ensureGarmentViews 云函数。
+
+它只是退出默认试穿主流程，保留为以后 POC 能力。
+
+==================================================
+四、video-generate 修改
+==================================================
+
+文件：
+miniprogram/pages/video-generate/index.js
+
+当前确认存在：
+
+Promise.all(
+  garments.map((g) => api.ensureGarmentViews(g.id))
+)
+
+然后才：
+
+api.submitAiTryon({
+  mode: "video",
+  imageTaskId,
+  ...
+})
+
+必须删除视频生成前的 ensureGarmentViews 前置调用。
+
+直接：
+
+api.submitAiTryon({
+  avatarViewId,
+  garmentIds,
+  garmentNames,
+  mode: "video",
+  imageTaskId
+})
+
+删除或修改仅与“衣物四视图预处理”有关的错误 UI 状态描述。
+
+如果当前代码存在：
+
+stage === "garment_views"
+
+则删除该判断。
+
+以后视频进度只表达：
+
+“提交视频任务”
+“生成 180° 转身视频”
+“生成完成”
+等现有合理状态。
+
+不要改变轮询机制。
+不要改变视频时长。
+不要改变页面结构。
+不要增加新 UI。
+
+==================================================
+五、aiTryon appError
+==================================================
+
+文件：
+
+cloudfunctions/aiTryon/index.js
+
+当前顶部已经：
+
+const { fmtErr } = require("./errors");
+
+代码下面实际使用了 appError()。
+
+必须改成：
+
+const { appError, fmtErr } = require("./errors");
+
+只补 import。
+
+不要修改：
+
+cloudfunctions/services/errors.js
+
+不要修改错误系统。
+
+==================================================
+六、视频模式验证顺序
+==================================================
+
+文件：
+
+cloudfunctions/aiTryon/index.js
+
+这是本阶段最重要的修改。
+
+当前问题：
+
+consumeQuota() 在 imageTaskId 完整验证之前执行。
+
+禁止继续这样。
+
+视频模式必须严格：
+
+1. requireLogin(openid)
+2. avatarViewId 验证
+3. garmentIds 验证
+4. avatar ownership 验证
+5. resolveGarments
+6. imageTaskId requireId
+7. getOwnedDoc(tryon_tasks, imageTaskId, openid)
+8. imgTask.type === "ai_image"
+9. imgTask.status === "success"
+10. imgTask.tryon_image_url 非空
+11. imgTask.avatar_view_id === 当前 avId
+12. imgTask.garment_ids 与当前 gIds 作为集合比较，比较前双方都 sort()
+13. cache / pending / idempotency 检查
+14. consumeQuota()
+15. 创建 ai_video task
+16. Provider 调用
+
+任何 1-12 失败：
+
+不得扣额度。
+
+==================================================
+七、视频任务穿搭一致性
+==================================================
+
+必须防止：
+
+当前：
+Avatar A + Garment X
+
+客户端却提交：
+
+以前成功任务：
+Avatar B + Garment Y
+
+作为 imageTaskId。
+
+即使旧图片：
+
+属于当前用户
++
+status=success
++
+tryon_image_url 存在
+
+也必须拒绝。
+
+必须验证：
+
+imgTask.avatar_view_id === avId
+
+并验证：
+
+normalized(imgTask.garment_ids)
+===
+normalized(gIds)
+
+normalized 的规则必须：
+
+复制数组
++
+sort()
++
+join(",")
+
+不要修改数据库中的原数组顺序。
+
+不要改变当前 cache 对衣物顺序的业务语义。
+
+==================================================
+八、cache 顺序
+==================================================
+
+特别注意：
+
+视频 imageTaskId 的业务一致性验证必须在视频 cache hit 之前完成。
+
+不能出现：
+
+错误的 imageTaskId
+↓
+刚好命中已有视频缓存
+↓
+直接返回 success
+
+必须先验证 imageTaskId。
+
+然后才允许：
+
+cache / idempotency
+
+命中。
+
+==================================================
+九、quota
+==================================================
+
+不要修改：
+
+cloudfunctions/services/quota.js
+
+不要改变：
+
+每日额度
+consumeQuota
+refundQuota
+事务实现
+
+只改变 aiTryon 调用 consumeQuota 的时机。
+
+必须保证：
+
+非法 imageTaskId：
+→ 不扣额度
+
+imageTaskId ownership 错误：
+→ 不扣额度
+
+imageTaskId 未完成：
+→ 不扣额度
+
+imageTaskId 类型错误：
+→ 不扣额度
+
+tryon_image_url 缺失：
+→ 不扣额度
+
+人物/衣物不一致：
+→ 不扣额度
+
+已有有效 cache hit：
+→ 不扣额度
+
+已有 queued/processing pending：
+→ 不重复扣额度
+
+Provider 真正失败：
+→ 保持现有 consume → provider failure → refund 机制
+
+不要新增 refund。
+不要重复 refund。
+
+==================================================
+十、不能修改当前图片 AI 输入
+==================================================
+
+图片任务必须继续：
+
+avatar_views.views.composite
++
+garments.originalFileId
+
+不要改成：
+
+用户原始单人照片
+
+不要加入：
+
+garment_views
+
+不要加入：
+
+四视图
+
+不要加入：
+
+新模型
+
+不要加入：
+
+新的 prompt
+
+不要加入：
+
+FitRelationship
+
+不要加入：
+
+TryOnPlanner
+
+==================================================
+十一、三视图
+==================================================
+
+不要删除。
+
+不要修改 createAvatarViews。
+
+当前只把三视图视为现有人物资产。
+
+不能写：
+
+“三视图已经被证明一定提高试穿质量”。
+
+这个问题留到后续 POC。
+
+==================================================
+十二、四视图
+==================================================
+
+不要删除：
+
+cloudfunctions/ensureGarmentViews
+
+不要删除：
+
+garment_views 数据结构
+
+不要删除：
+
+相关 API
+
+不要删除：
+
+garmentViews service
+
+本阶段只做：
+
+“四视图不再是默认 Try-On 前置步骤”。
+
+以后通过 POC 决定是否重新接入。
+
+==================================================
+十三、缓存协议
+==================================================
+
+本阶段禁止修改：
+
+cloudfunctions/services/tryonCache.js
+
+不要增加：
+
+strategyVersion
+providerVersion
+promptVersion
+normalizationVersion
+
+原因：
+
+本阶段实际图片生成输入不变。
+
+等后续真正做 A/B POC 改变输入资产时再重新设计缓存版本。
+
+==================================================
+十四、Provider
+==================================================
+
+不要修改当前生产 Provider。
+
+不要接入：
+
+腾讯
+阿里
+其他新付费 Provider
+
+不要增加 fallback。
+
+备用 Provider 后续单独 POC。
+
+==================================================
+十五、PRD 文档同步
+==================================================
+
+文件：
+
+docs/PRD-我形我衣-v1.0.md
+
+当前 PRD v1.1 在 FR-16 / 5.2 中把衣物四视图描述成图片试穿前置步骤。
+
+必须修正。
+
+业务流程应改成：
+
+选择/上传衣物
+→
+内容安全检测
+→
+服务端解析衣物归属
+→
+人物三视图 + 衣物原图
+→
+AI 试穿
+
+明确说明：
+
+“衣物四视图为保留的实验性增强能力，不属于当前默认试穿路径；是否重新接入以 POC 为准。”
+
+FR-16 改成：
+
+“服装参考增强能力（实验性）
+当前不属于默认试穿路径。
+保留 ensureGarmentViews 与 garment_views 作为后续 POC 能力。”
+
+FR-17 改成：
+
+“当前 V1 图片试穿默认以人物三视图 composite + 服务端校验后的衣物原图作为 AI 生成参考。”
+
+不要写任何未经 POC 验证的“效果提升”数字。
+
+==================================================
+十六、architecture.md
+==================================================
+
+保留：
+
+ensureGarmentViews
+
+但把它定位为：
+
+“可选衣物参考增强能力 / POC”
+
+核心 Try-On 链路必须写成：
+
+人物三视图 composite
++
+衣物 originalFileId
+↓
+aiTryon
+↓
+当前 Provider
+
+不要画成：
+
+衣物原图
+↓
+四视图
+↓
+Try-On
+
+视频链路必须写成：
+
+成功的 ai_image task
+↓
+imageTaskId 服务端校验
+↓
+AI Video
+
+==================================================
+十七、测试
+==================================================
+
+不要新增测试框架。
+
+继续使用项目现有测试机制。
+
+至少验证：
+
+A.
+video imageTaskId 缺失
+→ 不扣额度
+
+B.
+imageTaskId 不属于当前用户
+→ 不扣额度
+
+C.
+imageTaskId.type !== ai_image
+→ 不扣额度
+
+D.
+imageTaskId.status !== success
+→ 不扣额度
+
+E.
+tryon_image_url 缺失
+→ 不扣额度
+
+F.
+avatar_view_id 不一致
+→ 拒绝
+→ 不扣额度
+
+G.
+garment_ids 集合不一致
+→ 拒绝
+→ 不扣额度
+
+H.
+有效视频 cache hit
+→ 正常复用
+→ 不扣额度
+
+I.
+duplicate queued/processing
+→ 正常复用
+→ 不重复扣额度
+
+J.
+Provider failure
+→ 按原有规则 refund
+
+K.
+普通图片 Try-On
+→ 输入仍为 avatar composite + garment original
+
+==================================================
+十八、真实环境验证
+==================================================
+
+使用仓库已经存在的：
+
+miniprogram/scripts/auto-diag-tryon.js
+
+不要新造测试框架。
+
+需要确认：
+
+createAvatarViews
+→
+aiTryon submit
+→
+aiTryon status
+
+可以正常完成。
+
+同时确认：
+
+image-preview
+
+不再调用：
+
+ensureGarmentViews
+
+video-generate
+
+不再调用：
+
+ensureGarmentViews
+
+==================================================
+十九、禁止修改范围
+==================================================
+
+如果需要修改以下任何项目：
+
+数据库结构
+缓存协议
+AIGC Provider
+Prompt
+三视图
+四视图生成逻辑
+API 协议
+其他云函数
+新的测试框架
+新的依赖
+新的服务器资源
+
+立即停止。
+
+只报告，不修改。
+
+==================================================
+二十、提交前检查
+==================================================
+
+执行：
+
+1. git diff --stat
+2. git diff
+3. 检查修改文件是否严格限定在任务范围
+4. 检查是否意外修改 package-lock / package.json
+5. 检查是否删除任何 ensureGarmentViews / createAvatarViews 文件
+6. 检查 aiTryon 是否仍然使用 avatar composite + garment original
+7. 检查 video consumeQuota 是否发生在 imageTaskId 完整验证之后
+8. 检查视频 imageTaskId 是否在 cache hit 之前验证
+9. 检查 garmentIds 比较是否 sort 后比较
+10. 运行现有测试
+11. 运行现有真实诊断脚本（环境具备时）
+
+如果任何检查失败：
+
+停止。
+
+==================================================
+二十一、提交要求
+==================================================
+
+只提交本次明确要求的修改。
+
+Commit message 建议：
+
+fix: remove unnecessary garment view preprocessing from tryon flow
+
+提交后只向 ChatGPT 报告：
+
+1. commit SHA
+2. 修改文件列表
+3. git diff --stat
+4. 测试结果
+5. 真实诊断结果
+6. 如果有任何无法验证的项目，明确写“未验证”，不要猜测
+
+不要自行写“已成功”“已可用”“效果提升”等结论，除非实际验证得到。
+
+==================================================
+结束
+==================================================
