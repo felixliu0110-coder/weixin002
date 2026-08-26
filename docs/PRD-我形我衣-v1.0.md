@@ -5,7 +5,7 @@
 | 项目 | 内容 |
 | --- | --- |
 | 产品名称 | 我形我衣 |
-| 文档版本 | v1.1（与 main 最新代码同步） |
+| 文档版本 | v1.2（基于 feature/garment-lifecycle-v0.1 当前实现同步） |
 | 状态 | 正式文档 |
 | 日期 | 2026-08-19 |
 | 产品形态 | 微信小程序（个人主体，服务类目：工具-图片处理） |
@@ -65,7 +65,7 @@
 
 | 编号 | 需求 | 说明 |
 | --- | --- | --- |
-| FR-01 | 微信 openid 身份体系 | 用户通过微信进入小程序，服务端通过 `cloud.getWXContext().openid` 获取 openid 作为用户唯一身份标识；不依赖手机号登录 |
+| FR-01 | 微信 OPENID 身份体系 | 用户通过微信进入小程序，服务端通过 `cloud.getWXContext().OPENID` 获取用户唯一身份标识（代码通常采用 `const { OPENID: openid } = cloud.getWXContext();` 解构为小写变量 `openid` 使用）；**不得以 `cloud.getWXContext().openid`（小写）解构**，避免误导开发者。不依赖手机号登录 |
 | FR-02 | 首次创建引导 | 首次进入展示创建人物形象引导流程，分步填写、每步可保存 |
 | FR-03 | 隐私授权 | 弹窗明示人脸照片与身体数据的用途、存储方式、删除方式；未授权前不采集任何照片 |
 
@@ -239,7 +239,7 @@
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| user_id | string | 用户标识（openid） |
+| user_id | string | 用户标识（OPENID；服务端从 cloud.getWXContext().OPENID 获取并解构为 openid 使用） |
 | gender | string | 性别（male/female） |
 | height_cm / weight_kg | number | 身高 / 体重（必填） |
 | waist_cm / bust_cm / hip_cm | number | 腰围 / 胸围 / 臀围 |
@@ -291,7 +291,7 @@
 
 | 字段 | 说明 |
 | --- | --- |
-| user_id | 用户标识（openid，服务端从 cloud.getWXContext() 获取，不信任客户端传入） |
+| user_id | 用户标识（OPENID，服务端从 cloud.getWXContext().OPENID 获取并解构为 openid 使用，不信任客户端传入） |
 | type | `ai_image` / `ai_video`（区分图片任务和视频任务） |
 | stage | image / video（当前所处阶段） |
 | avatar_view_id | 关联的人物三视图 ID |
@@ -328,7 +328,7 @@
 
 | 字段 | 说明 |
 | --- | --- |
-| user_id | 用户标识（openid） |
+| user_id | 用户标识（OPENID；服务端从 cloud.getWXContext().OPENID 获取并解构为 openid 使用） |
 | date | 东八区日期 YYYY-MM-DD |
 | used | 当日已使用次数 |
 | limit | 每日上限（默认 3） |
@@ -387,7 +387,7 @@
 
 | 能力 | 说明 |
 | --- | --- |
-| 用户身份校验 | 服务端统一从 `cloud.getWXContext().openid` 获取身份，不信任客户端传入的 openid/user_id |
+| 用户身份校验 | 服务端统一从 `cloud.getWXContext().OPENID` 获取身份（代码层解构为 `const { OPENID: openid } = cloud.getWXContext();`），不信任客户端传入的 openid/user_id |
 | Ownership 校验 | 所有资源操作（查询/写入/删除）均校验 user_id 归属；旧数据缺归属视为不可访问 |
 | SSRF 防护 | 图片下载仅允许公网 HTTPS URL；拒绝 localhost/内网/回环/私网 IP；DNS 解析后校验 IP；重定向最多 3 次且每次重新校验 |
 | AI Key 安全 | API Key 存储在云函数环境变量，前端不可见 |
@@ -457,11 +457,86 @@
 
 ---
 
+## 当前已实现 Garment Lifecycle（v0.1，feature 分支事实）
+
+> 本节记录 `feature/garment-lifecycle-v0.1` 分支当前已实现事实，**不引申新的产品需求**。
+
+### Garment Lifecycle 流程
+
+用户上传图片 → 云存储 → `garments` 记录（type=upload，status=ready）→ 进入"我的衣物"。
+
+当前支持：我的衣物列表、长按删除、编辑名称、编辑分类、编辑 size_label、编辑 measurements。真实 Garment ID 由服务端数据库记录生成；权限规则为**用户只能访问/修改自己的 garment**。
+
+### Garment Metadata 语义（v0.1）
+
+- **size_label**：用户衣服标签上写的尺码，**仅表示该件衣服自身的标签**；不代表系统统一尺码，不代表品牌标准尺码。
+- **measurements**：用户确认的衣物实际平铺尺寸，单位 cm；当前支持上衣：lengthCm / chestWidthCm / shoulderWidthCm / sleeveLengthCm。
+
+当前产品**不建立** Nike / Adidas / Uniqlo 等任何品牌尺码数据库，不自动推断品牌尺码；用户确认的数据作为当前产品事实。
+
+### Measurement 解释（平铺尺寸）
+
+- **chestWidthCm**：衣物平铺状态下的左右腋下水平距离。
+- **shoulderWidthCm**：衣物平铺状态的肩宽。
+- **lengthCm**：衣物平铺状态的衣长。
+- **sleeveLengthCm**：衣物平铺状态的袖长。
+
+这些是"平铺尺寸"，不等于人体环绕尺寸；尤其 **body.bustCm ≠ garment.chestWidthCm**，当前不得直接相减作为正式 fit 结论。
+
+### Facts / Derived / Generated 三层原则
+
+| 层 | 含义 | 包含 |
+| --- | --- | --- |
+| FACT | 用户确认的事实 | Body Facts、Garment Facts、Original Garment Asset |
+| DERIVED | 系统计算/处理产生的结果 | 未来可能存在的 Garment Reference、Normalized Reference、Fit Facts |
+| GENERATED | AI 生成结果 | Try-On Result、Video Result |
+
+核心规则：**Generated Result Never Mutates User Fact**——AI 结果不得自动修改用户确认的身体/衣物事实。
+
+### POC-01：Deterministic Reference Framing（实验状态）
+
+当前状态：**CODE VERIFIED / REAL A/B NOT VERIFIED**。当前 POC 仅包含 EXIF orientation、maxSide 等比缩放（downscale only）、aspect-ratio preservation、fixed canvas、centering；**不包含** segmentation / 背景移除 / AI enhancement / Provider API / GPU。
+
+**POC-01 ≠ 生产能力**。未完成真实 Agnes A/B 前：不得新增 `garments.normalized_file_id`，不得接入生产 `aiTryon`。
+
+### 当前生产图片 Try-On 事实
+
+当前生产图片 Try-On = 人物三视图 composite + `garments.original_file_id` → 当前生产 Provider → Try-On Result。`ensureGarmentViews` / `garment_views` 保留，但**不是默认图片 Try-On 前置流程**；不得在文档中暗示四视图已经证明有效。
+
+### Fit 功能状态（V1）
+
+V1 当前不提供 Fit Score、自动尺码推荐、品牌尺码推荐、复杂穿搭推荐。未来仅计划研究 Body Facts × Garment Facts → Deterministic Relationship；没有足够用户确认数据时，不强行给出结论。
+
+### 用户上传衣物的产品原则
+
+上传衣物只要求图片 + 名称 + 分类；尺寸信息**不是试穿入场门槛**。`size_label` / `measurements` 为可选增强数据。不得将上传流程描述为"必须填写完整衣物尺寸后才能试穿"。
+
+### 用户输入与 AI 的职责边界
+
+- 用户负责：提供真实衣物、确认衣物名称/分类、可选确认实际尺寸、确认人物数据。
+- 系统负责：校验、数据归属、确定性处理、缓存、成本控制。
+- AI Provider 负责：最终视觉生成。
+- 不得写成"AI 自动识别并确定用户衣物事实"。
+
+### 历史与删除语义
+
+- 删除 Garment：删除衣物事实 + Original Asset + 其 Derived Garment Reference（未来存在时）；**不自动删除历史 Try-On Result**。
+- 删除历史：删除对应 Try-On Result / History。
+- 删除账号：按现有 account deletion 范围清理全部用户数据及文件。
+- 不得将"删除衣物"写成"删除全部相关历史"。
+
+### 模板概念
+
+- **Garment**：一件衣物实体。
+- **Outfit Template**：未来用于表示一组衣物的搭配方案；V1 暂不设计新的 Outfit Template 数据模型。当前模板能力只作为已有兼容能力描述，不扩展产品需求。
+
+---
+
 ## 当前实现状态
 
 ### 已实现主体能力
 
-- ✅ 微信 openid 身份体系（`cloud.getWXContext().openid`）
+- ✅ 微信 OPENID 身份体系（`cloud.getWXContext().OPENID`，代码解构为 `openid` 使用）
 - ✅ 人物基础参数录入（性别/身高/体重/三围/腿长/颈长/肩宽/臂长/鞋码/肤色）
 - ✅ 人脸照片/全身照上传（选填，云存储）
 - ✅ AI 人物三视图生成（composite 合成图，生成一次并复用）
@@ -476,7 +551,7 @@
 - ✅ 任务状态机（queued/processing/success/failed/cancelled）
 - ✅ 缓存复用（7 天）+ 幂等去重（同组合进行中任务复用）
 - ✅ 失败自动重试 1 次
-- ✅ Ownership 校验（服务端从 cloud.getWXContext() 获取 openid，不信任客户端）
+- ✅ Ownership 校验（服务端从 cloud.getWXContext().OPENID 获取身份并解构为 openid 使用，不信任客户端）
 - ✅ SSRF 防护（公网 HTTPS 校验、内网 IP 拒绝、DNS 重绑定防护）
 - ✅ AI Key 安全（云函数环境变量，前端不可见）
 - ✅ 内容安全检测（上传衣物时调用微信内容安全 API）
@@ -489,6 +564,9 @@
 - ✅ 隐私数据删除（账户删除，清理所有集合 + 云存储文件）
 - ✅ 结果 AI 标识（「AI 生成」角标 + 分享文案标注"AI 生成效果，仅供参考"）
 - ✅ 个人资料（修改昵称、查看绑定状态、退出登录）
+- ✅ Garment Lifecycle v0.1：上传图片 → 云存储 → garments（type=upload，status=ready）；我的衣物列表、长按删除、编辑名称/分类/size_label/measurements；真实 Garment ID 由服务端生成，仅本人可访问/修改
+- ✅ Garment Metadata v0.1：size_label（仅该件衣服自身标签）+ measurements（上衣平铺尺寸 lengthCm/chestWidthCm/shoulderWidthCm/sleeveLengthCm，单位 cm）
+- ✅ POC-01 Deterministic Reference Framing：代码已验证（EXIF orientation / maxSide 等比缩放 / aspect-ratio preservation / fixed canvas / centering）；真实 Agnes A/B 尚未验证，POC ≠ 生产能力，未验证前不新增 normalized_file_id、不接入生产 aiTryon
 
 ### 当前仍需完善/验证
 
@@ -519,7 +597,7 @@
 | C-06 | 服装四视图定位修正 | 四视图是内部生成素材和缓存，**当前不属于默认 Try-On 前置步骤**；FR-16 重新定义为"服装参考增强能力（实验性）"，是否重新接入须经独立 POC 验证 | FR-16 |
 | C-07 | 每日免费额度正式启用 | V1 已实现每日 3 次免费额度，不是预留 | FR-24 |
 | C-08 | 图片/视频各消耗 1 次额度 | Provider 失败时回补对应额度 | FR-24 |
-| C-09 | 登录身份统一为微信 openid | 不使用"手机号快捷登录"描述；服务端通过 `cloud.getWXContext().openid` 获取身份 | FR-01 |
+| C-09 | 登录身份统一为微信 OPENID | 不使用"手机号快捷登录"描述；服务端通过 `cloud.getWXContext().OPENID` 获取身份（代码解构为 `openid` 使用） | FR-01 |
 | C-10 | 衣物分类为五分类 | 上衣/裤子/头饰/鞋子/其他，手动选择，不做自动识别 | FR-14 |
 | C-11 | 用户上传衣物采用原图直用 | 不做抠图/背景移除/透明化，原图作为 AI 参考素材 | FR-15 |
 | C-12 | 上传衣物不做自动识别 | 由用户手动填写衣物名称并选择分类 | FR-14 |
@@ -538,4 +616,4 @@
 ## 附录：参考方向
 
 - 竞品参考：淘宝"AI 试衣"、京东"AI 试穿"、Look X、Zalando 虚拟试衣等；
-- 本文档为 V1.1，已与 main 最新代码同步。
+- 本文档为 V1.2，基于 `feature/garment-lifecycle-v0.1` 当前实现同步；当前开发/研究基线为该 feature 分支（与 `main` 独立分叉），不将未验证 POC 写成生产能力。
