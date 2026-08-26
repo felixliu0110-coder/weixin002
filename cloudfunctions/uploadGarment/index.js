@@ -1,19 +1,23 @@
 const cloud = require("wx-server-sdk");
 const { requireLogin, requireId, requireString, requireEnum, requireArray, parseSizeLabel, parseMeasurements } = require("../services/validation");
 const { appError, fmtErr } = require("../services/errors");
+const { detectImageContentType } = require("../services/storage");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 const CATEGORIES = ["上衣", "裤子", "头饰", "鞋子", "其他"];
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 与 storage.MAX_BYTES 一致
 
-/* 内容安全检测（下载 → 大小校验 → imgSecCheck） */
+/* 内容安全检测（下载 → 大小校验 → 按文件真实内容 magic bytes 检测 Content-Type → imgSecCheck）。
+   不信任前端 MIME，也不信任 cloudPath 扩展名；无法识别真实图片类型拒绝上传。 */
 async function checkFile(fileID) {
   const dl = await cloud.downloadFile({ fileID });
   const buf = dl.fileContent || Buffer.alloc(0);
   if (buf.length > MAX_FILE_BYTES) throw appError("PAYLOAD_TOO_LARGE", "文件过大");
+  const contentType = detectImageContentType(buf);
+  if (!contentType) throw appError("INVALID_ARGUMENT", "不支持的图片类型");
   const res = await cloud.openapi.security.imgSecCheck({
-    media: { contentType: "image/png", value: buf }
+    media: { contentType, value: buf }
   });
   const pass = !res || res.errCode === 0;
   return { pass, label: (res && res.result && res.result.label) || 0 };
