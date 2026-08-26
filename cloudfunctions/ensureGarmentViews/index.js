@@ -1,6 +1,6 @@
 const cloud = require("wx-server-sdk");
 const { getAigc } = require("../services/aigc");
-const { buildGarmentViewsPrompt } = require("./garmentViews");
+const { buildGarmentViewsPrompt } = require("../services/garmentViews");
 const { saveRemoteImage } = require("../services/storage");
 const { requireLogin, requireId } = require("../services/validation");
 const { resolveGarment } = require("../services/garments");
