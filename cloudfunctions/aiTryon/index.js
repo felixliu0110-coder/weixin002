@@ -15,23 +15,25 @@ const { requestDeletion, runDeletion } = require("./deletion");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
-/* 生图参考图要求公网 HTTPS URL：cloud:// 的云存储文件批量换临时链接；
-   转换失败的单项跳过（降级为剩余参考图生成，不阻塞主流程） */
+/* 生图参考图要求公网 HTTPS URL：cloud:// 的云存储文件批量换临时链接。
+   Fail closed：任何 cloud:// 无法换到临时链接即抛错，禁止静默丢弃参考图
+   （不允许"少一张图继续生成"）。 */
 async function toHttpsRefs(urls) {
   const list = (urls || []).filter(Boolean);
   const cloudIds = list.filter((u) => u.indexOf("cloud://") === 0);
   if (cloudIds.length === 0) return list;
-  try {
-    const res = await cloud.getTempFile({ fileList: cloudIds });
-    const map = {};
-    for (const f of res.fileList || []) {
-      if (f.tempFileURL) map[f.fileID] = f.tempFileURL;
-    }
-    return list.map((u) => map[u] || (u.indexOf("cloud://") === 0 ? null : u)).filter(Boolean);
-  } catch (e) {
-    console.log("toHttpsRefs fail", "error=" + fmtErr(e));
-    return list.filter((u) => u.indexOf("cloud://") !== 0);
+  const res = await cloud.getTempFile({ fileList: cloudIds });
+  const map = {};
+  for (const f of res.fileList || []) {
+    if (f.tempFileURL) map[f.fileID] = f.tempFileURL;
   }
+  const out = list.map((u) => {
+    if (u.indexOf("cloud://") !== 0) return u;
+    const url = map[u];
+    if (!url) throw appError("PROVIDER_ERROR", "参考图临时链接获取失败");
+    return url;
+  });
+  return out;
 }
 
 /* 试穿完成写记录：
@@ -272,13 +274,28 @@ async function submit(event, openid) {
   }
 
   // ---- 图片模式：只生成穿搭效果图，视频由用户后续在结果页选择生成 ----
+  // Reference Preflight（在 consumeQuota 之前完成）：任一必需 reference 无效即失败且不扣 quota。
+  const avatarComposite = (av.views && av.views.composite) || "";
+  if (!avatarComposite) throw appError("INVALID_ARGUMENT", "人物参考图缺失，请先上传人物照片");
+  const preflightRefs = [];
+  for (const g of garments) {
+    if (g.type === "builtin") {
+      // builtin 无 originalFileId，仅依赖当前 builtin 白名单，不参与 reference 获取
+      continue;
+    }
+    if (!g.originalFileId) {
+      throw appError("INVALID_ARGUMENT", "衣物原图缺失，无法生成试穿图");
+    }
+    preflightRefs.push(g.originalFileId);
+  }
+  const fileRefs = (avatarComposite ? [avatarComposite] : []).concat(preflightRefs);
+  const refImages = await toHttpsRefs(fileRefs);
+  if (refImages.length !== fileRefs.length) {
+    throw appError("PROVIDER_ERROR", "参考图数量不一致，生成中止");
+  }
   const task = Object.assign({}, base, { type: "ai_image", stage: "image", status: "queued" });
   const addRes = await db.collection("tryon_tasks").add({ data: task });
   const taskId = addRes._id;
-  // 参考图（与提示词锚定顺序一致）：第 1 张人物三视图 + 其后各上传衣物原图；cloud:// 批量换公网临时链接
-  const avatarComposite = (av.views && av.views.composite) || "";
-  const fileRefs = [avatarComposite].concat(garments.map((g) => g.originalFileId));
-  const refImages = await toHttpsRefs(fileRefs);
   const imagePrompt = buildTryonImagePrompt(profile, garments.map((g) => g.name), refImages.length);
   assertTransition("queued", "processing");
   await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "processing", updated_at: Date.now() } });
@@ -484,7 +501,7 @@ exports.main = async (event) => {
       return runDeletion(db, cloud, openid, req.jobId);
     }
     if (event.action === "status") return status(event, openid);
-    return submit(event, openid);
+    return await submit(event, openid);
   } catch (e) {
     console.log("aiTryon main fail", "error=" + fmtErr(e));
     return { ok: false, error: e.appCode || "INTERNAL", message: e.appCode ? e.message : "内部错误" };
