@@ -55,17 +55,17 @@ async function normalizeGarment(inputPath, outputPath, options) {
     throw new Error("Input path is not a file: " + inputPath);
   }
 
-  // ── Read metadata (auto-rotates EXIF) ────────────────────────────
-  let inputMeta;
+  // ── Read metadata ────────────────────────────────────────────────
+  let sourceMeta;
   try {
-    inputMeta = await sharp(inputPath, { failOn: "none" })
-      .metadata();
+    sourceMeta = await sharp(inputPath, { failOn: "none" }).metadata();
   } catch (err) {
     throw new Error("Unable to parse image: " + err.message);
   }
 
-  const inputWidth = inputMeta.width;
-  const inputHeight = inputMeta.height;
+  // Raw pixel dimensions (no EXIF correction)
+  const inputWidth = sourceMeta.width;
+  const inputHeight = sourceMeta.height;
 
   if (!inputWidth || inputWidth <= 0) {
     throw new Error("Invalid image width: " + inputWidth);
@@ -74,19 +74,24 @@ async function normalizeGarment(inputPath, outputPath, options) {
     throw new Error("Invalid image height: " + inputHeight);
   }
 
+  // EXIF-aware visual dimensions (after auto-orientation)
+  // Use rotate().metadata() to get post-orientation dimensions.
+  let orientedWidth = inputWidth;
+  let orientedHeight = inputHeight;
+
+  if (sourceMeta.orientation && sourceMeta.orientation >= 5) {
+    // Orientations 5-8 involve a 90°/270° rotation → dimensions swap
+    orientedWidth = inputHeight;
+    orientedHeight = inputWidth;
+  }
+
   // ── Step 1: EXIF orientation correction ──────────────────────────
   // sharp().rotate() without arguments reads EXIF Orientation tag
   // and rotates the pixel data accordingly.
   let pipeline = sharp(inputPath, { failOn: "none" }).rotate();
 
-  // After rotation the effective dimensions may swap (e.g. portrait → landscape).
-  // We need the post-rotation dimensions to compute scale.
-  const rotatedMeta = await pipeline.metadata();
-  const effectiveWidth = rotatedMeta.width;
-  const effectiveHeight = rotatedMeta.height;
-
   // ── Step 2: Max-side constraint (downscale only) ─────────────────
-  const longestSide = Math.max(effectiveWidth, effectiveHeight);
+  const longestSide = Math.max(orientedWidth, orientedHeight);
   let scale = 1;
 
   if (longestSide > opts.maxSide) {
@@ -94,8 +99,8 @@ async function normalizeGarment(inputPath, outputPath, options) {
   }
   // If longestSide <= maxSide → scale stays 1 (no upscale).
 
-  const resizedWidth = Math.round(effectiveWidth * scale);
-  const resizedHeight = Math.round(effectiveHeight * scale);
+  const resizedWidth = Math.round(orientedWidth * scale);
+  const resizedHeight = Math.round(orientedHeight * scale);
 
   if (scale < 1) {
     pipeline = pipeline.resize(resizedWidth, resizedHeight, {
@@ -115,20 +120,20 @@ async function normalizeGarment(inputPath, outputPath, options) {
     1 // never upscale
   );
 
-  const finalWidth = Math.round(resizedWidth * fitScale);
-  const finalHeight = Math.round(resizedHeight * fitScale);
+  const placedWidth = Math.round(resizedWidth * fitScale);
+  const placedHeight = Math.round(resizedHeight * fitScale);
 
   if (fitScale < 1) {
-    pipeline = pipeline.resize(finalWidth, finalHeight, {
+    pipeline = pipeline.resize(placedWidth, placedHeight, {
       fit: "fill",
       kernel: "lanczos3"
     });
   }
 
-  const offsetX = Math.round((opts.canvasWidth - finalWidth) / 2);
-  const offsetY = Math.round((opts.canvasHeight - finalHeight) / 2);
+  const offsetX = Math.round((opts.canvasWidth - placedWidth) / 2);
+  const offsetY = Math.round((opts.canvasHeight - placedHeight) / 2);
 
-  // Create a white canvas and composite the resized image on top.
+  // Create a white canvas and composite the placed image on top.
   const canvas = sharp({
     create: {
       width: opts.canvasWidth,
@@ -138,11 +143,11 @@ async function normalizeGarment(inputPath, outputPath, options) {
     }
   });
 
-  const resizedBuffer = await pipeline.toBuffer();
+  const placedBuffer = await pipeline.toBuffer();
 
   const finalPipeline = canvas.composite([
     {
-      input: resizedBuffer,
+      input: placedBuffer,
       left: offsetX,
       top: offsetY
     }
@@ -161,11 +166,16 @@ async function normalizeGarment(inputPath, outputPath, options) {
   return {
     inputWidth,
     inputHeight,
-    normalizedWidth: resizedWidth,
-    normalizedHeight: resizedHeight,
+    orientedWidth,
+    orientedHeight,
+    resizedWidth,
+    resizedHeight,
+    placedWidth,
+    placedHeight,
     canvasWidth: opts.canvasWidth,
     canvasHeight: opts.canvasHeight,
     scale,
+    fitScale,
     offsetX,
     offsetY,
     outputPath
