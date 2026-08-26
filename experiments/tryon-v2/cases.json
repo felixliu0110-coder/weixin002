@@ -1,0 +1,77 @@
+{
+  "poc": "V2-POC-01",
+  "version": "1.0.0",
+  "executedAt": null,
+  "status": "PENDING",
+  "blockingIssues": [],
+  "environment": {
+    "cloudEnv": "cloud1-d8gt95vnl0ec35c4f",
+    "appId": "wxe44ebc1661569b32",
+    "branch": "feature/garment-lifecycle-v0.1"
+  },
+  "apiConfig": {
+    "provider": "aitryon-plus",
+    "baseUrl": "https://dashscope.aliyuncs.com/api/v1/services/aigc/image2image/image-synthesis",
+    "pollUrl": "https://dashscope.aliyuncs.com/api/v1/tasks/{task_id}",
+    "headers": {
+      "Content-Type": "application/json",
+      "X-DashScope-Async": "enable"
+    },
+    "defaultParameters": {
+      "resolution": -1,
+      "restore_face": true
+    }
+  },
+  "cases": [
+    {
+      "caseId": "V2-POC-01-A",
+      "personSourceType": "real_body_photo",
+      "model": "aitryon-plus",
+      "description": "用户真实全身照（body_photo）+ 真实衣物 → aitryon-plus",
+      "personField": "body_photo_id",
+      "status": "PENDING"
+    },
+    {
+      "caseId": "V2-POC-01-B",
+      "personSourceType": "avatar_composite",
+      "model": "aitryon-plus",
+      "description": "当前 Avatar Composite + 同一真实衣物 → aitryon-plus",
+      "personField": "composite",
+      "status": "PENDING"
+    }
+  ],
+  "experiment": {
+    "garmentSelection": "first_upload_garment_with_category_top",
+    "samePerson": true,
+    "sameGarment": true,
+    "sameModel": true,
+    "maxPollAttempts": 60,
+    "pollIntervalMs": 3000,
+    "maxLatencyMs": 180000
+  },
+  "results": {
+    "A": null,
+    "B": null
+  },
+  "evaluation": {
+    "garmentIdentity_A": null,
+    "garmentIdentity_B": null,
+    "fitSilhouette_A": null,
+    "fitSilhouette_B": null,
+    "logoTexture_A": null,
+    "logoTexture_B": null,
+    "personConsistency_A": null,
+    "personConsistency_B": null,
+    "bodyProportion_A": null,
+    "bodyProportion_B": null,
+    "naturalness_A": null,
+    "naturalness_B": null,
+    "totalScore_A": null,
+    "totalScore_B": null,
+    "notes_A": "",
+    "notes_B": "",
+    "issues_A": [],
+    "issues_B": [],
+    "evaluatedAt": null
+  }
+}
