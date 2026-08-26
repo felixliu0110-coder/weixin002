@@ -1,6 +1,6 @@
 const cloud = require("wx-server-sdk");
 const { getAigc } = require("../services/aigc");
-const { buildTryonVideoPrompt } = require("./tryonVideo");
+const { buildTryonVideoPrompt } = require("../services/tryonVideo");
 const { buildTryonImagePrompt } = require("./tryonImage");
 const { buildTryonCacheKey, isImageCacheHit, isCacheHit } = require("../services/tryonCache");
 const { saveRemoteImage } = require("../services/storage");
