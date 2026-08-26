@@ -1,10 +1,10 @@
 const cloud = require("wx-server-sdk");
-const { getAigc } = require("./aigc");
+const { getAigc } = require("../services/aigc");
 const { buildGarmentViewsPrompt } = require("./garmentViews");
-const { saveRemoteImage } = require("./storage");
-const { requireLogin, requireId } = require("./validation");
-const { resolveGarment } = require("./garments");
-const { fmtErr } = require("./errors");
+const { saveRemoteImage } = require("../services/storage");
+const { requireLogin, requireId } = require("../services/validation");
+const { resolveGarment } = require("../services/garments");
+const { fmtErr } = require("../services/errors");
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
