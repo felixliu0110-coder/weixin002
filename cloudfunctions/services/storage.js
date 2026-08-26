@@ -168,4 +168,24 @@ async function saveRemoteImage(url, dir) {
   return up.fileID;
 }
 
-module.exports = { downloadToBuffer, saveRemoteImage, isPrivateIp, parseUrl, MAX_BYTES, MAX_REDIRECTS };
+/* 按文件真实内容（magic bytes）检测图片 Content-Type。
+   不信任文件名/扩展名/前端声明的 MIME。
+   当前产品声明的支持类型：JPEG / PNG；项目已支持 WebP 上传时同时支持 WEBP。
+   无法识别或非图片返回 null。可单测。 */
+function detectImageContentType(buffer) {
+  if (!buffer || !Buffer.isBuffer(buffer) || buffer.length < 4) return null;
+  const len = buffer.length;
+  // JPEG: FF D8 FF
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "image/jpeg";
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) return "image/png";
+  // WEBP: RIFF....WEBP (偏移 0=RIFF, 8=WEBP)
+  if (len >= 12 &&
+      buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
+      buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50) {
+    return "image/webp";
+  }
+  return null;
+}
+
+module.exports = { downloadToBuffer, saveRemoteImage, isPrivateIp, parseUrl, MAX_BYTES, MAX_REDIRECTS, detectImageContentType };
