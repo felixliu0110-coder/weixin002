@@ -16,23 +16,30 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 /* 生图参考图要求公网 HTTPS URL：cloud:// 的云存储文件批量换临时链接。
-   Fail closed：任何 cloud:// 无法换到临时链接即抛错，禁止静默丢弃参考图
-   （不允许"少一张图继续生成"）。 */
+   Fail Closed：任何 cloud:// 无法转换为公网链接时抛 PROVIDER_ERROR，
+   禁止静默丢弃参考图（不允许“少一张图继续生成”）。 */
 async function toHttpsRefs(urls) {
   const list = (urls || []).filter(Boolean);
   const cloudIds = list.filter((u) => u.indexOf("cloud://") === 0);
-  if (cloudIds.length === 0) return list;
-  const res = await cloud.getTempFile({ fileList: cloudIds });
+  if (cloudIds.length === 0) return list.slice();
+  let res;
+  try {
+    res = await cloud.getTempFile({ fileList: cloudIds });
+  } catch (e) {
+    console.log("toHttpsRefs getTempFile fail", "error=" + fmtErr(e));
+    throw appError("PROVIDER_ERROR", "参考图临时链接获取失败");
+  }
   const map = {};
   for (const f of res.fileList || []) {
     if (f.tempFileURL) map[f.fileID] = f.tempFileURL;
   }
-  const out = list.map((u) => {
-    if (u.indexOf("cloud://") !== 0) return u;
+  const out = [];
+  for (const u of list) {
+    if (u.indexOf("cloud://") !== 0) { out.push(u); continue; }
     const url = map[u];
     if (!url) throw appError("PROVIDER_ERROR", "参考图临时链接获取失败");
-    return url;
-  });
+    out.push(url);
+  }
   return out;
 }
 
@@ -274,23 +281,19 @@ async function submit(event, openid) {
   }
 
   // ---- 图片模式：只生成穿搭效果图，视频由用户后续在结果页选择生成 ----
-  // Reference Preflight（在 consumeQuota 之前完成）：任一必需 reference 无效即失败且不扣 quota。
+  // Reference Preflight（必须在 consumeQuota 之前完成：任何必需 reference 获取/转换失败，
+  // 都不调用 Agnes、也不扣 quota；builtin garment originalFileId 允许为空，仅依赖白名单）
   const avatarComposite = (av.views && av.views.composite) || "";
-  if (!avatarComposite) throw appError("INVALID_ARGUMENT", "人物参考图缺失，请先上传人物照片");
+  if (!avatarComposite) throw appError("INVALID_ARGUMENT", "人物参考图缺失，请先完成人物照片");
   const preflightRefs = [];
+  preflightRefs.push(avatarComposite);
   for (const g of garments) {
-    if (g.type === "builtin") {
-      // builtin 无 originalFileId，仅依赖当前 builtin 白名单，不参与 reference 获取
-      continue;
-    }
-    if (!g.originalFileId) {
-      throw appError("INVALID_ARGUMENT", "衣物原图缺失，无法生成试穿图");
-    }
+    if (g.type === "builtin") continue; // builtin 无 originalFileId，依赖白名单，不强制
+    if (!g.originalFileId) throw appError("INVALID_ARGUMENT", "衣物原图缺失，请重新上传衣物");
     preflightRefs.push(g.originalFileId);
   }
-  const fileRefs = (avatarComposite ? [avatarComposite] : []).concat(preflightRefs);
-  const refImages = await toHttpsRefs(fileRefs);
-  if (refImages.length !== fileRefs.length) {
+  const refImages = await toHttpsRefs(preflightRefs);
+  if (refImages.length !== preflightRefs.length) {
     throw appError("PROVIDER_ERROR", "参考图数量不一致，生成中止");
   }
   const task = Object.assign({}, base, { type: "ai_image", stage: "image", status: "queued" });
@@ -501,7 +504,7 @@ exports.main = async (event) => {
       return runDeletion(db, cloud, openid, req.jobId);
     }
     if (event.action === "status") return status(event, openid);
-    return await submit(event, openid);
+    return submit(event, openid);
   } catch (e) {
     console.log("aiTryon main fail", "error=" + fmtErr(e));
     return { ok: false, error: e.appCode || "INTERNAL", message: e.appCode ? e.message : "内部错误" };
