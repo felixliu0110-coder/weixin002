@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const cloud = require("wx-server-sdk");
-const { handleCallback } = require("./callback");
-const { appError, fmtErr } = require("./errors");
+const { handleCallback } = require("../services/callback");
+const { appError, fmtErr } = require("../services/errors");
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
