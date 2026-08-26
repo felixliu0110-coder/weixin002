@@ -2,44 +2,42 @@ const test = require("node:test");
 const assert = require("node:assert");
 const { detectImageContentType } = require("./storage");
 
-// JPEG: FF D8 FF
-const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]);
-// PNG: 89 50 4E 47 0D 0A 1A 0A
-const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00]);
-// WEBP: RIFF....WEBP
-const webp = Buffer.from([0x52, 0x49, 0x46, 0x46, 0x04, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50, 0x00, 0x00]);
-// 非图片（纯文本）
-const notImage = Buffer.from([0x48, 0x65, 0x6c, 0x6c, 0x6f]); // "Hello"
-const tooShort = Buffer.from([0xff, 0xd8]);
-
-test("detectImageContentType: JPEG magic bytes", () => {
-  assert.strictEqual(detectImageContentType(jpeg), "image/jpeg");
+test("detectImageContentType: JPEG magic bytes (FFD8FF)", () => {
+  const buf = Buffer.from([0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46]);
+  assert.strictEqual(detectImageContentType(buf), "image/jpeg");
 });
 
-test("detectImageContentType: PNG magic bytes", () => {
-  assert.strictEqual(detectImageContentType(png), "image/png");
+test("detectImageContentType: PNG magic bytes (89504E47)", () => {
+  const buf = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+  assert.strictEqual(detectImageContentType(buf), "image/png");
 });
 
-test("detectImageContentType: WEBP magic bytes (RIFF...WEBP)", () => {
-  assert.strictEqual(detectImageContentType(webp), "image/webp");
+test("detectImageContentType: WEBP RIFF....WEBP", () => {
+  const buf = Buffer.from("RIFF\x00\x00\x00\x00WEBP", "ascii");
+  assert.strictEqual(detectImageContentType(buf), "image/webp");
 });
 
-test("detectImageContentType: 非图片返回 null", () => {
-  assert.strictEqual(detectImageContentType(notImage), null);
+test("detectImageContentType: 非图片字节返回 null", () => {
+  assert.strictEqual(detectImageContentType(Buffer.from([0x00, 0x01, 0x02, 0x03])), null);
+  assert.strictEqual(detectImageContentType(Buffer.from([0x47, 0x49, 0x46, 0x38])), null); // GIF 不识别
 });
 
-test("detectImageContentType: 太短无法识别返回 null", () => {
-  assert.strictEqual(detectImageContentType(tooShort), null);
-  assert.strictEqual(detectImageContentType(Buffer.from([])), null);
+test("detectImageContentType: 太短 buffer 返回 null", () => {
+  assert.strictEqual(detectImageContentType(Buffer.from([0xFF, 0xD8])), null);
+  assert.strictEqual(detectImageContentType(Buffer.alloc(0)), null);
 });
 
-test("detectImageContentType: null/undefined 返回 null", () => {
+test("detectImageContentType: 非 Buffer / 假值返回 null", () => {
   assert.strictEqual(detectImageContentType(null), null);
   assert.strictEqual(detectImageContentType(undefined), null);
-  assert.strictEqual(detectImageContentType("not-a-buffer"), null);
+  assert.strictEqual(detectImageContentType("not a buffer"), null);
 });
 
-test("detectImageContentType: contentType 映射正确（JPEG/PNG/WEBP）", () => {
+test("detectImageContentType: PNG/JPEG 映射与上传检测语义一致", () => {
+  // 上传链路只关心 JPEG/PNG（及可选 WEBP）被识别
+  const jpeg = Buffer.from([0xFF, 0xD8, 0xFF, 0x00]);
+  const png = Buffer.from([0x89, 0x50, 0x4E, 0x47]);
+  const webp = Buffer.from("RIFF\x01\x02\x03\x04WEBP", "ascii");
   assert.strictEqual(detectImageContentType(jpeg), "image/jpeg");
   assert.strictEqual(detectImageContentType(png), "image/png");
   assert.strictEqual(detectImageContentType(webp), "image/webp");
