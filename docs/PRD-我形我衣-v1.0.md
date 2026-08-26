@@ -65,7 +65,7 @@
 
 | 编号 | 需求 | 说明 |
 | --- | --- | --- |
-| FR-01 | 微信 OPENID 身份体系 | 用户通过微信进入小程序，服务端通过 `cloud.getWXContext().OPENID` 获取用户唯一身份标识（代码通常采用 `const { OPENID: openid } = cloud.getWXContext();` 解构为小写变量 `openid` 使用）；**不得以 `cloud.getWXContext().openid`（小写）解构**，避免误导开发者。不依赖手机号登录 |
+| FR-01 | 微信 OPENID 身份体系 | 用户通过微信进入小程序，服务端通过 `cloud.getWXContext().OPENID` 获取用户唯一身份标识（代码通常采用 `const { OPENID: openid } = cloud.getWXContext();` 解构为小写变量 `openid` 使用）；**不得用小写 `openid` 作为 `cloud.getWXContext()` 的解构属性名**（正确属性名为大写 `OPENID`），避免误导开发者。不依赖手机号登录 |
 | FR-02 | 首次创建引导 | 首次进入展示创建人物形象引导流程，分步填写、每步可保存 |
 | FR-03 | 隐私授权 | 弹窗明示人脸照片与身体数据的用途、存储方式、删除方式；未授权前不采集任何照片 |
 
