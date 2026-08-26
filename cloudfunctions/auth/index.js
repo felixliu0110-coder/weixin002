@@ -1,6 +1,6 @@
 const cloud = require("wx-server-sdk");
-const { requireLogin, requireEnum, requireInt, requireString } = require("./validation");
-const { appError, fmtErr } = require("./errors");
+const { requireLogin, requireEnum, requireInt, requireString } = require("../services/validation");
+const { appError, fmtErr } = require("../services/errors");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
