@@ -4,11 +4,11 @@
 
 「我形我衣」是一款 AI 虚拟试穿微信小程序：用户录入身材参数并可选上传人脸/全身照创建 3D 数字人，再通过模板或上传衣物图片生成"自己穿着该衣物"的照片级效果图。
 
-当前仓库状态：**小程序工程已完成开发（19 个页面），处于迭代验收阶段**。
+当前仓库状态：**小程序工程已完成开发，处于迭代验收阶段；当前工作基线为 feature 分支 `feature/garment-lifecycle-v0.1`（与 `main` 独立分叉），页面数量以仓库实际 `pages/` 目录为准**。
 
 - `weixin002/`：openDesign 导出的 HTML 高保真交互原型（17 屏 + 预览器），是设计与交互的唯一视觉来源，只读；
-- `miniprogram/`：微信小程序源码（18 个页面 + 公共组件 + 工具层）；
-- 数据层已接入微信云开发（配置环境 ID 后自动上云，未配置时回退本地 mock）。
+- `miniprogram/`：微信小程序源码（当前以仓库实际 `pages/` 目录为准 + 公共组件 + 工具层）；
+- 数据层已接入微信云开发（配置环境 ID 后自动上云）；当前部分核心链路（衣物上传落库、AI 试穿编排、内容安全、额度、历史/收藏）已真实云端化，未配置云环境时本地 `utils/mock.js` 仅作开发兜底。
 
 ## 2. 目录结构与职责
 
@@ -24,7 +24,7 @@ D:\weixin002\
    ├─ config.js                 # 云开发环境 ID 填写处（cloudEnv）
    ├─ custom-tab-bar\           # Tab 页框架注入的自定义 TabBar
    ├─ components\               # nav-bar/btn/card/chip/seg/switch/sheet/tabbar/upload-card/garment-item/record-item/compare-card
-   ├─ pages\                    # 19 个页面（login/home/basic-info/body-params/photo-upload/privacy-auth/generate-progress/avatar-3d/tryon-select/image-preview/tryon-progress/tryon-result/compare-view/history/profile/privacy-manage/feedback-about/favorites/account）
+   ├─ pages\                    # 当前以仓库实际 page 目录为准（含 login/home/basic-info/body-params/photo-upload/privacy-auth/generate-progress/avatar-3d/tryon-select/image-preview/tryon-progress/tryon-result/compare-view/history/profile/privacy-manage/feedback-about/favorites/account 等）
    ├─ utils\                    # interaction.js（跳转/Toast/弹层）、api.js（数据访问层）、mock.js（本地模拟）
    ├─ assets\                   # img（JPG 图片）、icons/png（彩色 PNG 图标）、icons-src（SVG 源）
    └─ scripts\                  # verify.js（静态校验）、generate-icon-pngs.js（PNG 图标生成）、auto-*.js（自动化诊断）等
@@ -121,7 +121,7 @@ D:\weixin002\
 
 - 核心实体（PRD §8）：`avatar_profile`、`garment`、`tryon_task`、`tryon_result`、`quota`，另加 `favorites`（收藏）。
 - **数据访问统一走 `utils/api.js`**：已配置 `config.js` 的 `cloudEnv` 时自动读写云数据库（集合：`avatar_profiles`、`tryon_tasks`、`tryon_results`、`favorites`、`quotas`）；未配置/集合不存在/出错时自动回退 `utils/mock.js`。
-- 衣物模板为内置资源（未上云）；图片为本地资源；AI 试穿生成为模拟流程。
+- 衣物模板为内置资源；图片为本地资源；AI 试穿生成本期已有真实 Provider baseline（以服务端解析并校验后的衣物原图 + 人物三视图 composite 作为生成输入）。
 - 页面禁止直接 require mock；一律经 `api.js`。
 
 ## 9. 合规与隐私（强制）
@@ -149,9 +149,25 @@ npm test           # 单元测试（utils：api/mock/interaction）
 - 基础库 3.17.1；es6/postcss/minified 已开启；appid `wxe44ebc1661569b32`。
 - 源文件统一 UTF-8；命名英文小写中划线、资源语义化。
 - `weixin002/` 只读参考；`node_modules` 仅开发依赖（svgtofont/fonteditor-core/puppeteer-core/sharp 等用于图标与校验脚本）。
-- 已知暂缓项：真实微信登录、AI 生成/3D 真实能力、内容安全、图片云存储（完整云开发方案 B）。
+- 已知暂缓项：真实微信登录、完整人物历史版本保存与恢复、手机号绑定闭环、隐私数据真实导出闭环、反馈真实后端落库、生产环境全面真机验证。
 
-## 12. 协作偏好（用户要求）
+## 12. 当前状态（feature/garment-lifecycle-v0.1 基线）
+
+> 本小节为文档现实同步说明，**不引申新的产品需求**。当前开发/研究基线为分支 `feature/garment-lifecycle-v0.1`，该分支与 `main` 独立分叉，本文档"当前实现事实"以其为准。
+
+- **Garment Lifecycle v0.1**：用户上传图片 → 云存储 → `garments`（type=upload，status=ready）；支持我的衣物列表、长按删除、编辑名称/分类/size_label/measurements；真实 Garment ID 由服务端数据库记录生成，用户只能访问/修改自己的 garment。
+- **Garment Metadata v0.1**：`size_label`（仅该件衣服自身标签，不代表系统/品牌统一尺码）+ `measurements`（上衣：lengthCm/chestWidthCm/shoulderWidthCm/sleeveLengthCm，单位 cm，平铺尺寸）。当前产品不建立任何品牌尺码数据库，不自动推断品牌尺码；用户确认的数据作为当前产品事实。
+- **POC-01（Deterministic Reference Framing）**：当前为 **CODE VERIFIED / REAL A/B NOT VERIFIED**；仅含 EXIF orientation、maxSide 等比缩放、aspect-ratio preservation、fixed canvas、centering；不含 segmentation/背景移除/AI enhancement/Provider API/GPU。**POC-01 ≠ 生产能力**；未完成真实 Agnes A/B 前，不得新增 `garments.normalized_file_id`，不得接入生产 `aiTryon`。
+- **当前生产图片 Try-On**：人物三视图 composite + `garments.original_file_id` → 当前生产 Provider → Try-On Result。`ensureGarmentViews`/`garment_views` 保留但非默认图片 Try-On 前置流程；不得在文档中暗示四视图已证明有效。
+- **V1 Fit 状态**：不提供 Fit Score / 自动尺码推荐 / 品牌尺码推荐 / 复杂穿搭推荐；未来仅计划研究 Body Facts × Garment Facts → Deterministic Relationship，数据不足时不强行给结论。
+
+## 13. 工作基线约定（用户要求）
+
+- **不修改 `main`**：所有文档现实同步与 feature 分支研究均在 `feature/garment-lifecycle-v0.1` 上进行。
+- POC 未经真实 A/B 验证不得进入生产链路。
+- 上传衣物只要求图片 + 名称 + 分类；`size_label`/ `measurements` 为可选增强数据，不是试穿入场门槛。
+
+## 14. 协作偏好（用户要求）
 
 - **不自动生成预览二维码**（`cli preview`）——节省 token；真机预览由用户自行在开发者工具「预览」扫码。
 - 云开发"哪些数据需要保存在云端"由用户后续决定，未主动提及时需在合适时机提醒。
