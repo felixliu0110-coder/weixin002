@@ -1,0 +1,7 @@
+{
+  "name": "experimentsT2",
+  "version": "1.0.0",
+  "description": "T2 Real VTON Benchmark - 独立实验云函数，不与生产链路交互",
+  "main": "index.js",
+  "dependencies": {}
+}
