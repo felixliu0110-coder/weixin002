@@ -1,6 +1,6 @@
 const cloud = require("wx-server-sdk");
-const { requireLogin, requireId, requireString, requireEnum, requireArray, parseSizeLabel, parseMeasurements } = require("./validation");
-const { appError, fmtErr } = require("./errors");
+const { requireLogin, requireId, requireString, requireEnum, requireArray, parseSizeLabel, parseMeasurements } = require("../services/validation");
+const { appError, fmtErr } = require("../services/errors");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
@@ -23,7 +23,7 @@ async function checkFile(fileID) {
 async function createGarment(event, openid) {
   const fileID = requireId(event.fileID, "fileID");
   if (fileID.indexOf("cloud://") !== 0) throw appError("INVALID_ARGUMENT", "fileID 不合法");
-  const name = requireString(event.name, "name", 40);
+  const name = requireString(event.name, "name", 20);
   const category = requireEnum(event.category, "category", CATEGORIES);
   const { pass, label } = await checkFile(fileID);
   if (!pass) {
@@ -124,7 +124,7 @@ async function listGarments(event, openid) {
   return { ok: true, list };
 }
 
-/* 更新衣物：只允许修改 name / category / size_label / measurements */
+/* 更新衣物：保存用户当前编辑后的完整 Metadata 状态（非 PATCH） */
 async function updateGarment(event, openid) {
   const garmentId = requireId(event.garmentId, "garmentId");
   const doc = await db.collection("garments").doc(garmentId).get().catch(() => ({ data: null }));
@@ -132,32 +132,28 @@ async function updateGarment(event, openid) {
   const owner = (doc.data && (doc.data.user_id || doc.data._openid)) || "";
   if (!owner || owner !== openid || doc.data.type === "builtin") throw appError("FORBIDDEN");
 
-  const allowFields = {
-    name: (v) => v === undefined ? undefined : requireString(v, "name", 40),
-    category: (v) => v === undefined ? undefined : requireEnum(v, "category", CATEGORIES),
-    size_label: (v) => parseSizeLabel(v),
-    measurements: (v) => parseMeasurements(v)
-  };
-  const updates = {};
-  for (const [field, fn] of Object.entries(allowFields)) {
-    if (event[field] !== undefined) {
-      const parsed = fn(event[field]);
-      if (parsed !== undefined) updates[field] = parsed;
-    }
+  const name = requireString(event.name, "name", 20);
+  const category = requireEnum(event.category, "category", CATEGORIES);
+  const sizeLabel = parseSizeLabel(event.size_label);
+  const measurements = parseMeasurements(event.measurements);
+
+  const _ = db.command;
+  const updates = { name, category, updated_at: Date.now() };
+
+  if (sizeLabel !== undefined) {
+    updates.size_label = sizeLabel;
+  } else {
+    updates.size_label = _.remove();
   }
-  if (Object.keys(updates).length === 0) {
-    // 无实际变更，直接返回
-    const fresh = await db.collection("garments").doc(garmentId).get();
-    return {
-      ok: true,
-      id: fresh.data._id,
-      name: fresh.data.name,
-      category: fresh.data.category,
-      size_label: fresh.data.size_label || undefined,
-      measurements: fresh.data.measurements || undefined
-    };
+
+  if (category !== "上衣") {
+    updates.measurements = _.remove();
+  } else if (measurements !== undefined) {
+    updates.measurements = measurements;
+  } else {
+    updates.measurements = _.remove();
   }
-  updates.updated_at = Date.now();
+
   await db.collection("garments").doc(garmentId).update({ data: updates });
   const fresh = await db.collection("garments").doc(garmentId).get();
   return {

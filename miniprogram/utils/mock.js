@@ -156,9 +156,11 @@ module.exports = {
       if (data.size_label === null || data.size_label === "") delete item.size_label;
       else item.size_label = data.size_label;
     }
-    if (data.measurements !== undefined) {
+    if (item.category !== "上衣") {
+      delete item.measurements;
+    } else if (data.measurements !== undefined) {
       if (!data.measurements || Object.keys(data.measurements).length === 0) delete item.measurements;
-      else item.measurements = Object.assign(item.measurements || {}, data.measurements);
+      else item.measurements = data.measurements;
     }
     return { id: item.id, name: item.name, category: item.category, size_label: item.size_label, measurements: item.measurements };
   },

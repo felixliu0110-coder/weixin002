@@ -408,15 +408,20 @@ Page({
     const name = (this.data.editName || "").trim();
     if (!name) { toast("请输入衣物名称"); return; }
     const category = this.data.editCategory;
-    const size_label = (this.data.editSizeLabel || "").trim() || undefined;
-    const measurements = {};
-    if (this.data.editLengthCm.trim()) measurements.lengthCm = parseFloat(this.data.editLengthCm);
-    if (this.data.editChestWidthCm.trim()) measurements.chestWidthCm = parseFloat(this.data.editChestWidthCm);
-    if (this.data.editShoulderWidthCm.trim()) measurements.shoulderWidthCm = parseFloat(this.data.editShoulderWidthCm);
-    if (this.data.editSleeveLengthCm.trim()) measurements.sleeveLengthCm = parseFloat(this.data.editSleeveLengthCm);
+    const size_label = (this.data.editSizeLabel || "").trim() || null;
+    let measurements = null;
+    if (category === "上衣") {
+      const m = {};
+      if (this.data.editLengthCm.trim()) m.lengthCm = parseFloat(this.data.editLengthCm);
+      if (this.data.editChestWidthCm.trim()) m.chestWidthCm = parseFloat(this.data.editChestWidthCm);
+      if (this.data.editShoulderWidthCm.trim()) m.shoulderWidthCm = parseFloat(this.data.editShoulderWidthCm);
+      if (this.data.editSleeveLengthCm.trim()) m.sleeveLengthCm = parseFloat(this.data.editSleeveLengthCm);
+      measurements = Object.keys(m).length > 0 ? m : null;
+    }
     wx.showLoading({ title: "保存中", mask: true });
     api.updateGarment(item.id, { name, category, size_label, measurements })
       .then((updated) => {
+        wx.hideLoading();
         const myGarments = this.data.myGarments.map((g) =>
           g.id === item.id ? Object.assign({}, g, updated) : g
         );
