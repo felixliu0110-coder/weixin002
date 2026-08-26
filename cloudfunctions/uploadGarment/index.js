@@ -8,8 +8,8 @@ const db = cloud.database();
 const CATEGORIES = ["上衣", "裤子", "头饰", "鞋子", "其他"];
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 与 storage.MAX_BYTES 一致
 
-/* 内容安全检测（下载 → 大小校验 → 按文件真实内容 magic bytes 检测 Content-Type → imgSecCheck）。
-   不信任前端 MIME，也不信任 cloudPath 扩展名；无法识别真实图片类型拒绝上传。 */
+/* 内容安全检测（下载 → 大小校验 → 按文件真实内容识别 MIME → imgSecCheck）。
+   不信任前端 MIME，也不信任 cloudPath 扩展名；无法识别真实图片类型则拒绝。 */
 async function checkFile(fileID) {
   const dl = await cloud.downloadFile({ fileID });
   const buf = dl.fileContent || Buffer.alloc(0);
