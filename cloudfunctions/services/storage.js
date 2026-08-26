@@ -168,23 +168,21 @@ async function saveRemoteImage(url, dir) {
   return up.fileID;
 }
 
-/* 按文件真实内容（magic bytes）检测图片 Content-Type。
+/* 按文件真实内容（magic bytes）识别图片 contentType。
    不信任文件名/扩展名/前端声明的 MIME。
-   当前产品声明的支持类型：JPEG / PNG；项目已支持 WebP 上传时同时支持 WEBP。
-   无法识别或非图片返回 null。可单测。 */
+   当前产品声明支持：JPEG / PNG；项目已支持 WebP 上传时一并支持。
+   无法识别返回 null。可单测。 */
 function detectImageContentType(buffer) {
   if (!buffer || !Buffer.isBuffer(buffer) || buffer.length < 4) return null;
-  const len = buffer.length;
-  // JPEG: FF D8 FF
-  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "image/jpeg";
-  // PNG: 89 50 4E 47 0D 0A 1A 0A
-  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) return "image/png";
-  // WEBP: RIFF....WEBP (偏移 0=RIFF, 8=WEBP)
-  if (len >= 12 &&
-      buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
-      buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50) {
-    return "image/webp";
-  }
+  const b = buffer;
+  // PNG: 89504E47
+  if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) return "image/png";
+  // JPEG: FFD8FF
+  if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) return "image/jpeg";
+  // WEBP: 52494646 ... 57454250  (RIFF....WEBP)
+  if (b.length >= 12 &&
+      b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 &&
+      b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return "image/webp";
   return null;
 }
 
