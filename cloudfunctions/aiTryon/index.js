@@ -1,16 +1,16 @@
 const cloud = require("wx-server-sdk");
-const { getAigc } = require("./aigc");
+const { getAigc } = require("../services/aigc");
 const { buildTryonVideoPrompt } = require("./tryonVideo");
 const { buildTryonImagePrompt } = require("./tryonImage");
-const { buildTryonCacheKey, isImageCacheHit, isCacheHit } = require("./tryonCache");
-const { saveRemoteImage } = require("./storage");
-const { requireLogin, requireId, requireString, requireArray } = require("./validation");
-const { assertOwner, getOwnedDoc } = require("./ownership");
-const { resolveGarments } = require("./garments");
-const { appError, fmtErr } = require("./errors");
-const { assertTransition } = require("./taskState");
-const { dateStr, consumeQuota, refundQuota, getQuota } = require("./quota");
-const { requestDeletion, runDeletion } = require("./deletion");
+const { buildTryonCacheKey, isImageCacheHit, isCacheHit } = require("../services/tryonCache");
+const { saveRemoteImage } = require("../services/storage");
+const { requireLogin, requireId, requireString, requireArray } = require("../services/validation");
+const { assertOwner, getOwnedDoc } = require("../services/ownership");
+const { resolveGarments } = require("../services/garments");
+const { appError, fmtErr } = require("../services/errors");
+const { assertTransition } = require("../services/taskState");
+const { dateStr, consumeQuota, refundQuota, getQuota } = require("../services/quota");
+const { requestDeletion, runDeletion } = require("../services/deletion");
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
