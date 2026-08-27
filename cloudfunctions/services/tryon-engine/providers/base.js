@@ -1,10 +1,13 @@
 /**
  * Try-On Engine Provider 基础类
- * 
- * 定义所有 Provider 必须实现的接口
+ *
+ * 子类 Provider 只需实现真实调用逻辑。
+ * category 已由 Engine 上层完成标准化，Provider 不再重复解析业务枚举。
  */
 
-const { TryOnProvider, createResponse, createErrorResponse, createBlockedResponse, PROVIDER_NAMES } = require('../types');
+const {
+  TryOnProvider, createResponse, createErrorResponse, createBlockedResponse,
+} = require('../types');
 
 class BaseTryOnProvider extends TryOnProvider {
   constructor(config) {
@@ -14,17 +17,16 @@ class BaseTryOnProvider extends TryOnProvider {
   }
 
   /**
-   * 统一的 generate 接口实现模板
+   * 带配置/重试包装的 generate
    */
-  async generate(params) {
+  async generate(params = {}) {
     const t0 = Date.now();
-    
-    // 检查是否配置
+
     if (!this.isConfigured()) {
       return createBlockedResponse(`Provider ${this.name} not configured`, this.name);
     }
 
-    // 参数校验
+    // Engine 上层已完成 category mapping；此处仅做 Provider 通用校验
     const validation = this.validateParams(params);
     if (!validation.valid) {
       return createErrorResponse(new Error(validation.error), this.name);
@@ -33,7 +35,6 @@ class BaseTryOnProvider extends TryOnProvider {
     try {
       const result = await this._generateInternal(params);
       const latencyMs = Date.now() - t0;
-      
       return createResponse({
         ok: true,
         provider: this.name,
@@ -43,9 +44,10 @@ class BaseTryOnProvider extends TryOnProvider {
         latencyMs,
         metadata: {
           model: this.getConfig().model,
-          category: params.category,
-          ...result.metadata
-        }
+          // 透传已标准化的 category（可能来自 garments[0]）
+          category: params.category || (params.garments && params.garments[0] && params.garments[0].category) || null,
+          ...(result.metadata || {}),
+        },
       });
     } catch (e) {
       const latencyMs = Date.now() - t0;
@@ -54,35 +56,32 @@ class BaseTryOnProvider extends TryOnProvider {
   }
 
   /**
-   * 子类实现具体生成逻辑
+   * 子类实现：真实调用
    */
-  async _generateInternal(params) {
+  async _generateInternal(/* params */) {
     throw new Error(`${this.name}._generateInternal() not implemented`);
   }
 
   /**
-   * 参数校验（子类可覆盖）
+   * Provider 通用参数校验（Engine 已标准化后的 Context）。
+   * 必须存在：person 主图（originalPhoto 或兼容 personImage）+ garments 至少一件。
    */
   validateParams(params) {
-    if (!params.personImage || typeof params.personImage !== 'string') {
-      return { valid: false, error: 'personImage is required' };
+    const personImg = (params.person && (params.person.originalPhoto || params.person.personImage)) || params.personImage;
+    if (!personImg || typeof personImg !== 'string') {
+      return { valid: false, error: 'person.originalPhoto (or legacy personImage) is required' };
     }
-    if (!params.garmentImage || typeof params.garmentImage !== 'string') {
-      return { valid: false, error: 'garmentImage is required' };
-    }
-    if (!['tops', 'bottoms', 'dress'].includes(params.category)) {
-      return { valid: false, error: 'category must be tops|bottoms|dress' };
+    const garms = params.garments && Array.isArray(params.garments) ? params.garments : (params.garmentImage ? [{ image: params.garmentImage }] : []);
+    if (garms.length === 0) {
+      return { valid: false, error: 'garments.length >= 1 is required' };
     }
     return { valid: true };
   }
 
-  /**
-   * 获取配置
-   */
   getConfig() {
     return {
       name: this.name,
-      model: 'default'
+      model: 'default',
     };
   }
 }

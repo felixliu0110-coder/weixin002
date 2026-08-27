@@ -62,25 +62,35 @@ class TryOnRouter {
       return await this.generateFailover(params, strategyConfig.providers);
     }
 
-    // 其他策略：使用第一个可用 Provider
-    const providerName = strategyConfig.providers[0];
-    const provider = this.providers.get(providerName);
-    
-    if (!provider) {
-      return createErrorResponse(new Error(`Provider ${providerName} not available`));
+    // 其他策略：按策略 providers 顺序选择第一个已配置可用的 Provider，
+    // 全部不可用时兜底到 mock（保证 Engine 在本地/无 API Key 环境可运行）。
+    const candidates = strategyConfig.providers.slice();
+    if (!candidates.includes('mock')) candidates.push('mock');
+    let providerName = null;
+    let provider = null;
+    for (const name of candidates) {
+      const p = this.providers.get(name);
+      if (p && p.isConfigured()) { providerName = name; provider = p; break; }
     }
-
-    if (!provider.isConfigured()) {
-      return createResponse({
-        ok: false,
-        provider: providerName,
-        blocked: true,
-        blockReason: `Provider ${providerName} not configured`
-      });
+    if (!provider) {
+      return createErrorResponse(new Error(`No configured provider available (strategy=${strategy})`));
     }
 
     try {
-      const result = await provider.generate(params);
+      // 标准 Try-On Context 适配：映射 person/garments 为 Provider 兼容字段
+      const providerParams = { ...params };
+      const personObj = params.person && typeof params.person === 'object' ? params.person : null;
+      if (personObj) {
+        providerParams.personImage = personObj.originalPhoto || personObj.personImage || null;
+      }
+      const garms = params.garments && Array.isArray(params.garments) ? params.garments : [];
+      const firstValid = garms.find((g) => g && g.category && g.category !== 'UNSUPPORTED_TRYON_CATEGORY');
+      const target = firstValid || (garms.length ? garms[0] : null);
+      if (target) {
+        providerParams.garmentImage = target.image || null;
+        providerParams.category = target.category || null;
+      }
+      const result = await provider.generate(providerParams);
       result.latency = Date.now() - t0;
       return result;
     } catch (e) {
@@ -103,7 +113,14 @@ class TryOnRouter {
       }
 
       try {
-        const result = await provider.generate(params);
+        // 标准 Context 适配（与 generate 主路径一致）
+        const fp = { ...params };
+        const po = params.person && typeof params.person === 'object' ? params.person : null;
+        if (po) fp.personImage = po.originalPhoto || po.personImage || null;
+        const gs = params.garments && Array.isArray(params.garments) ? params.garments : [];
+        const fv = gs.find((g) => g && g.category && g.category !== 'UNSUPPORTED_TRYON_CATEGORY') || gs[0] || null;
+        if (fv) { fp.garmentImage = fv.image || null; fp.category = fv.category || null; }
+        const result = await provider.generate(fp);
         if (result.ok) {
           result.latency = Date.now() - t0;
           result.metadata = {

@@ -1,12 +1,18 @@
 /**
  * Agnes Provider
- * 
- * 复用现有 cloudfunctions/services/aigc-agnes.js 的能力
+ *
+ * 委托 cloudfunctions/services/aigc-agnes.js 的同类实现。
+ * 本阶段重点修正：
+ *   - 删除写死的 170cm/60kg，改为从 params.person.bodyProfile 读取；
+ *     bodyProfile 不存在时不伪造任何身体数据。
+ *   - 通过 promptBuilder 构建 provider-neutral 生成要求。
+ *   - 人物主图由 Engine 标准化后的 person.originalPhoto（兼容 personImage）提供。
  */
 
 const https = require('https');
 const BaseTryOnProvider = require('./base');
 const { createBlockedResponse } = require('../types');
+const { build: buildPrompt } = require('../promptBuilder');
 
 class AgnesProvider extends BaseTryOnProvider {
   constructor() {
@@ -18,7 +24,7 @@ class AgnesProvider extends BaseTryOnProvider {
       defaultCost: 5,
       model: 'agnes-image-2.1-flash',
       size: '1024x1024',
-      maxRetries: 2
+      maxRetries: 2,
     });
   }
 
@@ -27,46 +33,71 @@ class AgnesProvider extends BaseTryOnProvider {
   }
 
   async _generateInternal(params) {
-    const { personImage, garmentImage, category, options = {} } = params;
-    
-    // 构建 prompt（参考现有 tryonImage.js）
-    const prompt = this.buildPrompt(category, options);
-    
-    // Agnes 使用 refImages 传递参考图
-    const refImages = [personImage, garmentImage];
-    
+    const personImg = (params.person && (params.person.originalPhoto || params.person.personImage)) || params.personImage;
+    const garms = params.garments && Array.isArray(params.garments) ? params.garments : (params.garmentImage ? [{ image: params.garmentImage, category: params.category }] : []);
+    const firstGarm = garms.find((g) => g && g.image) || {};
+    const garmentImg = firstGarm.image || params.garmentImage;
+
+    // 使用 promptBuilder 生成 provider-neutral 的生成要求
+    const built = buildPrompt({
+      person: { ...(params.person || {}), personImage: personImg },
+      garments: garms,
+      options: params.options || {},
+    });
+
+    // refImages：人物图 + 服装图（Agnes 以图片为主要依据）
+    const refImages = [personImg, garmentImg].filter(Boolean);
+
     const body = {
       model: 'agnes-image-2.1-flash',
-      prompt,
+      prompt: built.prompt,
       size: '1024x1024',
-      extra_body: { 
+      extra_body: {
         response_format: 'url',
-        image: refImages
-      }
+        image: refImages,
+      },
     };
 
     const result = await this.requestJson('POST', '/v1/images/generations', body);
-    
-    const urls = (result.data || []).map(d => d && d.url).filter(Boolean);
+
+    const urls = (result.data || []).map((d) => d && d.url).filter(Boolean);
     if (urls.length === 0) {
-      throw new Error('Agnes 生图无返回 URL');
+      throw new Error('Agnes 生成未返回 URL');
     }
 
     return {
       url: urls[0],
       cost: this.getCost(),
-      metadata: { model: 'agnes-image-2.1-flash' }
+      metadata: {
+        model: 'agnes-image-2.1-flash',
+        personSourceType: built.meta && built.meta.personSourceType,
+        hasBodyProfile: !!(params.person && params.person.bodyProfile),
+      },
     };
   }
 
+  /**
+   * 构建 Agnes prompt（不再硬编码 170cm/60kg）。
+   * 仅在有真实 bodyProfile 时补充客观身体约束。
+   */
   buildPrompt(category, options = {}) {
     const categoryDesc = {
-      tops: '上装',
-      bottoms: '下装',
-      dress: '连衣裙'
+      tops: '上衣',
+      bottoms: '裤子',
+      dress: '连衣裙',
     }[category] || '服装';
-    
-    return `虚拟试穿效果图：一位身高170cm体重60kg的人，自然肤色，全身正面站姿，穿着${categoryDesc}，服装版型颜色图案与参考图完全一致，纯白色背景，均匀柔和三点布光，写实摄影风格，照片级画质。禁止：改变人物面部，服装变形，添加参考图没有的元素，画面文字水印。`;
+
+    const bp = options.bodyProfile || null;
+    let bodyNote = '';
+    if (bp && typeof bp === 'object') {
+      const parts = [];
+      if (bp.heightCm) parts.push(`身高约${bp.heightCm}cm`);
+      if (bp.weightKg) parts.push(`体重约${bp.weightKg}kg`);
+      if (parts.length) bodyNote = `；参考真实身体参数（${parts.join('、')}）作为版型约束`;
+    }
+    // 无 bodyProfile 时 bodyNote 为空：不伪造人物，仅以真实人物图片为依据
+
+    return `基于真实人物图片进行虚拟试穿：为人物试穿${categoryDesc}。以人物原图为主要人物依据，以服装图片为主要服装依据；仅更换服装，不改变人物身份、面部与原有场景${bodyNote}。保持人物面部特征与身份一致性，不改变背景。`;
   }
 
   async requestJson(method, path, body) {
@@ -78,17 +109,17 @@ class AgnesProvider extends BaseTryOnProvider {
         path: url.pathname + url.search,
         headers: {
           Authorization: 'Bearer ' + process.env.AGNES_API_KEY,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        timeout: this.timeoutMs
+        timeout: this.timeoutMs,
       }, (res) => {
         let data = '';
-        res.on('data', chunk => { data += chunk; });
+        res.on('data', (chunk) => { data += chunk; });
         res.on('end', () => {
           let json = null;
           try { json = JSON.parse(data); } catch (e) { /* non-JSON */ }
           if (res.statusCode >= 400) {
-            reject(new Error(`Agnes API ${res.statusCode}: ${JSON.stringify(json?.error || json)}`));
+            reject(new Error(`Agnes API ${res.statusCode}: ${JSON.stringify(json ? json.error || json : data.slice(0, 200))}`));
           } else {
             resolve(json || {});
           }

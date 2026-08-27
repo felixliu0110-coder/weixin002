@@ -1,18 +1,9 @@
-/**
- * Try-On Engine - 均衡模式策略
- * 
- * 优先使用 aitryon，降级到 Agnes
- */
-
-const { STRATEGY_NAMES } = require('./types');
-const { getRouter } = require('../router');
-
-async function generate(params) {
-  const router = getRouter();
-  return router.generate(params, STRATEGY_NAMES.BALANCED);
-}
-
-module.exports = {
-  name: STRATEGY_NAMES.BALANCED,
-  generate
-};
+LyoqCiAqIFRyeS1PbiBFbmdpbmUgLSDlnYfooaHmqKHlvI/nrZbnlaUKICog
+CiAqIOS8mOWFiOS9v+eUqCBhaXRyeW9u77yM6ZmN57qn5YiwIEFnbmVzCiAq
+LwoKY29uc3QgeyBTVFJBVEVHWV9OQU1FUyB9ID0gcmVxdWlyZSgnLi90eXBl
+cycpOwpjb25zdCB7IGdldFJvdXRlciB9ID0gcmVxdWlyZSgnLi4vcm91dGVy
+Jyk7Cgphc3luYyBmdW5jdGlvbiBnZW5lcmF0ZShwYXJhbXMpIHsKICBjb25z
+dCByb3V0ZXIgPSBnZXRSb3V0ZXIoKTsKICByZXR1cm4gcm91dGVyLmdlbmVy
+YXRlKHBhcmFtcywgU1RSQVRFR1lfTkFNRVMuQkFMQU5DRUQpOwp9Cgptb2R1
+bGUuZXhwb3J0cyA9IHsKICBuYW1lOiBTVFJBVEVHWV9OQU1FUy5CQUxBTkNF
+RCwKICBnZW5lcmF0ZQp9Owo=
