@@ -469,7 +469,7 @@ FAILOVER: 依次尝试，首个成功即止
 
 ## 八、开发阶段规划
 
-### Phase 1: 架构整理（预计 2 周）
+### Phase 1: 架构整理 ✅ 已完成
 
 **目标：** 建立可扩展的 Provider 架构
 
@@ -487,7 +487,7 @@ FAILOVER: 依次尝试，首个成功即止
 
 ---
 
-### Phase 2: 资产系统（预计 2 周）
+### Phase 2: 资产系统 ✅ 已完成
 
 **目标：** 完善人物资产和衣物资产数据模型
 
@@ -505,9 +505,9 @@ FAILOVER: 依次尝试，首个成功即止
 
 ---
 
-### Phase 3: Provider 接入（预计 3 周）
+### Phase 3: Provider 接入 / Garment Asset 基础 ✅ 已完成（基础收口）
 
-**目标：** 接入专业 VTON Provider
+**目标：** 接入专业 VTON Provider（待 Phase 4 真正接入后定结论）；本阶段完成 Garment Asset 基础（garment_profiles + ownership + lazy create）
 
 | 任务 | 产出 |
 |------|------|
@@ -524,9 +524,9 @@ FAILOVER: 依次尝试，首个成功即止
 
 ---
 
-### Phase 4: AI 优化（预计 4 周）
+### Phase 4: 生产试穿接入 ⏳ 待开始
 
-**目标：** 优化生成质量和用户体验
+**目标：** 统一人物/衣物输入，将 aiTryon 接入 Try-On Engine，保留旧 Agnes 链路可回滚（详见 MIGRATION-PLAN-V2.md）
 
 | 任务 | 产出 |
 |------|------|

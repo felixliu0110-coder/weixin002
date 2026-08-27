@@ -1,240 +1,83 @@
-# Phase 3: Garment Asset 基础系统实现报告
+# Phase 3: Garment Asset 基础系统实现报告（收口版）
 
-> **日期:** 2026-08-27  
-> **分支:** feature/garment-lifecycle-v0.1  
-> **状态:** ✅ 完成
+> **日期:** 2026-08-27（V2 基线校正收口）
+> **分支:** feature/garment-lifecycle-v0.1
+> **状态:** ✅ 完成（已收口，边界明确）
 
 ---
 
 ## 一、实现内容
 
-### 1.1 新增文件清单
+### 1.1 文件清单
 
 ```
 cloudfunctions/services/garment-asset/
-├── index.js        # 服务入口，导出 CRUD 方法
-├── repository.js   # 数据库操作层
-├── analyzer.js     # 基础分析能力（不含 AI）
-└── types.js        # 类型定义和常量
+├── index.js          # 服务入口，公开 API（收口）
+├── repository.js     # 数据库操作层（ownership 限制 + getOrCreate）
+├── analyzer.js       # generateReport / preflightCheck（无 AI/网络）
+├── types.js          # 类型定义、schema、validate/createDefaultDoc/mapFromGarment
+├── types.test.js     # 类型与边界测试
+├── analyzer.test.js  # 分析器测试
+├── repository.test.js# 仓库/ownership/getOrCreate 测试
+├── index.test.js     # 公开 API 收口测试
+└── getOrCreate.test.js # getOrCreate 完整流程测试
 ```
 
-### 1.2 核心能力
+### 1.2 garment_profiles 的正式职责
+
+`garments` 是衣物实体；`garment_profiles` 是衣物理解**扩展资料**。
+关系：`garments._id` → `garment_profiles.garment_id`，一件衣物最多一个 profile。
+
+**允许字段：** garment_id / user_id / category / color / style / material / pattern / season / occasion / ai_tags / features / source / status / created_at / updated_at
+
+**禁止字段（仍属 garments）：** name / original_file_id / size_label / measurements / type
+
+### 1.3 公开 API（仅下列）
 
 | 方法 | 说明 |
 |------|------|
-| `createGarmentProfile(params)` | 创建衣物数字档案 |
-| `importFromGarment(garment, openid)` | 从 garments 集合导入 |
-| `getGarmentProfile(profileId, openid)` | 获取衣物数字档案 |
-| `getProfileByGarmentId(garmentId, openid)` | 根据 garment_id 获取 |
-| `updateGarmentProfile(profileId, openid, updates)` | 更新衣物数字档案 |
-| `deleteGarmentProfile(profileId, openid)` | 删除衣物数字档案 |
-| `listGarmentProfiles(openid, limit)` | 列出用户档案 |
-| `listByCategory(openid, category, limit)` | 按类别筛选 |
-| `countGarmentProfiles(openid)` | 统计数量 |
-| `batchCreate(profiles)` | 批量创建 |
-| `preflightCheck(profileId, openid)` | 预处理检查 |
-| `calculateSimilarity(profile1, profile2)` | 计算相似度 |
-| `getGarmentAssetStatus(openid)` | 获取状态统计 |
+| `createGarmentProfile()` | 创建衣物数字档案 |
+| `getGarmentProfile()` | 按 profileId 获取（归属校验） |
+| `getGarmentProfileByGarmentId()` | 按 garmentId 获取（归属校验） |
+| `updateGarmentProfile()` | 更新（仅当前用户） |
+| `deleteGarmentProfile()` | 删除（仅当前用户） |
+| `listGarmentProfiles()` | 列出当前用户档案 |
+| `getOrCreateGarmentProfile()` | 真实 getOrCreate（见下文流程） |
+| `preflightCheck()` | 预处理检查 |
+
+**已删除（不在此阶段承担）：** importFromGarment / batchCreate / calculateSimilarity / listByCategory / countGarmentProfiles / updateStatus / getGarmentAssetStatus，以及推荐/相似度/批量迁移/AI 分析/统计业务。
 
 ---
 
-## 二、数据库设计
+## 二、getOrCreateGarmentProfile 真实流程
 
-### 2.1 garment_profiles 集合
-
-```json
-{
-  "_id": "xxx",
-  "garment_id": "yyy",           // 关联 garments 集合 ID
-  "user_id": "openid_xxx",
-  
-  "category": "tops",            // 衣物类别
-  "name": "白色纯色T恤",
-  "size_label": "M",
-  "measurements": {
-    "lengthCm": 65,
-    "chestWidthCm": 52,
-    "shoulderWidthCm": 42,
-    "sleeveLengthCm": 20
-  },
-  
-  // 视觉特征
-  "color": ["white"],
-  "dominant_color": "white",
-  "pattern": "solid",
-  "style": "casual",
-  "material": "cotton",
-  
-  // 使用场景
-  "season": ["spring", "summer"],
-  "occasion": ["daily", "casual"],
-  
-  // AI 分析结果（预留）
-  "ai_tags": [],
-  "features": {
-    "silhouette": "regular",
-    "fit": "regular",
-    "length": "regular",
-    "sleeve": "short",
-    "neckline": "round"
-  },
-  "visual_embedding": "",
-  
-  // 状态
-  "status": "ready",
-  "error_code": "",
-  "error_message": "",
-  
-  "created_at": 1234567890,
-  "updated_at": 1234567890
-}
+```
+garmentId
+  ↓ 读取 garments
+不存在 → NOT_FOUND
+  ↓ ownership 校验（user_id !== openid → FORBIDDEN）
+builtin → FORBIDDEN
+  ↓ status != ready → INVALID_ARGUMENT
+查询 garment_profiles（garment_id + user_id）
+  ↓ 存在 → 返回
+不存在 → 新建（category 从 garments.category 初始化，source=manual，status=ready）
 ```
 
-### 2.2 枚举常量
-
-```javascript
-// 衣物类别
-GARMENT_CATEGORY = {
-  TOP: 'tops',
-  BOTTOM: 'bottoms',
-  DRESS: 'dress',
-  ACCESSORY: 'accessory',
-  SHOES: 'shoes',
-  OTHER: 'other'
-}
-
-// 图案类型
-PATTERN_TYPE = {
-  SOLID: 'solid',
-  STRIPE: 'stripe',
-  PATTERN: 'pattern',
-  LOGO: 'logo',
-  FLORAL: 'floral',
-  PLAID: 'plaid',
-  POLKA_DOT: 'polka_dot',
-  GRADIENT: 'gradient'
-}
-
-// 风格类型
-STYLE_TYPE = {
-  CASUAL: 'casual',
-  FORMAL: 'formal',
-  SPORTS: 'sports',
-  VINTAGE: 'vintage',
-  MODERN: 'modern',
-  BOHEMIAN: 'bohemian',
-  MINIMALIST: 'minimalist',
-  STREETWEAR: 'streetwear'
-}
-
-// 材质类型
-MATERIAL_TYPE = {
-  COTTON: 'cotton',
-  DENIM: 'denim',
-  SILK: 'silk',
-  WOOL: 'wool',
-  LINEN: 'linen',
-  LEATHER: 'leather',
-  SYNTHETIC: 'synthetic',
-  BLEND: 'blend',
-  KNIT: 'knit',
-  CHIFFON: 'chiffon',
-  VELVET: 'velvet',
-  OTHER: 'other'
-}
-
-// 季节类型
-SEASON_TYPE = {
-  SPRING: 'spring',
-  SUMMER: 'summer',
-  AUTUMN: 'autumn',
-  WINTER: 'winter',
-  ALL_SEASON: 'all_season'
-}
-
-// 场合类型
-OCCASION_TYPE = {
-  DAILY: 'daily',
-  WORK: 'work',
-  DATE: 'date',
-  PARTY: 'party',
-  SPORTS: 'sports',
-  FORMAL: 'formal',
-  CASUAL: 'casual',
-  TRAVEL: 'travel'
-}
-```
+禁止返回未经 profile 创建流程处理的 garments 对象冒充 profile。
 
 ---
 
-## 三、兼容性设计
+## 三、analyzer.js 边界
 
-### 3.1 与 garments 集合的关系
-
-| 旧字段 | 新字段 | 说明 |
-|--------|--------|------|
-| garments._id | garment_profiles.garment_id | 关联 ID |
-| garments.name | garment_profiles.name | 衣物名称 |
-| garments.category | garment_profiles.category | 类别 |
-| garments.size_label | garment_profiles.size_label | 尺码标签 |
-| garments.measurements | garment_profiles.measurements | 尺寸数据 |
-| n/a | garment_profiles.color | 颜色（新增） |
-| n/a | garment_profiles.pattern | 图案（新增） |
-| n/a | garment_profiles.style | 风格（新增） |
-| n/a | garment_profiles.material | 材质（新增） |
-| n/a | garment_profiles.season | 季节（新增） |
-| n/a | garment_profiles.occasion | 场合（新增） |
-| n/a | garment_profiles.ai_tags | AI 标签（预留） |
-| n/a | garment_profiles.features | 视觉特征（预留） |
-
-### 3.2 数据迁移策略
-
-1. 新建 `garment_profiles` 集合
-2. 保留原有 `garments` 集合不变
-3. `importFromGarment()` 方法用于导入
-4. 查询时优先查 `garment_profiles`，回退到 `garments`
+- `generateReport()`：仅读取已有 profile 字段生成报告，不推断新服装属性。
+- `preflightCheck()`：仅基于已有字段做校验。
+- **禁止：** AI API / 网络调用 / Embedding / 向量 / 相似推荐 / 自动品类识别 / 模型调用。
 
 ---
 
-## 四、使用示例
+## 四、测试验证
 
-### 4.1 创建衣物档案
-
-```javascript
-const { getGarmentAssetService } = require('./cloudfunctions/services/garment-asset');
-
-const service = getGarmentAssetService(db);
-
-const result = await service.createGarmentProfile({
-  garmentId: 'garment_xxx',
-  openid: 'oXXXXX',
-  metadata: {
-    category: 'tops',
-    name: '白色纯色T恤',
-    size_label: 'M'
-  }
-});
-```
-
-### 4.2 从 garments 导入
-
-```javascript
-const garment = await db.collection('garments').doc('garment_xxx').get();
-const profile = await service.importFromGarment(garment.data, 'oXXXXX');
-```
-
-### 4.3 计算相似度
-
-```javascript
-const similarity = service.calculateSimilarity(profile1, profile2);
-// { similarity: 75.5, matching: true }
-```
-
----
-
-## 五、测试验证
-
-### 5.1 语法检查
+### 4.1 语法检查
 
 ```bash
 node --check cloudfunctions/services/garment-asset/index.js    # OK
@@ -243,34 +86,30 @@ node --check cloudfunctions/services/garment-asset/analyzer.js   # OK
 node --check cloudfunctions/services/garment-asset/types.js      # OK
 ```
 
-### 5.2 模块加载
+### 4.2 单元测试（Phase 3 全部通过）
 
-```javascript
-const svc = require('./cloudfunctions/services/garment-asset');
-console.log(typeof svc.getGarmentAssetService);  // 'function'
-```
+- types.test.js：mapFromGarment 不含越界字段、createDefaultDoc 正确、缺字段失败、拒绝越界字段
+- analyzer.test.js：generateReport/preflightCheck 行为正确
+- repository.test.js：ownership/builtin/非 ready/已有不重复/create 初始化/更新删除仅当前用户
+- index.test.js：公开 API 收口、创建/getOrCreate/更新删除归属
+- getOrCreate.test.js：完整 getOrCreate 流程（NOT_FOUND/FORBIDDEN/INVALID_ARGUMENT/初始化/复用/不冒充 garments）
 
----
-
-## 六、后续步骤
-
-### Phase 4: AI 优化
-
-1. 实现自动色彩提取（可选）
-2. 接入图案识别 API（可选）
-3. 实现相似推荐算法
+> **环境说明：** 本地 Node 无法模拟微信云数据库原生链；本套件使用兼容微信链式 API（collection/doc/where/limit/orderBy/get/add/update/remove）的 fakeDB 运行可观测行为断言，不伪造通过。tryon-engine / person-asset 目录当前无 `*.test.js` 文件，本次收口未新增其测试，仅确认未修改其代码。
 
 ---
 
-## 七、禁止事项验证
+## 五、禁止事项验证
 
 - ✅ 未修改 cloudfunctions/aiTryon/
+- ✅ 未修改 cloudfunctions/uploadGarment/
 - ✅ 未修改 cloudfunctions/services/tryon-engine/
 - ✅ 未修改 cloudfunctions/services/person-asset/
 - ✅ 未修改 miniprogram/
-- ✅ 未接入任何 AI 模型
+- ✅ 未修改 garments / avatar_views schema
+- ✅ 未接入阿里云真实 API / Agnes 新 API
+- ✅ 未修改生产 Prompt / quota / cache
 - ✅ 保留现有 garments 集合不变
 
 ---
 
-*Phase 3 实现完成。*
+*Phase 3 收口完成。Phase 4 不在本任务范围内，待后续单独启动。*
