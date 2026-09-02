@@ -158,9 +158,11 @@ module.exports = {
       throw serviceError("云环境未配置");
     }
     if (!avatarProfileId) throw serviceError("avatarProfileId 不能为空");
+    // Phase 5-1.1：仅传 action + avatarProfileId，不传 openid。
+    // 身份由云函数通过 cloud.getWXContext() 自行确定，避免客户端伪造身份。
     const res = await wx.cloud.callFunction({
       name: "aiTryon",
-      data: { action: "findByAvatarProfileId", avatarProfileId, openid: this._openid || undefined }
+      data: { action: "findByAvatarProfileId", avatarProfileId }
     });
     const r = res.result;
     if (!r || !r.ok) throw serviceError((r && r.message) || "Person Asset 查询失败");

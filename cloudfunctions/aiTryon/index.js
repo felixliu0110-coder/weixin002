@@ -846,13 +846,20 @@ exports.main = async (event) => {
     if (event.action === "status") return status(event, openid);
     // Phase 5-1：Person Asset 精确查询（复用现有 person-asset service，禁止重新实现 / 禁止取最新）
     if (event.action === "findByAvatarProfileId") {
-      const { avatarProfileId, openid: qOpenid } = event;
+      // Phase 5-1.1 安全边界：
+      // 第二个参数必须始终来自云函数当前调用上下文的真实 openid（cloud.getWXContext()），
+      // 严禁使用客户端传入的 event.openid —— 否则恶意客户端可通过伪造 openid 查询其他用户的 Person Asset。
+      // 此处显式解构并丢弃 event.openid，作为防御性声明（即使未来有人误用也不会生效）。
+      const { avatarProfileId } = event; // eslint-disable-line no-unused-vars
+      // openid 严格来自外层 main() 的 cloud.getWXContext()，本作用域内即参数 openid
+      if (!avatarProfileId) throw appError("INVALID_PARAM", "avatarProfileId 不能为空");
       const { getPersonAssetService } = require("../services/person-asset");
       const service = getPersonAssetService(db);
       if (typeof service.findByAvatarProfileId !== "function") {
         throw appError("INTERNAL", "Person Asset 查询能力未就绪");
       }
-      const asset = await service.findByAvatarProfileId(avatarProfileId, qOpenid || openid);
+      // 精确绑定：avatarProfileId + 当前登录用户 openid；不存在返回 null，绝不取最新/第一条
+      const asset = await service.findByAvatarProfileId(avatarProfileId, openid);
       return { ok: true, asset: asset || null };
     }
     return await submit(event, openid);
