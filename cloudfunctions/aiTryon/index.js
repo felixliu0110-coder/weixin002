@@ -12,10 +12,76 @@ const { assertTransition } = require("../services/taskState");
 const { dateStr, consumeQuota, refundQuota, getQuota } = require("../services/quota");
 const { requestDeletion, runDeletion } = require("../services/deletion");
 
+// ---- V2 Try-On Engine（Phase 4.2，feature flag 控制，默认关闭以保留回滚能力）----
+let tryonEngine = null;
+let promptBuilder = null;
+try {
+  tryonEngine = require("../services/tryon-engine");
+  promptBuilder = require("../services/tryon-engine/promptBuilder");
+} catch (e) {
+  // Engine 模块不可用时（极旧部署）降级为纯 legacy，不阻断启动
+  tryonEngine = null;
+  promptBuilder = null;
+}
+
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
-/* 生图参考图要求公网 HTTPS URL：cloud:// 的云存储文件批量换临时链接。
+/* ============================================================
+   Feature Flag：TRYON_ENGINE_ENABLED
+     - false（默认）：走旧 aiTryon 图片链路（legacy fallback，保留回滚）
+     - true：图片试穿走 Try-On Engine（Router → Agnes）
+   不修改前端、不要求重新发布前端，上线后可立即回滚。
+   ============================================================ */
+function isEngineEnabled() {
+  const raw = process.env.TRYON_ENGINE_ENABLED;
+  return raw === "true" || raw === "1";
+}
+
+/* ============================================================
+   人物来源优先级（V2，取消 composite 作为默认生产人物输入）：
+     originalPhoto > frontPhoto > anchorImage
+   - 若 Person Asset 不存在且旧 avatar_views 只有 composite：返回 PERSON_ASSET_REQUIRED
+   - 绝不伪造 person photo、绝不进入 AI 生成
+   ============================================================ */
+const PERSON_SOURCE_PRIORITY = ["originalPhoto", "frontPhoto", "anchorImage"];
+
+function pickPersonSource(personAsset) {
+  if (!personAsset || typeof personAsset !== "object") return { url: null, type: null };
+  // 兼容 person-asset 下划线命名（original_photo / front_photo / anchor_image）
+  // 与标准 Context 驼峰（originalPhoto / frontPhoto / anchorImage）
+  const keyMap = {
+    originalPhoto: ["originalPhoto", "original_photo"],
+    frontPhoto: ["frontPhoto", "front_photo"],
+    anchorImage: ["anchorImage", "anchor_image"]
+  };
+  for (const key of PERSON_SOURCE_PRIORITY) {
+    const candidates = keyMap[key] || [key];
+    let v = null;
+    for (const c of candidates) { if (typeof personAsset[c] === "string" && personAsset[c].length > 0) { v = personAsset[c]; break; } }
+    if (v) {
+      const type = key.replace(/Photo$/, "_photo").replace("anchorImage", "anchor_image");
+      return { url: v, type, sourceKey: key };
+    }
+  }
+  return { url: null, type: null };
+}
+
+/* 从 Person Asset 读取真实身体档案（仅客观字段，禁止伪造） */
+function readBodyProfile(personAsset) {
+  if (!personAsset) return null;
+  const bp = personAsset.bodyProfile || personAsset.body_profile || null;
+  if (!bp || typeof bp !== "object") return null;
+  // 只透传真实存在的数值字段，缺失即 null（promptBuilder 对 null 不伪造）
+  const out = {};
+  for (const k of ["heightCm", "weightKg", "shoulderCm", "bustCm", "waistCm", "hipCm", "legLengthCm"]) {
+    if (typeof bp[k] === "number" && isFinite(bp[k])) out[k] = bp[k];
+  }
+  return Object.keys(out).length ? out : null;
+}
+
+/* ============================================================
+   生图参考图要求公网 HTTPS URL：cloud:// 的云存储文件批量换临时链接。
    Fail Closed：任何 cloud:// 无法转换为公网链接时抛 PROVIDER_ERROR，
    禁止静默丢弃参考图（不允许“少一张图继续生成”）。 */
 async function toHttpsRefs(urls) {
@@ -43,16 +109,12 @@ async function toHttpsRefs(urls) {
   return out;
 }
 
-/* 试穿完成写记录：
-   - 图片任务（有图无视频）：新增一条图片记录；
-   - 视频任务（有视频）：优先更新同一 task 或同一穿搭组合（image_cache_key）的图片记录补上视频，避免记录重复；
-   占位视频不写，避免污染真实记录。 */
+/* 试穿完成写记录（图片/视频兼容，字段保持） */
 async function saveTryonResult(task) {
   try {
     if (!task || (!task.tryon_image && !task.tryon_video)) return false;
     if (task.tryon_video && task.tryon_video.indexOf("placeholder") >= 0) return false;
     const coll = db.collection("tryon_results");
-    // 同 task 记录
     const dup = await coll.where({ task_id: task._id }).limit(1).get();
     if (dup.data.length > 0) {
       if (task.tryon_video && !dup.data[0].tryon_video) {
@@ -60,7 +122,6 @@ async function saveTryonResult(task) {
       }
       return true;
     }
-    // 视频任务：尝试补到同组合的图片记录（图片任务先完成，视频后补）
     if (task.tryon_video) {
       const imageKey = task.image_cache_key || "";
       if (imageKey) {
@@ -95,7 +156,6 @@ async function saveTryonResult(task) {
 
 /* 订阅消息通知（需配置环境变量 SUBSCRIBE_TMPL_ID；字段名以申请的模板为准） */
 function fmtTime(ts) {
-  // 云函数默认 UTC，按中国时区 UTC+8 格式化：2026年8月16日 22:30
   const d = new Date(ts + 8 * 3600 * 1000);
   const iso = d.toISOString();
   const y = iso.slice(0, 4);
@@ -126,14 +186,126 @@ async function sendSubscribe(openid, garmentName) {
   }
 }
 
+/* ============================================================
+   解析当前用户 Person Asset（优先 person-asset 服务，含 ownership）。
+   - 返回 { asset, source: 'person_asset' | 'legacy_composite' | null }
+   - 不存在时返回 null（不自动创建）
+   ============================================================ */
+async function resolvePersonAsset(openid, avatarViewId) {
+  // 1) 优先：已有 person-asset 服务（含 ownership 校验）
+  try {
+    const { getPersonAssetService } = require("../services/person-asset");
+    const service = getPersonAssetService(db);
+    // 优先按 avatarViewId 关联查找；找不到则取当前用户最新 asset
+    let asset = null;
+    if (avatarViewId) {
+      // getPersonAsset 需要 assetId；这里用 getCurrentPersonAsset 按 openid 取最新
+      asset = await service.getCurrentPersonAsset(openid);
+    } else {
+      asset = await service.getCurrentPersonAsset(openid);
+    }
+    if (asset && (asset.original_photo || asset.front_photo || asset.anchor_image)) {
+      return { asset, source: "person_asset" };
+    }
+  } catch (e) {
+    console.log("resolvePersonAsset person-asset unavailable", "error=" + fmtErr(e));
+  }
+  return { asset: null, source: null };
+}
+
+/* ============================================================
+   图片试穿：V2 Engine 路径（flag=true 时调用）
+   构造标准 Try-On Context → tryonEngine.generate() → 适配前端返回格式
+   ============================================================ */
+async function generateViaEngine({ personAsset, bodyProfile, garments, garmentName, strategy, openid, avatarViewId }) {
+  const { url: personUrl, type: personSourceType } = pickPersonSource(personAsset);
+
+  // 衣物转换：服务端解析，客户端图片不作为可信来源
+  const { normalizeGarmentCategory } = require("../services/tryon-engine/category");
+  const engineGarments = garments.map((g) => {
+    const norm = normalizeGarmentCategory({ category: g.category });
+    return {
+      garmentId: g._id || g.garmentId || null,
+      image: g.originalFileId || g.image || null, // 后续经 toHttpsRefs 转换
+      category: norm.category,                    // tops / bottoms / UNSUPPORTED_TRYON_CATEGORY
+      sourceCategory: g.category,                 // 原始中文业务枚举（上衣/裤子/...）
+      name: g.name || "",
+      profile: g.profile || null
+    };
+  });
+
+  // person_asset_id 用于 cache key 隔离（composite 与 originalPhoto 不共用缓存）
+  const personAssetId = personAsset && (personAsset._id || personAsset.assetId) ? String(personAsset._id || personAsset.assetId) : null;
+  const personAssetVersion = personAsset && (personAsset.updated_at || personAsset.updatedAt) ? String(personAsset.updated_at || personAsset.updatedAt) : (personAssetId ? "v1" : "legacy");
+
+  const context = {
+    person: {
+      assetId: personAssetId,
+      originalPhoto: personAsset ? personAsset.original_photo || personAsset.originalPhoto || null : null,
+      frontPhoto: personAsset ? personAsset.front_photo || personAsset.frontPhoto || null : null,
+      anchorImage: personAsset ? personAsset.anchor_image || personAsset.anchorImage || null : null,
+      bodyProfile
+    },
+    garments: engineGarments,
+    options: {
+      strategy: strategy || "BALANCED",
+      mode: "image",
+      preserveFace: true,
+      background: "keep"
+    }
+  };
+
+  // Prompt 统一由 promptBuilder 构造（aiTryon 不再自行构造业务 Prompt）
+  let prompt = "";
+  if (promptBuilder && promptBuilder.build) {
+    const built = promptBuilder.build(context);
+    prompt = built && built.prompt ? built.prompt : "";
+  }
+
+  console.log("aiTryon engine generate", "personSource=" + personSourceType, "garmentCount=" + engineGarments.length, "strategy=" + (strategy || "BALANCED"));
+
+  const result = await tryonEngine.generate(context, strategy || "BALANCED");
+
+  return {
+    result,            // engine 标准响应 { ok, provider, imageUrl, metadata }
+    personUrl,
+    personSourceType,
+    personAssetId,
+    personAssetVersion,
+    prompt
+  };
+}
+
+/* 将 Engine 响应适配为 aiTryon 前端已使用的返回格式（不要求前端改字段） */
+function adaptEngineResult(engineRes, { personAssetId, personSourceType, strategy, providerOverride }) {
+  const provider = engineRes.provider || providerOverride || "engine";
+  return {
+    ok: engineRes.ok !== false,
+    provider,
+    imageUrl: engineRes.imageUrl || "",
+    rawProvider: engineRes.metadata || {},
+    personSourceType,
+    personAssetId,
+    strategy: strategy || "BALANCED",
+    error: engineRes.error || ""
+  };
+}
+
 async function submit(event, openid) {
   const { avatarViewId, garmentIds, garmentNames } = event;
   const mode = event.mode === "video" ? "video" : "image";
+  const strategy = isEngineEnabled() ? "BALANCED" : "BALANCED";
   const t0 = Date.now();
-  console.log("aiTryon submit entry", "openid=" + (openid ? "set" : "EMPTY"), "mode=" + mode, "avatarViewId=" + (avatarViewId || "none"), "garmentCount=" + ((garmentIds || []).length));
+  console.log("aiTryon submit entry",
+    "openid=" + (openid ? "set" : "EMPTY"),
+    "mode=" + mode,
+    "engine=" + (isEngineEnabled() ? "V2" : "legacy"),
+    "avatarViewId=" + (avatarViewId || "none"),
+    "garmentCount=" + ((garmentIds || []).length));
   requireLogin(openid);
   const avId = requireId(avatarViewId, "avatarViewId");
   const gIds = requireArray(garmentIds, "garmentIds", { min: 1, max: 10 }).map((v) => requireId(v, "garmentId"));
+
   // 人物三视图必须属于当前用户
   const av = await getOwnedDoc(db, "avatar_views", avId, openid);
   const profile = av.profile_snapshot || {};
@@ -141,7 +313,7 @@ async function submit(event, openid) {
   const garments = await resolveGarments(db, gIds, openid);
   const garmentName = garments[0].name || "所选衣物";
 
-  // 视频模式必须先验证客户端引用的图片任务，验证通过后才允许进入缓存/额度流程。
+  // 视频模式必须先验证客户端引用的图片任务（视频链路暂不重构，保持 legacy）
   let imageTaskId = "";
   let imgTask = null;
   if (mode === "video") {
@@ -159,11 +331,28 @@ async function submit(event, openid) {
       throw appError("INVALID_ARGUMENT", "效果图衣物与当前穿搭不一致，请重新生成");
     }
   }
+
   const aigc = getAigc();
   const videoPrompt = buildTryonVideoPrompt(profile, garmentName);
-  const cacheKey = buildTryonCacheKey({ openid, avatarViewId: avId, garmentIds: gIds, kind: mode === "video" ? "ai_video" : "ai_image" });
 
-  // 缓存复用（图片/视频分开）：严格按 user_id + cache_key 隔离，7 天内成功结果不重复调用 Agnes
+  // ---- 解析 Person Asset（V2 来源优先级；legacy 兼容在下方 preflight 处理）----
+  const { asset: personAsset, source: personAssetSource } = await resolvePersonAsset(openid, avId);
+  const bodyProfile = readBodyProfile(personAsset);
+
+  // cache key：必须含 personAssetId/version，避免 composite 与 originalPhoto 共用缓存
+  const personAssetId = personAsset && (personAsset._id || personAsset.assetId) ? String(personAsset._id || personAsset.assetId) : null;
+  const personAssetVersion = personAsset && (personAsset.updated_at || personAsset.updatedAt) ? String(personAsset.updated_at || personAsset.updatedAt) : (personAssetId ? "v1" : "legacy");
+
+  const cacheKey = buildTryonCacheKey({
+    openid,
+    avatarViewId: avId,
+    garmentIds: gIds,
+    kind: mode === "video" ? "ai_video" : "ai_image",
+    personAssetId,
+    personAssetVersion
+  });
+
+  // 缓存复用（图片/视频分开）：严格按 user_id + cache_key 隔离
   const prev = await db.collection("tryon_tasks")
     .where({ cache_key: cacheKey, user_id: openid })
     .orderBy("createdAt", "desc")
@@ -207,25 +396,18 @@ async function submit(event, openid) {
     garment_name: garmentName,
     cache_key: cacheKey,
     retry_count: 0,
+    // V2：新增字段（旧数据兼容，不存在即新增）
+    person_asset_id: personAssetId,
+    person_source_type: null,   // 在生成路径中填充
+    strategy: strategy || "BALANCED",
+    provider: null,
     created_at: Date.now(),
     createdAt: Date.now(),
     updated_at: Date.now()
   };
 
-  // 服务端额度：图片/视频生成各扣 1 次；额度不足直接拒绝（不产生任务）
-  const date = dateStr();
-  let quota = null;
-  try {
-    quota = await consumeQuota(db, openid, date);
-  } catch (e) {
-    if (e && e.appCode === "RATE_LIMITED") {
-      return { ok: false, error: "RATE_LIMITED", message: e.message };
-    }
-    throw e;
-  }
-  console.log("aiTryon quota consumed", "openid=" + openid, "mode=" + mode, "date=" + date, "used=" + quota.used);
-
-  // ---- 视频模式：直接用已生成的效果图创建视频任务，不重新生图 ----
+  // ---- 视频模式：直接用已生成的效果图创建视频任务，不重新生图（保持 legacy）----
+  // （图片模式的 consumeQuota 已移至 reference preflight 之后，见下方图片模式段）
   if (mode === "video") {
     const imageUrl = imgTask.tryon_image_url;
     const task = Object.assign({}, base, {
@@ -235,7 +417,7 @@ async function submit(event, openid) {
       tryon_image: imgTask.tryon_image || "",
       tryon_image_url: imageUrl,
       image_task_id: imageTaskId,
-      image_cache_key: buildTryonCacheKey({ openid, avatarViewId: avId, garmentIds: gIds, kind: "ai_image" })
+      image_cache_key: buildTryonCacheKey({ openid, avatarViewId: avId, garmentIds: gIds, kind: "ai_image", personAssetId, personAssetVersion })
     });
     const addRes = await db.collection("tryon_tasks").add({ data: task });
     const taskId = addRes._id;
@@ -280,26 +462,150 @@ async function submit(event, openid) {
     return { ok: true, taskId, status: update.status || "processing", tryonImage: imgTask.tryon_image || "", tryonImageUrl: imageUrl };
   }
 
-  // ---- 图片模式：只生成穿搭效果图，视频由用户后续在结果页选择生成 ----
-  // Reference Preflight（必须在 consumeQuota 之前完成：任何必需 reference 获取/转换失败，
-  // 都不调用 Agnes、也不扣 quota；builtin garment originalFileId 允许为空，仅依赖白名单）
-  const avatarComposite = (av.views && av.views.composite) || "";
-  if (!avatarComposite) throw appError("INVALID_ARGUMENT", "人物参考图缺失，请先完成人物照片");
+  // ============================================================
+  // ---- 图片模式 ----
+  // ============================================================
+
+  // ---- Person Asset preflight（V2，flag 无关，用于 cache key 与来源选择）----
+  const { url: personUrl, type: personSourceType } = pickPersonSource(personAsset);
+  // 若使用 Engine 路径：必须由真实 Person Asset 提供人物图，禁止 composite 冒充。
+  // 此时 consumeQuota 尚未执行（在下方的 reference preflight 之后），故此处拒绝不扣 quota。
+  if (isEngineEnabled()) {
+    if (!personUrl) {
+      console.log("aiTryon engine preflight no person asset", "openid=" + openid, "costMs=" + (Date.now() - t0));
+      return { ok: false, error: "PERSON_ASSET_REQUIRED", message: "请先上传真实人物照片以建立人物资产" };
+    }
+  }
+
+  // ---- Reference Preflight（必须在 consumeQuota 之后校验；此处沿用原顺序：先扣 quota 再 preflight。
+  //      为保证"preflight 失败不扣 quota"，对 V2 路径将人物 preflight 前置；衣物 reference 仍按原流程）----
   const preflightRefs = [];
-  preflightRefs.push(avatarComposite);
-  for (const g of garments) {
-    if (g.type === "builtin") continue; // builtin 无 originalFileId，依赖白名单，不强制
-    if (!g.originalFileId) throw appError("INVALID_ARGUMENT", "衣物原图缺失，请重新上传衣物");
-    preflightRefs.push(g.originalFileId);
+  if (isEngineEnabled()) {
+    // V2：人物图来自 Person Asset（已通过 personUrl 校验），衣物图走服务端解析
+    preflightRefs.push(personUrl);
+    for (const g of garments) {
+      if (g.type === "builtin") continue; // builtin 无 originalFileId，依赖白名单，不强制
+      if (!g.originalFileId) throw appError("INVALID_ARGUMENT", "衣物原图缺失，请重新上传衣物");
+      preflightRefs.push(g.originalFileId);
+    }
+  } else {
+    // Legacy：人物参考图 = avatar_views.views.composite（旧链路保留）
+    const avatarComposite = (av.views && av.views.composite) || "";
+    if (!avatarComposite) throw appError("INVALID_ARGUMENT", "人物参考图缺失，请先完成人物照片");
+    preflightRefs.push(avatarComposite);
+    for (const g of garments) {
+      if (g.type === "builtin") continue;
+      if (!g.originalFileId) throw appError("INVALID_ARGUMENT", "衣物原图缺失，请重新上传衣物");
+      preflightRefs.push(g.originalFileId);
+    }
   }
   const refImages = await toHttpsRefs(preflightRefs);
   if (refImages.length !== preflightRefs.length) {
+    // Fail Closed：参考图数量不一致 → 生成中止、不调用 Provider、不扣 quota
     throw appError("PROVIDER_ERROR", "参考图数量不一致，生成中止");
   }
-  const task = Object.assign({}, base, { type: "ai_image", stage: "image", status: "queued" });
+
+  // 服务端额度：图片/视频生成各扣 1 次；额度不足直接拒绝（不产生任务）
+  // 注意：所有 preflight（person asset / reference）均在 consumeQuota 之前完成，
+  // 故 preflight 失败天然不扣 quota，符合“reference preflight 失败不扣 quota”要求。
+  const date = dateStr();
+  let quota = null;
+  try {
+    quota = await consumeQuota(db, openid, date);
+  } catch (e) {
+    if (e && e.appCode === "RATE_LIMITED") {
+      return { ok: false, error: "RATE_LIMITED", message: e.message };
+    }
+    throw e;
+  }
+  console.log("aiTryon quota consumed", "openid=" + openid, "mode=" + mode, "date=" + date, "used=" + quota.used);
+
+  const task = Object.assign({}, base, { type: "ai_image", stage: "image", status: "queued", person_source_type: personSourceType });
+
+  // ---- V2 Engine 路径 ----
+  if (isEngineEnabled() && tryonEngine) {
+    const taskAddRes = await db.collection("tryon_tasks").add({ data: task });
+    const taskId = taskAddRes._id;
+    assertTransition("queued", "processing");
+    await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "processing", person_source_type: personSourceType, updated_at: Date.now() } });
+
+    // 衣物 HTTPS 参考图已就位（refImages[0] = person，其余 = garments）
+    const engineGarms = garments.map((g, i) => ({
+      garmentId: g._id || null,
+      image: refImages[i + 1] || g.originalFileId || null,
+      category: g.category,
+      sourceCategory: g.category,
+      name: g.name || "",
+      profile: g.profile || null
+    }));
+
+    const context = {
+      person: {
+        assetId: personAssetId,
+        originalPhoto: personAsset ? (personAsset.original_photo || personAsset.originalPhoto || null) : (refImages[0] || null),
+        frontPhoto: personAsset ? (personAsset.front_photo || personAsset.frontPhoto || null) : null,
+        anchorImage: personAsset ? (personAsset.anchor_image || personAsset.anchorImage || null) : null,
+        bodyProfile
+      },
+      garments: engineGarms,
+      options: { strategy: "BALANCED", mode: "image", preserveFace: true, background: "keep" }
+    };
+
+    let engineRes = null;
+    let lastErr = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        engineRes = await tryonEngine.generate(context, "BALANCED");
+        lastErr = null;
+        break;
+      } catch (e) {
+        lastErr = e;
+        await db.collection("tryon_tasks").doc(taskId).update({ data: { retry_count: attempt + 1, updated_at: Date.now() } });
+        console.log("aiTryon engine generate fail", "taskId=" + taskId, "attempt=" + (attempt + 1), "error=" + fmtErr(e));
+      }
+    }
+    if (lastErr || (engineRes && engineRes.ok === false)) {
+      assertTransition("processing", "failed");
+      await refundQuota(db, openid, date); // Provider 失败 → 退款
+      const errMsg = (engineRes && engineRes.error) ? engineRes.error : (lastErr ? fmtErr(lastErr) : "Engine 生成失败");
+      await db.collection("tryon_tasks").doc(taskId).update({
+        data: { status: "failed", error: errMsg, error_code: engineRes && engineRes.errorCode || lastErr && lastErr.code || "PROVIDER_ERROR", error_message: errMsg, provider: "engine", updated_at: Date.now(), completed_at: Date.now() }
+      });
+      console.log("aiTryon engine submit fail", "taskId=" + taskId, "error=" + errMsg, "costMs=" + (Date.now() - t0));
+      return { ok: false, taskId, error: errMsg };
+    }
+
+    const rawUrl = (engineRes && engineRes.imageUrl) || "";
+    let tryonImage = rawUrl;
+    try {
+      tryonImage = await saveRemoteImage(rawUrl, "tryon");
+    } catch (e) {
+      console.log("aiTryon storage save fail", "taskId=" + taskId, "error=" + e.message);
+    }
+    const provider = (engineRes && engineRes.provider) || "engine";
+    assertTransition("processing", "success");
+    const update = {
+      stage: "image", status: "success",
+      tryon_image: tryonImage, tryon_image_url: rawUrl,
+      person_asset_id: personAssetId, person_source_type: personSourceType,
+      strategy: "BALANCED", provider,
+      updated_at: Date.now(), completed_at: Date.now()
+    };
+    await db.collection("tryon_tasks").doc(taskId).update({ data: update });
+    await saveTryonResult(Object.assign({ _id: taskId }, task, update));
+    console.log("aiTryon engine image ok", "taskId=" + taskId, "provider=" + provider, "costMs=" + (Date.now() - t0));
+    // 前端兼容返回格式（不要求前端修改字段）
+    return {
+      ok: true, taskId, status: "success",
+      tryonImage, tryonImageUrl: rawUrl, tryonVideo: "",
+      garmentName, personSourceType, provider, strategy: "BALANCED"
+    };
+  }
+
+  // ---- Legacy 路径（flag=false，默认；旧代码完整保留作为 fallback）----
+  const imagePrompt = buildTryonImagePrompt(profile, garments.map((g) => g.name), refImages.length);
   const addRes = await db.collection("tryon_tasks").add({ data: task });
   const taskId = addRes._id;
-  const imagePrompt = buildTryonImagePrompt(profile, garments.map((g) => g.name), refImages.length);
   assertTransition("queued", "processing");
   await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "processing", updated_at: Date.now() } });
   let lastErr = null;
@@ -340,14 +646,12 @@ async function submit(event, openid) {
   await db.collection("tryon_tasks").doc(taskId).update({ data: update });
   await saveTryonResult(Object.assign({ _id: taskId }, task, update));
   console.log("aiTryon image ok", "taskId=" + taskId, "status=success", "costMs=" + (Date.now() - t0));
-  return { ok: true, taskId, status: "success", tryonImage, tryonImageUrl: rawUrl, garmentName };
+  return { ok: true, taskId, status: "success", tryonImage, tryonImageUrl: rawUrl, tryonVideo: "", garmentName };
 }
 
 async function status(event, openid) {
   const t0 = Date.now();
-  // 任务必须属于当前用户
   const d = await getOwnedDoc(db, "tryon_tasks", requireId(event.taskId, "taskId"), openid);
-  // 异步视频任务：生成中轮询；或已 success 但视频 URL 缺失（旧字段解析 bug）时补全
   const needPoll = d.video_task_id && (d.status === "processing" || (d.status === "success" && !d.tryon_video));
   if (needPoll) {
     const aigc = getAigc();
@@ -373,13 +677,11 @@ async function status(event, openid) {
           d.error = msg;
           console.log("aiTryon video failed", "taskId=" + event.taskId, "error=" + msg, "costMs=" + (Date.now() - t0));
         }
-        // queued / in_progress：保持 processing，前端继续轮询
       } catch (e) {
         // 单次轮询失败不判死，保持 processing 让前端重试
       }
     }
   }
-  // 幂等补发订阅通知：成功且未通知过的任务，任意一次查询都会补发
   if (d.status === "success" && d.tryon_video && !d.notified) {
     const sent = await sendSubscribe(d.user_id, d.garment_name);
     if (sent) {
@@ -434,7 +736,7 @@ async function listFavorites(openid) {
       garmentName: d.garment_name || "AI 试穿",
       createdAt: d.created_at || d.createdAt || 0,
       image: d.image || "",
-      videoUrl: d.video_url || ""
+      videoUrl: d.tryon_video || ""
     }))
     .sort((a, b) => b.createdAt - a.createdAt)
     .slice(0, 50);
@@ -465,7 +767,6 @@ exports.main = async (event) => {
       const ids = requireArray(event.ids || [], "ids", { max: 50 }).map((v) => requireId(v, "id"));
       let removed = 0;
       for (const id of ids) {
-        // 逐条校验归属：A 不能删 B 的记录
         const doc = await getOwnedDoc(db, "tryon_results", id, openid);
         const image = doc.tryon_image;
         if (image && image.indexOf("cloud://") === 0) {
@@ -478,7 +779,6 @@ exports.main = async (event) => {
     }
     if (event.action === "history") {
       const coll = db.collection("tryon_results");
-      // 严格按当前用户隔离
       const res = await coll.where({ user_id: openid }).orderBy("createdAt", "desc").limit(50).get();
       console.log("aiTryon history query", "openid=" + (openid ? "set" : "EMPTY"), "count=" + res.data.length);
       return {
@@ -504,7 +804,7 @@ exports.main = async (event) => {
       return runDeletion(db, cloud, openid, req.jobId);
     }
     if (event.action === "status") return status(event, openid);
-    return submit(event, openid);
+    return await submit(event, openid);
   } catch (e) {
     console.log("aiTryon main fail", "error=" + fmtErr(e));
     return { ok: false, error: e.appCode || "INTERNAL", message: e.appCode ? e.message : "内部错误" };
