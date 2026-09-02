@@ -1,0 +1,112 @@
+{
+  "benchmark": "T2",
+  "version": "1.0.0",
+  "executedAt": null,
+  "environment": {
+    "nodeVersion": null,
+    "branch": "feature/garment-lifecycle-v0.1",
+    "cloudEnv": "cloud1-d8gt95vnl0ec35c4f",
+    "appId": "wxe44ebc1661569b32"
+  },
+  "blockingIssues": [],
+  "persons": [
+    {
+      "id": "person-a",
+      "name": "人物A-女性",
+      "imagePath": "miniprogram/assets/img/p17-avatar.jpg",
+      "imageSize": 5080,
+      "description": "全身正面照（原型设计图）"
+    },
+    {
+      "id": "person-b",
+      "name": "人物B-男性",
+      "imagePath": "miniprogram/assets/img/p05-avatar.jpg",
+      "imageSize": 22753,
+      "description": "全身正面照（原型设计图）"
+    }
+  ],
+  "garments": [
+    {
+      "id": "garment-1",
+      "name": "白色纯色T恤",
+      "category": "上装",
+      "imagePath": "miniprogram/assets/img/p06-tee.jpg",
+      "imageSize": 6407,
+      "description": "纯白色短袖T恤，无明显图案"
+    },
+    {
+      "id": "garment-2",
+      "name": "条纹衬衫",
+      "category": "上装",
+      "imagePath": "miniprogram/assets/img/p06-shirt.jpg",
+      "imageSize": 15138,
+      "description": "条纹图案衬衫"
+    },
+    {
+      "id": "garment-3",
+      "name": "图案/Logo上衣",
+      "category": "上装",
+      "imagePath": "miniprogram/assets/img/p06-hoodie.jpg",
+      "imageSize": 8053,
+      "description": "带图案/Logo的上衣（连帽卫衣）"
+    },
+    {
+      "id": "garment-4",
+      "name": "牛仔裤",
+      "category": "下装",
+      "imagePath": "miniprogram/assets/img/p06-jeans.jpg",
+      "imageSize": 30716,
+      "description": "蓝色牛仔裤"
+    },
+    {
+      "id": "garment-5",
+      "name": "半身裙",
+      "category": "下装",
+      "imagePath": "miniprogram/assets/img/p06-skirt.jpg",
+      "imageSize": 12812,
+      "description": "半身裙"
+    }
+  ],
+  "providers": [
+    {
+      "id": "A",
+      "name": "Agnes Baseline",
+      "model": "agnes-image-2.1-flash",
+      "size": "1024x1024",
+      "costPerCall": "约 ¥0.02-0.1",
+      "apiKeyEnv": "AGNES_API_KEY",
+      "baseApiUrl": "https://apihub.agnes-ai.com/v1/images/generations",
+      "description": "当前生产链路：参考图 + prompt 通用图生图"
+    },
+    {
+      "id": "B",
+      "name": "阿里云 aitryon（标准版）",
+      "model": "aitryon",
+      "size": "1024x1024",
+      "costPerCall": "约 ¥0.5-2",
+      "apiKeyEnv": "ALIYUN_API_KEY",
+      "baseApiUrl": "https://dashscope.aliyuncs.com/api/v1/services/aigc/multi-modal-matching/generation",
+      "description": "阿里云百炼 AI试衣标准版，支持上衣/下装/连衣裙"
+    },
+    {
+      "id": "C",
+      "name": "阿里云 aitryon-plus（高级版）",
+      "model": "aitryon-plus",
+      "size": "1280x1280",
+      "costPerCall": "约 ¥1-5",
+      "apiKeyEnv": "ALIYUN_API_KEY",
+      "baseApiUrl": "https://dashscope.aliyuncs.com/api/v1/services/aigc/multi-modal-matching/generation",
+      "description": "阿里云百炼 AI试衣高级版，更高精度和分辨率"
+    }
+  ],
+  "scoring": {
+    "garmentIdentity": 30,
+    "fitSilhouette": 20,
+    "logoTexture": 15,
+    "personConsistency": 15,
+    "naturalness": 10,
+    "cost": 5,
+    "speed": 5
+  },
+  "experiments": []
+}

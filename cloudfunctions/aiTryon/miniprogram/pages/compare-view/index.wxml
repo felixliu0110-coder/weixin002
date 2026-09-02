@@ -1,0 +1,19 @@
+<view class="wx-page">
+  <nav-bar title="对比视图" showBack="{{true}}"></nav-bar>
+
+  <view class="content">
+    <view class="compare-grid">
+      <compare-card data="{{left}}" selected="{{selectedId === left.id}}" bindtap="onSelect" />
+      <compare-card data="{{right}}" selected="{{selectedId === right.id}}" bindtap="onSelect" />
+    </view>
+
+    <view class="hint center mt-16">点圆点切换，保存所选</view>
+
+    <view class="action-row">
+      <btn class="action-btn" type="primary" bindtap="onSave">保存</btn>
+      <btn class="action-btn" type="secondary" bindtap="onShare">分享</btn>
+    </view>
+  </view>
+
+  <tab-bar selected="{{1}}" navMode="{{true}}"></tab-bar>
+</view>

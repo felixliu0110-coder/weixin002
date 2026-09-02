@@ -1,0 +1,69 @@
+<view class="wx-page">
+  <nav-bar title="正在生成穿搭" showBack="{{true}}"></nav-bar>
+
+  <view class="content gen-layout">
+    <!-- 提交任务阶段 -->
+    <block wx:if="{{submitting && !error}}">
+      <view class="pulse-wrap">
+        <view class="pulse-dot"></view>
+        <view class="pulse-dot d2"></view>
+        <view class="pulse-dot d3"></view>
+      </view>
+      <view class="gen-title">正在准备生成</view>
+      <view class="gen-sub">正在把衣物与人物形象组合起来</view>
+
+      <view class="gen-cards">
+        <view class="gen-card">
+          <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-star-deep.png" /></view>
+          <view class="gc-label">当前阶段</view>
+          <view class="gc-val">准备中</view>
+        </view>
+        <view class="gen-card">
+          <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-clock-deep.png" /></view>
+          <view class="gc-label">预计耗时</view>
+          <view class="gc-val">约 15 秒</view>
+        </view>
+      </view>
+
+      <view class="hint center mt-20">请稍候，即将开始生成</view>
+    </block>
+
+    <!-- 正常轮询阶段 -->
+    <block wx:if="{{!submitting && !error}}">
+      <view class="ring-wrap">
+        <view class="ring" style="--p: {{percent}};"></view>
+        <view class="ring-hole"></view>
+        <view class="ring-num mono">{{percent}}<text class="pct">%</text></view>
+      </view>
+      <view class="gen-title">正在生成穿搭效果</view>
+      <view class="gen-sub">正在把「{{garmentName}}」穿到你的人物形象上</view>
+
+      <view class="gen-cards">
+        <view class="gen-card">
+          <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-star-deep.png" /></view>
+          <view class="gc-label">当前阶段</view>
+          <view class="gc-val">{{stageText}}</view>
+        </view>
+        <view class="gen-card">
+          <view class="gc-ic"><image class="ic-img" style="width:34rpx;height:34rpx" src="/assets/icons/png/icon-clock-deep.png" /></view>
+          <view class="gc-label">预计耗时</view>
+          <view class="gc-val">约 15 秒</view>
+        </view>
+      </view>
+
+      <view class="hint center mt-20">生成完成后将通过微信消息通知你</view>
+    </block>
+
+    <!-- 失败态 -->
+    <block wx:if="{{error}}">
+      <view class="gen-title">暂时没生成成功</view>
+      <view class="gen-sub">{{errorHint || '这次没有生成成功，可以重新尝试。'}}</view>
+      <view class="err-actions">
+        <btn class="retry-btn" type="primary" bindtap="retry">重新生成</btn>
+        <btn class="back-btn" bindtap="backToSelect">返回重选衣物</btn>
+      </view>
+    </block>
+  </view>
+
+  <tab-bar selected="{{1}}" navMode="{{true}}"></tab-bar>
+</view>

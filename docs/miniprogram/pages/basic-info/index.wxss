@@ -1,0 +1,14 @@
+.wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+.label { font-size: 28rpx; color: var(--fg-2); }
+.val { font-size: 36rpx; font-weight: 700; color: var(--fg); }
+.val .unit { font-size: 26rpx; font-weight: 500; color: var(--fg-2); margin-left: 4rpx; }
+slider { width: 100%; }
+.sec-title { font-size: 34rpx; font-weight: 600; color: var(--fg); }
+.hint { font-size: 26rpx; color: var(--fg-2); }
+.num-card { padding: 20rpx 14rpx 16rpx; border-radius: var(--radius-md); background: var(--surface); border: 1rpx solid var(--border-soft); box-shadow: var(--shadow-card); transition: all 0.2s var(--ease); }
+.num-card .nc-name { font-size: 26rpx; }
+.num-card .nc-val { font-size: 32rpx; }
+.nc-val .unit { font-size: 25rpx; font-weight: 500; color: var(--fg-2); }
+.num-card .nc-step { margin-top: 10rpx; gap: 6rpx; }
+.num-card .nc-step .step-btn { width: 48rpx; height: 48rpx; border-radius: var(--radius-sm); transition: all 0.15s ease; }
+.step-hover { background: var(--accent-soft); border-color: var(--accent); }

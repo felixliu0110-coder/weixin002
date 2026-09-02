@@ -1,0 +1,9 @@
+.wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+.nav-btn { width: 80rpx; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--fg); transition: background 0.15s ease; }
+.nav-btn-hover { background: var(--surface-2); }
+.nav-btn .iconfont { font-size: 42rpx; }
+.content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.preview-img { width: 100%; border-radius: var(--radius-lg); overflow: hidden; border: 1rpx solid var(--border-soft); background: var(--surface); box-shadow: var(--shadow-raise); }
+.preview-img image { width: 100%; display: block; }
+.preview-actions { margin-top: 40rpx; display: flex; gap: 20rpx; width: 100%; }
+.preview-actions .btn { flex: 1; }

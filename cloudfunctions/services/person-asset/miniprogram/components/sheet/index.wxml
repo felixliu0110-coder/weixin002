@@ -1,0 +1,7 @@
+<view wx:if="{{visible}}" class="sheet-mask" catchtouchmove="noop" bindtap="onMaskTap">
+  <view class="sheet" catchtap="noop">
+    <view class="grab"></view>
+    <slot></slot>
+    <view class="s-actions"><slot name="actions"></slot></view>
+  </view>
+</view>

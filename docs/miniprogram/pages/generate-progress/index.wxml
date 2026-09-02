@@ -1,0 +1,38 @@
+<view class="wx-page">
+  <nav-bar title="生成人物形象" showBack="{{true}}"></nav-bar>
+
+  <view class="content big-hero-center">
+    <block wx:if="{{!error}}">
+      <view class="ring-wrap">
+        <view class="ring" style="--p: {{percent}};"></view>
+        <view class="ring-hole"></view>
+      <view class="ring-num mono">{{percent}}%</view>
+    </view>
+      <view class="gen-title">正在生成人物形象</view>
+      <view class="gen-sub">根据你的身体资料生成人物三视图</view>
+
+      <view class="gen-steps">
+        <view class="gs-item {{percent > 20 ? 'done' : 'on'}}">
+          <view class="gs-dot"></view>
+          <text class="gs-text">整理人物资料</text>
+        </view>
+        <view class="gs-item {{percent >= 100 ? 'done' : (percent > 20 ? 'on' : '')}}">
+          <view class="gs-dot"></view>
+          <text class="gs-text">生成人物三视图</text>
+        </view>
+        <view class="gs-item {{percent >= 100 ? 'on' : ''}}">
+          <view class="gs-dot"></view>
+          <text class="gs-text">完成</text>
+        </view>
+      </view>
+
+      <view class="hint center mt-20">生成期间可以离开，完成后会通知你</view>
+    </block>
+
+    <block wx:else>
+      <view class="gen-title">暂时没生成成功</view>
+      <view class="gen-sub">请再试一次，如果仍然失败，可以返回重新填写资料。</view>
+      <btn class="retry-btn" type="primary" bindtap="retry">重新生成</btn>
+    </block>
+  </view>
+</view>

@@ -1,0 +1,12 @@
+<view class="record" hover-class="record-hover" catchtap="onTap" catchlongpress="onLongPress">
+  <view class="r-img">
+    <image src="{{data.image}}" mode="{{data.contain ? 'aspectFit' : 'aspectFill'}}" />
+    <view wx:if="{{data.aiTagged}}" class="r-ai">AI 生成</view>
+    <view wx:if="{{data.videoUrl}}" class="r-video"><image class="video-ic" src="/assets/icons/png/icon-upload-white.png" mode="aspectFit" />视频</view>
+    <view wx:if="{{selected}}" class="r-check"><image class="check-img" src="/assets/icons/png/icon-check-white.png" mode="aspectFit" /></view>
+  </view>
+  <view class="r-meta">
+    <view class="r-name">{{data.garmentName}}</view>
+    <view class="r-date">{{data.date}}</view>
+  </view>
+</view>

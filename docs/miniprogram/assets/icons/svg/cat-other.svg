@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <filter id="hand" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <g filter="url(#hand)" fill="none" stroke="#C0846B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 礼盒主体 -->
+    <rect x="8" y="16" width="32" height="24" rx="2.5" fill="#F5E6DC" stroke-width="2.2"/>
+    <!-- 盒盖 -->
+    <rect x="6" y="12" width="36" height="6" rx="2" fill="#F5E6DC" stroke-width="2.2"/>
+    <!-- 丝带竖 -->
+    <path d="M24 12v28" stroke-width="2.5"/>
+    <!-- 丝带横 -->
+    <path d="M8 24h32" stroke-width="2.5"/>
+    <!-- 蝴蝶结 -->
+    <path d="M24 12c-3-4-7-5-9-2s-1 6 2 6h7M24 12c3-4 7-5 9-2s1 6-2 6h-7" fill="#F5E6DC" stroke-width="2.2"/>
+    <!-- 蝴蝶结中心结 -->
+    <circle cx="24" cy="12" r="2.5" fill="#C0846B" stroke="none"/>
+    <!-- 礼盒底部折线 -->
+    <path d="M12 36h24" stroke-width="1.5" stroke-dasharray="2 2"/>
+  </g>
+</svg>

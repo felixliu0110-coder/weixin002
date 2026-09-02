@@ -1,0 +1,10 @@
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/index",
+    "btn": "/components/btn/index",
+    "upload-card": "/components/upload-card/index",
+    "sheet": "/components/sheet/index",
+    "tab-bar": "/components/tabbar/index"
+  },
+  "navigationBarTitleText": "照片上传"
+}

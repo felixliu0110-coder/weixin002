@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>14 · 对比视图 · 我形我衣</title>
+  <link rel="stylesheet" href="../assets/proto.css?v=16">
+</head>
+<body class="wx-page" data-od-id="screen-compare-view" data-screen="14-compare-view.html">
+  <header class="nav">
+    <button class="nav-btn" data-nav="07-tryon-result.html" aria-label="返回">
+      <svg class="ic" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg>
+    </button>
+    <span class="nav-title">对比视图</span>
+  </header>
+
+  <main class="content">
+    <p class="subtitle">选择一件衣服，先看上身效果。</p>
+
+    <div class="compare-grid" data-od-id="compare-grid">
+      <div class="compare-card">
+        <div class="c-img">
+          <img src="../assets/img/p14-left.png" alt="粉色针织连衣裙上身效果">
+          <button class="sel-dot on" id="dotLeft" data-od-id="compare-left-dot" aria-label="选择针织连衣裙">
+            <svg class="ic" viewBox="0 0 24 24"><path d="m6 12.5 4 4L18 8"/></svg>
+          </button>
+        </div>
+        <p class="c-name">针织连衣裙</p>
+      </div>
+      <div class="compare-card">
+        <div class="c-img">
+          <img src="../assets/img/p14-right.png" alt="蓝色衬衫搭配牛仔裤上身效果">
+          <button class="sel-dot" id="dotRight" data-od-id="compare-right-dot" aria-label="选择蓝色衬衫">
+            <svg class="ic" viewBox="0 0 24 24"><path d="m6 12.5 4 4L18 8"/></svg>
+          </button>
+        </div>
+        <p class="c-name">蓝色衬衫</p>
+      </div>
+    </div>
+
+    <p class="hint center mt-16">点圆点切换，保存所选</p>
+
+    <div class="action-row" data-od-id="compare-actions">
+      <button class="btn" data-toast="已保存对比图到相册（模拟）">保存</button>
+      <button class="btn secondary" data-toast="分享对比卡片（已标注 AI 生成）">分享</button>
+    </div>
+  </main>
+
+  <nav class="tabbar" data-od-id="compare-tabbar">
+    <button data-nav="17-home.html"><svg class="ic" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>发现</button>
+    <button class="on" data-nav="06-tryon-select"><svg class="ic" viewBox="0 0 24 24"><path d="M12 6.5a2.5 2.5 0 1 1 2.4 3.2H9.6A2.5 2.5 0 0 1 12 6.5Z"/><path d="M6.5 11.5 4 18h16l-2.5-6.5"/><path d="M8 12h8"/></svg>试衣</button>
+    <button data-nav="13-tryon-history.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.4-9 9-9 9Z"/></svg>收藏</button>
+    <button data-nav="08-profile.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.6-6.5 8-6.5s8 2 8 6.5"/></svg>我的</button>
+  </nav>
+
+  <div class="toast" role="status"></div>
+  <script src="../assets/proto.js"></script>
+  <script>
+    document.getElementById("dotLeft").addEventListener("click", function () {
+      this.classList.add("on");
+      document.getElementById("dotRight").classList.remove("on");
+      OD.toast("已选择「针织连衣裙」保存");
+    });
+    document.getElementById("dotRight").addEventListener("click", function () {
+      this.classList.add("on");
+      document.getElementById("dotLeft").classList.remove("on");
+      OD.toast("已选择「蓝色衬衫」保存");
+    });
+  </script>
+</body>
+</html>

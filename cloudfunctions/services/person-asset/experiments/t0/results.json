@@ -1,0 +1,71 @@
+{
+  "benchmark": "T0",
+  "executedAt": "2026-08-26T14:15:16.690Z",
+  "environment": {
+    "cloudEnv": "cloud1-d8gt95vnl0ec35c4f",
+    "appid": "wxe44ebc1661569b32"
+  },
+  "assets": {
+    "avatarViewId": "",
+    "avatarComposite": "",
+    "garments": []
+  },
+  "experiments": [],
+  "executionContext": {
+    "nodeVersion": "v26.6.0",
+    "cloudEnv": "cloud1-d8gt95vnl0ec35c4f",
+    "appid": "wxe44ebc1661569b32",
+    "branch": "feature/garment-lifecycle-v0.1",
+    "head": "e72adbe"
+  },
+  "blockingIssues": [
+    {
+      "id": "B1",
+      "severity": "P0",
+      "description": "wx-server-sdk 无法在 Node.js 中初始化",
+      "detail": "wx-server-sdk@4.0.2 初始化时依赖 wx global（仅微信客户端运行时提供），在 Node.js v26.6.0 中抛 ReferenceError: wx is not defined",
+      "workaround": "需要在微信开发者工具控制台内执行，或通过 DevTools WebSocket 自动化"
+    },
+    {
+      "id": "B2",
+      "severity": "P0",
+      "description": "@cloudbase/node-sdk 需要腾讯云服务端凭证",
+      "detail": "所有 API 调用（callFunction/database/storage）均要求 secretId/secretKey，当前环境未配置且未在代码库中找到",
+      "workaround": "需要在腾讯云控制台创建云函数调用凭证，或通过微信开发者工具执行"
+    },
+    {
+      "id": "B3",
+      "severity": "P1",
+      "description": "微信开发者工具调试端口未监听",
+      "detail": "检查端口 15066/9420/15000/9222，均无监听。miniprogram-automator 无法连接",
+      "workaround": "在微信开发者工具中开启调试端口（工具 → 设置 → 安全 → 服务端口）"
+    },
+    {
+      "id": "B4",
+      "severity": "P1",
+      "description": "Agnes API Key 仅存在于云函数环境变量",
+      "detail": "AGNES_API_KEY 配置在云函数运行环境中，Node.js 本地无法访问 process.env.AGNES_API_KEY",
+      "workaround": "需要通过云函数调用间接访问，或直接提供 API Key（不安全）"
+    }
+  ],
+  "t0A": {
+    "status": "NOT RUN",
+    "reason": "B1+B2+B3",
+    "detail": "生产链路 aiTryon 云函数无法从 Node.js 调用"
+  },
+  "t0B": {
+    "status": "NOT RUN",
+    "reason": "B1+B4",
+    "detail": "生产链路不支持单参考图，直接调 Agnes 需要 API Key"
+  },
+  "t0C": {
+    "status": "NOT RUN",
+    "reason": "B1+B4",
+    "detail": "生产链路不支持单参考图，直接调 Agnes 需要 API Key"
+  },
+  "t0D": {
+    "status": "NOT RUN",
+    "reason": "B1+B2+B3",
+    "detail": "需要交换 refImages 顺序调用生产链路"
+  }
+}

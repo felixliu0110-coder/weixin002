@@ -1,0 +1,51 @@
+/* ===== TabBar 统一视觉（SVG 矢量图标，lucide 线条风格）===== */
+.tabbar {
+  display: flex;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border-top: 1rpx solid var(--border-soft);
+  padding: 10rpx 24rpx calc(10rpx + env(safe-area-inset-bottom));
+  min-height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  position: relative;
+  z-index: 60;
+  box-shadow: 0 -2rpx 12rpx rgba(70, 52, 40, 0.04);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  padding: 6rpx 0;
+  transition: all 0.2s var(--ease);
+}
+
+/* 图标：SVG data URI，48rpx 视觉尺寸，矢量渲染任意 DPR 不发虚 */
+.tab-ic {
+  width: 48rpx;
+  height: 48rpx;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 文字：不加 letter-spacing（会让居中文本重心偏移）*/
+.tab-label {
+  font-size: 21rpx;
+  color: var(--muted);
+  line-height: 1.2;
+  transition: color 0.25s ease;
+}
+
+/* ===== 选中态：图标换色 + 微弹上浮，文字变色加粗 ===== */
+.tab.on .tab-ic {
+  transform: translateY(-2rpx) scale(1.08);
+}
+.tab.on .tab-label {
+  color: var(--accent-text);
+  font-weight: 600;
+}

@@ -1,0 +1,322 @@
+{
+  "benchmark": "T2",
+  "executedAt": "2026-08-26T15:01:02.361Z",
+  "status": "PARTIALLY_BLOCKED",
+  "blockingIssues": [
+    {
+      "id": "B1",
+      "severity": "P0",
+      "description": "AGNES_API_KEY 未配置",
+      "impact": "A 组全部 BLOCKED"
+    },
+    {
+      "id": "B2",
+      "severity": "P0",
+      "description": "ALIYUN_API_KEY 未配置",
+      "impact": "B/C 组全部 BLOCKED"
+    }
+  ],
+  "environment": {
+    "nodeVersion": "v26.6.0",
+    "branch": "feature/garment-lifecycle-v0.1",
+    "cloudEnv": "cloud1-d8gt95vnl0ec35c4f",
+    "appId": "wxe44ebc1661569b32",
+    "agnesKeyConfigured": false,
+    "aliyunKeyConfigured": false
+  },
+  "persons": [
+    {
+      "id": "person-a",
+      "name": "人物A-女性",
+      "imagePath": "miniprogram/assets/img/p17-avatar.jpg",
+      "imageSize": 5080
+    },
+    {
+      "id": "person-b",
+      "name": "人物B-男性",
+      "imagePath": "miniprogram/assets/img/p05-avatar.jpg",
+      "imageSize": 22753
+    }
+  ],
+  "garments": [
+    {
+      "id": "garment-1",
+      "name": "白色纯色T恤",
+      "category": "上装",
+      "imagePath": "miniprogram/assets/img/p06-tee.jpg",
+      "imageSize": 6407
+    },
+    {
+      "id": "garment-2",
+      "name": "条纹衬衫",
+      "category": "上装",
+      "imagePath": "miniprogram/assets/img/p06-shirt.jpg",
+      "imageSize": 15138
+    },
+    {
+      "id": "garment-3",
+      "name": "图案/Logo上衣",
+      "category": "上装",
+      "imagePath": "miniprogram/assets/img/p06-hoodie.jpg",
+      "imageSize": 8053
+    },
+    {
+      "id": "garment-4",
+      "name": "牛仔裤",
+      "category": "下装",
+      "imagePath": "miniprogram/assets/img/p06-jeans.jpg",
+      "imageSize": 30716
+    },
+    {
+      "id": "garment-5",
+      "name": "半身裙",
+      "category": "下装",
+      "imagePath": "miniprogram/assets/img/p06-skirt.jpg",
+      "imageSize": 12812
+    }
+  ],
+  "experiments": [
+    {
+      "status": "BLOCKED",
+      "reason": "AGNES_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-1",
+      "provider": "A",
+      "modelName": "agnes-image-2.1-flash"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-1",
+      "provider": "B",
+      "modelName": "aitryon"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-1",
+      "provider": "C",
+      "modelName": "aitryon-plus"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "AGNES_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-2",
+      "provider": "A",
+      "modelName": "agnes-image-2.1-flash"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-2",
+      "provider": "B",
+      "modelName": "aitryon"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-2",
+      "provider": "C",
+      "modelName": "aitryon-plus"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "AGNES_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-3",
+      "provider": "A",
+      "modelName": "agnes-image-2.1-flash"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-3",
+      "provider": "B",
+      "modelName": "aitryon"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-3",
+      "provider": "C",
+      "modelName": "aitryon-plus"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "AGNES_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-4",
+      "provider": "A",
+      "modelName": "agnes-image-2.1-flash"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-4",
+      "provider": "B",
+      "modelName": "aitryon"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-4",
+      "provider": "C",
+      "modelName": "aitryon-plus"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "AGNES_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-5",
+      "provider": "A",
+      "modelName": "agnes-image-2.1-flash"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-5",
+      "provider": "B",
+      "modelName": "aitryon"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-a",
+      "garmentId": "garment-5",
+      "provider": "C",
+      "modelName": "aitryon-plus"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "AGNES_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-1",
+      "provider": "A",
+      "modelName": "agnes-image-2.1-flash"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-1",
+      "provider": "B",
+      "modelName": "aitryon"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-1",
+      "provider": "C",
+      "modelName": "aitryon-plus"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "AGNES_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-2",
+      "provider": "A",
+      "modelName": "agnes-image-2.1-flash"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-2",
+      "provider": "B",
+      "modelName": "aitryon"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-2",
+      "provider": "C",
+      "modelName": "aitryon-plus"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "AGNES_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-3",
+      "provider": "A",
+      "modelName": "agnes-image-2.1-flash"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-3",
+      "provider": "B",
+      "modelName": "aitryon"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-3",
+      "provider": "C",
+      "modelName": "aitryon-plus"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "AGNES_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-4",
+      "provider": "A",
+      "modelName": "agnes-image-2.1-flash"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-4",
+      "provider": "B",
+      "modelName": "aitryon"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-4",
+      "provider": "C",
+      "modelName": "aitryon-plus"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "AGNES_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-5",
+      "provider": "A",
+      "modelName": "agnes-image-2.1-flash"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-5",
+      "provider": "B",
+      "modelName": "aitryon"
+    },
+    {
+      "status": "BLOCKED",
+      "reason": "ALIYUN_API_KEY not configured",
+      "personId": "person-b",
+      "garmentId": "garment-5",
+      "provider": "C",
+      "modelName": "aitryon-plus"
+    }
+  ],
+  "summary": null,
+  "recommendations": null
+}

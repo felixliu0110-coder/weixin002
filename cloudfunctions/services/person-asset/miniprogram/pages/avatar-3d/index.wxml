@@ -1,0 +1,41 @@
+<view class="wx-page">
+  <nav-bar title="人物三视图" showBack="{{true}}" backRoute="/pages/home/index"></nav-bar>
+
+  <view class="content">
+    <view class="avatar-intro">
+      <text class="avatar-intro-title">你的穿衣基准</text>
+      <text class="avatar-intro-sub">用正面、侧面、背面三个角度，更完整地认识自己的身形。</text>
+    </view>
+    <view class="avatar-stage">
+      <image wx:if="{{views.composite}}" class="avatar-img" src="{{views.composite}}" mode="widthFix" />
+      <view wx:else class="stage-fallback">
+        <text class="fb-text">人物三视图还没建立</text>
+        <btn class="fb-btn" type="secondary" size="sm" bindtap="regenerate">去建立</btn>
+      </view>
+      <view wx:if="{{isExample}}" class="example-tag">示例</view>
+      <view class="view-labels">
+        <text>正面</text>
+        <text>侧面</text>
+        <text>背面</text>
+      </view>
+    </view>
+    <view class="meas-hint">人物三视图 · 用于更准确地理解衣物上身效果</view>
+
+    <view class="sec-hd">
+      <text class="sec-title">我的身体资料</text>
+      <view class="more" hover-class="more-hover" bindtap="edit">编辑资料<image class="ic-img" style="width:26rpx;height:26rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
+    </view>
+    <view class="profile-grid">
+      <view class="p-cell"><text class="pc-label">身高</text><text class="pc-val mono">{{profile.heightCm}}<small>cm</small></text></view>
+      <view class="p-cell"><text class="pc-label">体重</text><text class="pc-val mono">{{profile.weightKg}}<small>kg</small></text></view>
+      <view class="p-cell"><text class="pc-label">肩宽</text><text class="pc-val mono">{{profile.shoulderCm}}<small>cm</small></text></view>
+      <view class="p-cell"><text class="pc-label">腰围</text><text class="pc-val mono">{{profile.waistCm}}<small>cm</small></text></view>
+      <view class="p-cell"><text class="pc-label">腿长</text><text class="pc-val mono">{{profile.legLengthCm}}<small>cm</small></text></view>
+    </view>
+  </view>
+
+  <view class="footer-bar">
+    <btn class="footer-main" type="primary" bindtap="goTryon">去试穿</btn>
+    <btn class="footer-sub" type="secondary" bindtap="edit">编辑人物</btn>
+  </view>
+</view>

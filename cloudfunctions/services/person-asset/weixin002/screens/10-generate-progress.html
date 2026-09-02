@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>10 · 生成数字人 · 我形我衣</title>
+  <link rel="stylesheet" href="../assets/proto.css?v=16">
+</head>
+<body class="wx-page" data-od-id="screen-generate-progress" data-screen="10-generate-progress.html">
+  <header class="nav">
+    <button class="nav-btn" data-nav="04-photo-upload.html" aria-label="返回">
+      <svg class="ic" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg>
+    </button>
+    <span class="nav-title">生成数字人</span>
+  </header>
+
+  <main class="content big-hero-center">
+    <div class="ring-wrap">
+      <div class="ring" id="genRing" data-od-id="gen-ring" aria-hidden="true"></div>
+      <div class="ring-num mono" id="genNum" aria-live="polite">0%</div>
+    </div>
+    <p class="gen-title">正在生成你的专属数字人~</p>
+    <p class="gen-sub">根据身高体重与三围建立身体比例骨架</p>
+
+    <div class="gen-cards">
+      <div class="gen-card">
+        <span class="gc-ic"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span>
+        <div class="gc-label">排队中</div>
+        <div class="gc-val">第 1 位（示例）</div>
+      </div>
+      <div class="gen-card">
+        <span class="gc-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3.5 13.8 9 19.5 11l-5.7 2-1.8 5.5L10.2 13l-5.7-2 5.7-2Z"/></svg></span>
+        <div class="gc-label">预计还需</div>
+        <div class="gc-val">8 秒</div>
+      </div>
+    </div>
+
+    <p class="hint center mt-20">生成期间可以离开，完成后会通知你</p>
+  </main>
+
+  <div class="toast" role="status"></div>
+  <script src="../assets/proto.js"></script>
+  <script>
+    OD.ring(document.getElementById("genRing"), document.getElementById("genNum"), 70, 3200, function () {
+      OD.navAfter("05-3d-viewer.html", 1400, "数字人已生成");
+    });
+  </script>
+</body>
+</html>

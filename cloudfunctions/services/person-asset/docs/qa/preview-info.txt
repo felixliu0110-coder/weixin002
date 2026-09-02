@@ -1,0 +1,11 @@
+{
+  "size": {
+    "total": 1377222,
+    "packages": [
+      {
+        "name": "TOTAL",
+        "size": 1377222
+      }
+    ]
+  }
+}

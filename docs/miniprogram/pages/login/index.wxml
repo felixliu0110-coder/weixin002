@@ -1,0 +1,16 @@
+<view class="wx-page">
+  <view class="content big-hero-center">
+    <view class="login-title">我形<text class="accent-word">我衣</text></view>
+    <view class="login-tag">看见每一件衣服穿在自己身上的样子</view>
+    <view class="hero-art">
+      <image src="/assets/img/p01-hero.jpg" mode="widthFix" />
+    </view>
+    <view class="check-row {{agreed ? 'on' : ''}}" hover-class="check-hover" bindtap="toggleAgree">
+      <view class="box"><image class="ic-img" style="width:26rpx;height:26rpx" src="/assets/icons/png/icon-check-white.png" /></view>
+      <view class="check-copy">我已阅读并同意<text class="strong">《用户协议》</text>和<text class="strong">《隐私政策》</text></view>
+    </view>
+    <btn class="login-cta" type="primary" bindtap="onLogin">微信授权登录</btn>
+  </view>
+
+  <tab-bar selected="{{0}}" navMode="{{true}}"></tab-bar>
+</view>

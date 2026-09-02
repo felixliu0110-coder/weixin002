@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>07 · 试穿结果 · 我形我衣</title>
+  <link rel="stylesheet" href="../assets/proto.css?v=16">
+</head>
+<body class="wx-page" data-od-id="screen-tryon-result" data-screen="07-tryon-result.html">
+  <header class="nav">
+    <button class="nav-btn" data-nav="13-tryon-history.html" aria-label="返回">
+      <svg class="ic" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg>
+    </button>
+    <span class="nav-title">今日穿搭灵感</span>
+  </header>
+
+  <main class="content">
+    <p class="subtitle">选择一件衣服，先看上身效果。</p>
+
+    <div class="photo-card">
+      <img src="../assets/img/p07-result.png" alt="AI 生成的粉色针织连衣裙试穿效果图">
+      <span class="badge-ai">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 3.5 13.8 9 19.5 11l-5.7 2-1.8 5.5L10.2 13l-5.7-2 5.7-2Z"/></svg>
+        AI 生成
+      </span>
+      <span class="wm">AI 生成效果，仅供参考</span>
+    </div>
+
+    <div class="angle-row" data-od-id="result-angle">
+      <button class="chip on" data-chip="正面" data-chip-group="angle" data-chip-toast="已切换至「正面」视角（真实实现将切换生成图）">正面</button>
+      <button class="chip" data-chip="侧面" data-chip-group="angle" data-chip-toast="已切换至「侧面」视角（真实实现将切换生成图）">侧面</button>
+      <button class="chip" data-chip="背面" data-chip-group="angle" data-chip-toast="已切换至「背面」视角（真实实现将切换生成图）">背面</button>
+    </div>
+
+    <div class="card result-meta" data-od-id="result-meta">
+      <div>
+        <h3>粉色针织连衣裙</h3>
+        <p class="rm-sub">按你的身材（168cm / 55kg）生成，默认正面全身，可选侧面 / 背面。</p>
+        <p class="hint" style="margin-top:4px">尺码建议仅供参考</p>
+      </div>
+      <span class="rm-tag">建议 M</span>
+    </div>
+
+    <div class="action-row" data-od-id="result-actions">
+      <button class="btn secondary" data-toast="已保存到相册（模拟）"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg>保存到相册</button>
+      <button class="btn dark" data-toast="分享卡片已生成，含「AI 生成效果，仅供参考」标识"><svg class="ic" viewBox="0 0 24 24"><path d="M4 12v8h16v-8"/><path d="M12 3v12"/><path d="m8 7 4-4 4 4"/></svg>分享</button>
+    </div>
+  </main>
+
+  <nav class="tabbar" data-od-id="result-tabbar">
+    <button data-nav="17-home.html"><svg class="ic" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>发现</button>
+    <button class="on" data-nav="06-tryon-select"><svg class="ic" viewBox="0 0 24 24"><path d="M12 6.5a2.5 2.5 0 1 1 2.4 3.2H9.6A2.5 2.5 0 0 1 12 6.5Z"/><path d="M6.5 11.5 4 18h16l-2.5-6.5"/><path d="M8 12h8"/></svg>试衣</button>
+    <button data-nav="13-tryon-history.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.4-9 9-9 9Z"/></svg>收藏</button>
+    <button data-nav="08-profile.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.6-6.5 8-6.5s8 2 8 6.5"/></svg>我的</button>
+  </nav>
+
+  <div class="toast" role="status"></div>
+  <script src="../assets/proto.js"></script>
+</body>
+</html>

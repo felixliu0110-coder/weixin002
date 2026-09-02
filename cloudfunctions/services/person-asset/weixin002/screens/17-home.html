@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>17 · 首页 · 我形我衣</title>
+  <link rel="stylesheet" href="../assets/proto.css?v=16">
+</head>
+<body class="wx-page" data-od-id="screen-home" data-screen="17-home.html">
+  <header class="nav">
+    <span class="nav-brand">我形<b>我衣</b></span>
+  </header>
+
+  <main class="content">
+    <div class="search-box">
+      <svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.5-4.5"/></svg>
+      <input type="search" id="homeSearch" placeholder="搜索衣物" data-od-id="home-search" aria-label="搜索衣物">
+    </div>
+
+    <button class="hero-tryon" data-nav="06-tryon-select.html" data-od-id="home-tryon">
+      <span class="ht-copy">
+        <h2>一键试穿</h2>
+        <p>上传衣物即刻看到上身效果</p>
+      </span>
+      <span class="ht-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M12 6.5a2.5 2.5 0 1 1 2.4 3.2H9.6A2.5 2.5 0 0 1 12 6.5Z"/><path d="M6.5 11.5 4 18h16l-2.5-6.5"/><path d="M8 12h8"/></svg></span>
+    </button>
+
+    <div class="quota-row">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M12 3.5 13.8 9 19.5 11l-5.7 2-1.8 5.5L10.2 13l-5.7-2 5.7-2Z"/></svg>
+      今日剩余 <b class="mono">3</b> 次免费试穿
+    </div>
+
+    <div class="sec-hd">
+      <h2>热门模板</h2>
+      <button class="more" data-toast="全部模板（原型占位）">查看全部<svg class="ic" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+    </div>
+    <div class="template-grid" data-od-id="home-templates">
+      <button class="template" data-nav="06-tryon-select.html" data-od-id="template-dress">
+        <span class="t-img"><img src="../assets/img/p17-dress.png" alt="粉色针织连衣裙模板"></span>
+        <span class="t-name">粉色连衣裙</span>
+      </button>
+      <button class="template" data-nav="06-tryon-select.html" data-od-id="template-shirt">
+        <span class="t-img"><img src="../assets/img/p17-shirt.png" alt="蓝色衬衫模板"></span>
+        <span class="t-name">蓝色衬衫</span>
+      </button>
+      <button class="template" data-nav="06-tryon-select.html" data-od-id="template-white">
+        <span class="t-img"><img src="../assets/img/p17-white.png" alt="白色衬衫模板"></span>
+        <span class="t-name">白色衬衫</span>
+      </button>
+    </div>
+
+    <div class="sec-hd" style="margin-top:22px"><h2>我的数字人</h2><span class="hint">已就绪</span></div>
+    <button class="avatar-row" data-nav="05-3d-viewer.html" data-od-id="home-avatar">
+      <span class="ar-img"><img src="../assets/img/p05-avatar.png?v=11" alt="我的数字人3D形象"></span>
+      <span class="ar-copy">
+        <h3>小云的专属数字人</h3>
+        <p>点击查看和编辑身材档案</p>
+      </span>
+      <span class="ar-btn">去试穿</span>
+    </button>
+  </main>
+
+  <nav class="tabbar" data-od-id="home-tabbar">
+    <button class="on" data-nav="17-home"><svg class="ic" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>发现</button>
+    <button data-nav="06-tryon-select.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 6.5a2.5 2.5 0 1 1 2.4 3.2H9.6A2.5 2.5 0 0 1 12 6.5Z"/><path d="M6.5 11.5 4 18h16l-2.5-6.5"/><path d="M8 12h8"/></svg>试衣</button>
+    <button data-nav="13-tryon-history.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.4-9 9-9 9Z"/></svg>收藏</button>
+    <button data-nav="08-profile.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.6-6.5 8-6.5s8 2 8 6.5"/></svg>我的</button>
+  </nav>
+
+  <div class="toast" role="status"></div>
+  <script src="../assets/proto.js"></script>
+  <script>
+    document.getElementById("homeSearch").addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        var v = this.value.trim();
+        OD.toast(v ? "搜索「" + v + "」（原型演示）" : "请输入要搜索的衣物");
+      }
+    });
+  </script>
+</body>
+</html>

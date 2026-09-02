@@ -1,0 +1,40 @@
+<view class="wx-page">
+  <nav-bar title="个人资料" showBack="{{true}}"></nav-bar>
+
+  <view class="content">
+    <view class="account-head">
+      <view class="account-avatar">云</view>
+      <view class="account-info">
+        <view class="account-name">{{user.nickname}}</view>
+        <view class="account-id">个人 ID：{{user.userId}}</view>
+      </view>
+    </view>
+
+    <view class="row-list">
+      <view class="row" hover-class="row-hover" bindtap="onEditName">
+        <view class="ri-ic neu"><text class="row-tag">名</text></view>
+        <view class="ri-main"><view class="ri-title">昵称</view><view class="ri-sub">点击修改，默认来自微信</view></view>
+        <view class="ri-end">{{user.nickname}}<image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
+      </view>
+      <view class="row" hover-class="row-hover" bindtap="onWechat">
+        <view class="ri-ic neu"><text class="row-tag">微</text></view>
+        <view class="ri-main"><view class="ri-title">微信绑定</view><view class="ri-sub">用于登录与账号安全</view></view>
+        <view class="ri-end">{{user.wechatBound ? '已绑定' : '去绑定'}}</view>
+      </view>
+      <view class="row" hover-class="row-hover" bindtap="onPhone">
+        <view class="ri-ic neu"><text class="row-tag">机</text></view>
+        <view class="ri-main"><view class="ri-title">手机号</view><view class="ri-sub">用于找回账号与安全验证</view></view>
+        <view class="ri-end">{{user.phoneBound ? '已绑定' : '去绑定'}}</view>
+      </view>
+      <view class="row">
+        <view class="ri-ic neu"><text class="row-tag">ID</text></view>
+        <view class="ri-main"><view class="ri-title">个人 ID</view><view class="ri-sub">你的唯一账号标识</view></view>
+        <view class="ri-end">{{user.userId}}</view>
+      </view>
+    </view>
+
+    <btn class="logout-btn" type="danger" bindtap="onLogout">退出登录</btn>
+  </view>
+
+  <tab-bar selected="{{3}}" navMode="{{true}}" pill="{{true}}"></tab-bar>
+</view>

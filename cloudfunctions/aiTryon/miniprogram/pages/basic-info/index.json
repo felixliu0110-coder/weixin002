@@ -1,0 +1,10 @@
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/index",
+    "btn": "/components/btn/index",
+    "card": "/components/card/index",
+    "seg": "/components/seg/index",
+    "tab-bar": "/components/tabbar/index"
+  },
+  "navigationBarTitleText": "基本信息"
+}

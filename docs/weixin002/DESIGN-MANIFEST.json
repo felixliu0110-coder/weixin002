@@ -1,0 +1,434 @@
+{
+  "schema": "open-design.design-manifest.v1",
+  "title": "a5e52af7-27cf-491a-9f28-a8ac03bbc3d0",
+  "entryFile": "index.html",
+  "sourceFiles": {
+    "all": [
+      "%SystemDrive%/ProgramData/SogouInput/Components/Picface/Cloud/sgim_picface_cloud_bak.bin",
+      "%SystemDrive%/ProgramData/SogouInput/Components/Picface/Cloud/sgim_picface_cloud.bin",
+      "我形我衣-单文件演示.html",
+      "assets/img/p01-hero.png",
+      "assets/img/p05-avatar.png",
+      "assets/img/p06-hoodie.png",
+      "assets/img/p06-jeans.png",
+      "assets/img/p06-pants.png",
+      "assets/img/p06-shirt.png",
+      "assets/img/p06-skirt.png",
+      "assets/img/p06-tee.png",
+      "assets/img/p07-result.png",
+      "assets/img/p11-garment.png",
+      "assets/img/p13-1.png",
+      "assets/img/p13-2.png",
+      "assets/img/p13-3.png",
+      "assets/img/p13-4.png",
+      "assets/img/p13-5.png",
+      "assets/img/p14-left.png",
+      "assets/img/p14-right.png",
+      "assets/img/p17-avatar.png",
+      "assets/img/p17-dress.png",
+      "assets/img/p17-shirt.png",
+      "assets/img/p17-white.png",
+      "assets/img/tmp-p03-a.png",
+      "assets/img/tmp-p03-b.png",
+      "assets/img/tmp-p03-c.png",
+      "assets/img/tmp-p03-cards.png",
+      "assets/proto.css",
+      "assets/proto.js",
+      "brand-spec.md",
+      "design-audit.md",
+      "image-1.png",
+      "image-10.png",
+      "image-11.png",
+      "image-12.png",
+      "image-13.png",
+      "image-2.png",
+      "image-3.png",
+      "image-4.png",
+      "image-5.png",
+      "image-6.png",
+      "image-7.png",
+      "image-8.png",
+      "image-9.png",
+      "image.png",
+      "index.html",
+      "page_01_login.png.jpeg",
+      "page_02_basic_info.png.jpeg",
+      "page_03_body_params.png.jpeg",
+      "page_04_photo_upload.png.jpeg",
+      "page_05_3d_viewer.png.jpeg",
+      "page_06_tryon_select.png.jpeg",
+      "page_07_tryon_result.png.jpeg",
+      "page_08_profile.png.jpeg",
+      "page_09_privacy_auth.png.jpeg",
+      "page_10_generate_progress.png.jpeg",
+      "page_11_image_preview.png.jpeg",
+      "page_12_tryon_progress.png.jpeg",
+      "page_13_tryon_history.png.jpeg",
+      "page_14_compare_view.png.jpeg",
+      "page_15_privacy_manage.png.jpeg",
+      "page_16_feedback_about.png.jpeg",
+      "page_17_home.png.jpeg",
+      "PRD-我形我衣-v1.0.md",
+      "README.md",
+      "screens/01-login.html",
+      "screens/02-basic-info.html",
+      "screens/03-body-params.html",
+      "screens/04-photo-upload.html",
+      "screens/05-3d-viewer.html",
+      "screens/06-tryon-select.html",
+      "screens/07-tryon-result.html",
+      "screens/08-profile.html",
+      "screens/09-privacy-auth.html",
+      "screens/10-generate-progress.html",
+      "screens/11-image-preview.html",
+      "screens/12-tryon-progress.html",
+      "screens/13-tryon-history.html",
+      "screens/14-compare-view.html",
+      "screens/15-privacy-manage.html",
+      "screens/16-feedback-about.html",
+      "screens/17-home.html",
+      "screenshot-2026-08-15T13-19-35-942Z.png",
+      "woxingwoyi-demo.html"
+    ],
+    "html": [
+      "我形我衣-单文件演示.html",
+      "index.html",
+      "screens/01-login.html",
+      "screens/02-basic-info.html",
+      "screens/03-body-params.html",
+      "screens/04-photo-upload.html",
+      "screens/05-3d-viewer.html",
+      "screens/06-tryon-select.html",
+      "screens/07-tryon-result.html",
+      "screens/08-profile.html",
+      "screens/09-privacy-auth.html",
+      "screens/10-generate-progress.html",
+      "screens/11-image-preview.html",
+      "screens/12-tryon-progress.html",
+      "screens/13-tryon-history.html",
+      "screens/14-compare-view.html",
+      "screens/15-privacy-manage.html",
+      "screens/16-feedback-about.html",
+      "screens/17-home.html",
+      "woxingwoyi-demo.html"
+    ],
+    "css": [
+      "assets/proto.css"
+    ],
+    "scriptsAndComponents": [
+      "assets/proto.js"
+    ],
+    "assets": [
+      "%SystemDrive%/ProgramData/SogouInput/Components/Picface/Cloud/sgim_picface_cloud_bak.bin",
+      "%SystemDrive%/ProgramData/SogouInput/Components/Picface/Cloud/sgim_picface_cloud.bin",
+      "assets/img/p01-hero.png",
+      "assets/img/p05-avatar.png",
+      "assets/img/p06-hoodie.png",
+      "assets/img/p06-jeans.png",
+      "assets/img/p06-pants.png",
+      "assets/img/p06-shirt.png",
+      "assets/img/p06-skirt.png",
+      "assets/img/p06-tee.png",
+      "assets/img/p07-result.png",
+      "assets/img/p11-garment.png",
+      "assets/img/p13-1.png",
+      "assets/img/p13-2.png",
+      "assets/img/p13-3.png",
+      "assets/img/p13-4.png",
+      "assets/img/p13-5.png",
+      "assets/img/p14-left.png",
+      "assets/img/p14-right.png",
+      "assets/img/p17-avatar.png",
+      "assets/img/p17-dress.png",
+      "assets/img/p17-shirt.png",
+      "assets/img/p17-white.png",
+      "assets/img/tmp-p03-a.png",
+      "assets/img/tmp-p03-b.png",
+      "assets/img/tmp-p03-c.png",
+      "assets/img/tmp-p03-cards.png",
+      "brand-spec.md",
+      "design-audit.md",
+      "image-1.png",
+      "image-10.png",
+      "image-11.png",
+      "image-12.png",
+      "image-13.png",
+      "image-2.png",
+      "image-3.png",
+      "image-4.png",
+      "image-5.png",
+      "image-6.png",
+      "image-7.png",
+      "image-8.png",
+      "image-9.png",
+      "image.png",
+      "page_01_login.png.jpeg",
+      "page_02_basic_info.png.jpeg",
+      "page_03_body_params.png.jpeg",
+      "page_04_photo_upload.png.jpeg",
+      "page_05_3d_viewer.png.jpeg",
+      "page_06_tryon_select.png.jpeg",
+      "page_07_tryon_result.png.jpeg",
+      "page_08_profile.png.jpeg",
+      "page_09_privacy_auth.png.jpeg",
+      "page_10_generate_progress.png.jpeg",
+      "page_11_image_preview.png.jpeg",
+      "page_12_tryon_progress.png.jpeg",
+      "page_13_tryon_history.png.jpeg",
+      "page_14_compare_view.png.jpeg",
+      "page_15_privacy_manage.png.jpeg",
+      "page_16_feedback_about.png.jpeg",
+      "page_17_home.png.jpeg",
+      "PRD-我形我衣-v1.0.md",
+      "README.md",
+      "screenshot-2026-08-15T13-19-35-942Z.png"
+    ]
+  },
+  "screens": [
+    {
+      "file": "我形我衣-单文件演示.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "index.html",
+      "role": "launcher-overview",
+      "implementationNote": "Use this as the navigation/overview entry only; implement each linked screen file as its own route/surface."
+    },
+    {
+      "file": "screens/01-login.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/02-basic-info.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/03-body-params.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/04-photo-upload.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/05-3d-viewer.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/06-tryon-select.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/07-tryon-result.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/08-profile.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/09-privacy-auth.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/10-generate-progress.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/11-image-preview.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/12-tryon-progress.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/13-tryon-history.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/14-compare-view.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/15-privacy-manage.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/16-feedback-about.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "screens/17-home.html",
+      "role": "product-screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    },
+    {
+      "file": "woxingwoyi-demo.html",
+      "role": "screen",
+      "implementationNote": "Preserve visual hierarchy, responsive behavior, and interactive states from this screen."
+    }
+  ],
+  "screenFilePolicy": {
+    "mode": "screen-file-first",
+    "entryFileRole": "launcher-overview",
+    "rules": [
+      "Each distinct user-facing screen or surface must be delivered and implemented as its own file/route.",
+      "If a landing page is present or requested, keep it in landing.html and do not merge it into the product app screen.",
+      "When multiple HTML screens exist, index.html is a launcher/overview only; it must not be treated as the combined final UI.",
+      "Keep product app screens, landing pages, platform screens, and OS widget surfaces separate in production code."
+    ]
+  },
+  "appModules": [
+    "Identify domain-specific in-app modules from the exported UI; do not reduce them to generic cards.",
+    "For each major module, implement purpose, default/loading/empty/error/success states, and responsive behavior.",
+    "Keep app modules separate from OS home-screen widgets in the production component model."
+  ],
+  "osWidgets": [
+    "If the export includes home-screen, lock-screen, Live Activity, tablet glance, or Android widget surfaces, implement them as platform quick-access surfaces outside the app UI.",
+    "If none are present, do not invent OS widgets unless the product requirements request them."
+  ],
+  "landingPage": {
+    "detection": "Inspect files and screen names for a marketing/landing page surface. If present, keep it separate from product app screens.",
+    "requiredSections": [
+      "hero",
+      "value props",
+      "product proof/screenshots",
+      "feature proof",
+      "CTA"
+    ]
+  },
+  "tokens": {
+    "source": [
+      "assets/proto.css"
+    ],
+    "required": [
+      "background",
+      "surface",
+      "foreground",
+      "muted text",
+      "border",
+      "accent",
+      "radius",
+      "shadow",
+      "spacing",
+      "type scale",
+      "motion"
+    ],
+    "note": "Extract/freeze tokens before framework implementation so coding tools do not substitute default theme colors or typography."
+  },
+  "interactions": {
+    "source": [
+      "assets/proto.js"
+    ],
+    "requiredStates": [
+      "default",
+      "hover",
+      "focus",
+      "active",
+      "disabled",
+      "loading",
+      "empty",
+      "error",
+      "success"
+    ],
+    "requiredBehaviors": [
+      "forms/validation where present",
+      "tabs/filters where present",
+      "dialogs/sheets/drawers where present",
+      "copy/generate/share actions where present",
+      "player or quick controls where present"
+    ],
+    "note": "If the prototype is static, derive missing behavior from visible controls and document it before coding."
+  },
+  "responsiveViewports": [
+    {
+      "name": "mobile-compact",
+      "width": 360,
+      "height": 800,
+      "category": "mobile",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "mobile-standard",
+      "width": 390,
+      "height": 844,
+      "category": "mobile",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "mobile-large",
+      "width": 430,
+      "height": 932,
+      "category": "mobile",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "foldable-small-tablet",
+      "width": 600,
+      "height": 960,
+      "category": "foldable-tablet",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "tablet-portrait",
+      "width": 820,
+      "height": 1180,
+      "category": "tablet",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "tablet-landscape",
+      "width": 1024,
+      "height": 768,
+      "category": "tablet",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "laptop",
+      "width": 1366,
+      "height": 768,
+      "category": "desktop",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900,
+      "category": "desktop",
+      "mustAvoidHorizontalScroll": true
+    },
+    {
+      "name": "wide",
+      "width": 1920,
+      "height": 1080,
+      "category": "wide",
+      "mustAvoidHorizontalScroll": true
+    }
+  ],
+  "implementationChecklist": [
+    "Open entryFile first and map screens, modules, tokens, and interactions.",
+    "Extract tokens before writing framework components.",
+    "Implement app-specific modules with real states instead of generic card grids.",
+    "Preserve or rebuild JS interactions for meaningful UX actions.",
+    "Validate screenshots at desktop/tablet/mobile viewports with no horizontal overflow.",
+    "Keep landing pages, in-app modules, and OS widgets as separate implementation surfaces."
+  ]
+}

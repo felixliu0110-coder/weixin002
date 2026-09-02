@@ -1,0 +1,18 @@
+.wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
+.nav-btn { width: 80rpx; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--fg); transition: background 0.15s ease; }
+.nav-btn-hover { background: var(--surface-2); }
+.nav-btn .iconfont { font-size: 42rpx; }
+.content { flex: 1; overflow-y: auto; padding: 8rpx 0 48rpx; }
+.sec-title { font-size: 34rpx; font-weight: 600; margin: 40rpx 4rpx 16rpx; }
+.hint { font-size: 25rpx; color: var(--fg-2); margin: 0 4rpx 28rpx; line-height: 1.6; }
+.upload-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20rpx; }
+.upload-hover .upload-card { border-color: var(--accent); box-shadow: var(--shadow-card-hover); }
+.upload-card { border-radius: var(--radius-md); overflow: hidden; border: 1rpx solid var(--border-soft); background: var(--surface); box-shadow: var(--shadow-card); transition: all 0.2s var(--ease); }
+.upload-card image { width: 100%; height: 280rpx; }
+.upload-meta { padding: 16rpx 20rpx 20rpx; }
+.upload-name { font-size: 26rpx; font-weight: 600; }
+.upload-status { font-size: 22rpx; color: var(--fg-2); margin-top: 6rpx; }
+.upload-status.success { color: var(--success); }
+.upload-status.error { color: var(--danger); }
+.next-btn { display: block; margin-top: 48rpx; width: 100%; }
+.next-btn.disabled { opacity: 0.5; }

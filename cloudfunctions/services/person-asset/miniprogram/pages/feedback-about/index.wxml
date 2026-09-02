@@ -1,0 +1,27 @@
+<view class="wx-page">
+  <nav-bar title="关于我们" showBack="{{true}}"></nav-bar>
+
+  <view class="content">
+    <view class="field-label">遇到的问题或建议</view>
+    <textarea class="textarea" placeholder="请输入你的意见或建议..." maxlength="200" value="{{fbText}}" bindinput="onInput" />
+
+    <btn type="primary" block="{{true}}" class="submit-btn" bindtap="onSubmit">提交反馈</btn>
+    <view wx:if="{{formOk}}" class="form-success">
+      <image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-check-green.png" />
+      已提交，我们将在 3 个工作日内回复
+    </view>
+
+    <view class="sec-hd"><text class="sec-title">关于我形我衣</text></view>
+    <view class="about-list">
+      <view class="about-item"><text class="ab-title">AI 生成说明</text>试穿效果图由 AI 生成，仅供参考，可能与实物存在色差与形变。</view>
+      <view class="about-item"><text class="ab-title">深度合成备案</text>已完成算法备案，生成结果按要求添加显式标识。</view>
+      <view class="about-item"><text class="ab-title">联系方式</text>support@myshape.app</view>
+    </view>
+  </view>
+
+  <view class="footer-bar">
+    <btn class="footer-main" type="primary" bindtap="goProfile">下一步</btn>
+  </view>
+
+  <tab-bar selected="{{3}}" navMode="{{true}}" pill="{{true}}"></tab-bar>
+</view>

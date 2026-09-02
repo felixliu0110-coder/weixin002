@@ -1,0 +1,5 @@
+.sheet-mask { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: var(--mask); display: flex; align-items: flex-end; z-index: 80; }
+.sheet { width: 100%; background: var(--surface); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 24rpx 40rpx calc(40rpx + var(--tabbar-h) + env(safe-area-inset-bottom)); animation: sheet-up 0.28s var(--ease); }
+@keyframes sheet-up { from { transform: translateY(60%); opacity: 0.8; } to { transform: none; opacity: 1; } }
+.grab { width: 72rpx; height: 8rpx; border-radius: 4rpx; background: var(--border); margin: 8rpx auto 32rpx; }
+.s-actions { display: flex; gap: 20rpx; margin-top: 40rpx; }

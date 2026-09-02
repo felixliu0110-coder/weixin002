@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <filter id="hand" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <g filter="url(#hand)" fill="none" stroke="#C0846B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 衣架 -->
+    <path d="M24 6c0-2 1.5-3.5 3.5-3.5S31 4 31 6c0 1.5-1 2.5-2.5 2.5" stroke-width="1.8"/>
+    <circle cx="24" cy="9" r="1.5" fill="#C0846B" stroke="none"/>
+    <!-- 衣身 -->
+    <path d="M16 14c-3 2-6 4.5-6 8v20c0 1.5 1.5 2.5 3 2.5h22c1.5 0 3-1 3-2.5V22c0-3.5-3-6-6-8l-4-2c-1.5-1-3.5-1.5-5.5-1.5S21 11 19.5 12z" fill="#F5E6DC" stroke-width="2.2"/>
+    <!-- 领口 -->
+    <path d="M19.5 12c2-2.5 4.5-3 5.5-3s3.5.5 5.5 3" stroke-width="2"/>
+    <!-- 袖子折线 -->
+    <path d="M10 22l6-4M38 22l-6-4" stroke-width="1.8"/>
+    <!-- 下摆缝线 -->
+    <path d="M15 40.5h18" stroke-width="1.5" stroke-dasharray="3 2"/>
+  </g>
+</svg>

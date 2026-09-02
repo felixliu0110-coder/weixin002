@@ -1,0 +1,10 @@
+<view class="seg">
+  <view
+    wx:for="{{options}}"
+    wx:key="value"
+    class="seg-item {{value === item.value ? 'on' : ''}}"
+    hover-class="seg-hover"
+    data-value="{{item.value}}"
+    catchtap="onTap"
+  >{{item.label}}</view>
+</view>

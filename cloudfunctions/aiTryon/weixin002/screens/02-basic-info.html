@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>02 · 基本信息 · 我形我衣</title>
+  <link rel="stylesheet" href="../assets/proto.css?v=16">
+</head>
+<body class="wx-page" data-od-id="screen-basic-info" data-screen="02-basic-info.html">
+  <header class="nav">
+    <button class="nav-btn" data-nav="01-login.html" aria-label="返回">
+      <svg class="ic" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg>
+    </button>
+    <span class="nav-title">步骤1/3 基本信息</span>
+  </header>
+
+  <main class="content">
+    <div class="steps" aria-label="步骤 1/3">
+      <i class="on"></i><i></i><i></i>
+    </div>
+    <p class="subtitle">先告诉我你的基础信息，后续可随时修改。</p>
+
+    <div class="card">
+      <div class="field" style="margin-top:2px">
+        <div class="fl"><label>性别</label></div>
+        <div class="seg" id="segGender" data-od-id="wizard-gender">
+          <button class="on" data-gender="女">女性</button>
+          <button data-gender="男">男性</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="fl"><label>身高</label><span class="val" id="hVal">165<small>cm</small></span></div>
+        <input type="range" min="145" max="200" value="165" data-out="hVal" data-unit="cm" data-od-id="wizard-height">
+      </div>
+      <div class="field">
+        <div class="fl"><label>体重</label><span class="val" id="wVal">50<small>kg</small></span></div>
+        <input type="range" min="40" max="120" value="50" data-out="wVal" data-unit="kg" data-od-id="wizard-weight">
+      </div>
+    </div>
+
+    <p class="step-note">仅填身高体重时，三围等将按你的性别自动估算，可逐项修改。</p>
+  </main>
+
+  <div class="footer-bar">
+    <button class="btn" data-nav="03-body-params.html" data-od-id="wizard-basic-next">下一步</button>
+  </div>
+
+  <nav class="tabbar" data-od-id="wizard-tabbar">
+    <button class="on" data-nav="17-home"><svg class="ic" viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>发现</button>
+    <button data-nav="06-tryon-select.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 6.5a2.5 2.5 0 1 1 2.4 3.2H9.6A2.5 2.5 0 0 1 12 6.5Z"/><path d="M6.5 11.5 4 18h16l-2.5-6.5"/><path d="M8 12h8"/></svg>试衣</button>
+    <button data-nav="13-tryon-history.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.4-9 9-9 9Z"/></svg>收藏</button>
+    <button data-nav="08-profile.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.6-6.5 8-6.5s8 2 8 6.5"/></svg>我的</button>
+  </nav>
+
+  <div class="toast" role="status"></div>
+  <script src="../assets/proto.js"></script>
+  <script>
+    document.querySelectorAll("#segGender button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        document.querySelectorAll("#segGender button").forEach(function (x) { x.classList.remove("on"); });
+        b.classList.add("on");
+        OD.toast("性别已设为「" + b.getAttribute("data-gender") + "」");
+      });
+    });
+  </script>
+</body>
+</html>

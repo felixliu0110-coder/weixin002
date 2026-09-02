@@ -1,0 +1,4 @@
+.switch { position: relative; width: 100rpx; height: 60rpx; border-radius: 999rpx; background: var(--border); transition: background 0.2s var(--ease); }
+.knob { position: absolute; top: 6rpx; left: 6rpx; width: 48rpx; height: 48rpx; border-radius: 50%; background: var(--surface); box-shadow: 0 4rpx 12rpx rgba(70,52,40,0.2); transition: transform 0.2s var(--ease); }
+.switch.on { background: var(--accent); }
+.switch.on .knob { transform: translateX(40rpx); box-shadow: 0 4rpx 12rpx rgba(227, 165, 149, 0.4); }

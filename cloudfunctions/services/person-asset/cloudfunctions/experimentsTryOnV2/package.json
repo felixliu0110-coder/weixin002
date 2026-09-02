@@ -1,0 +1,9 @@
+{
+  "name": "experimentsTryOnV2",
+  "version": "1.0.0",
+  "description": "V2-POC-01: 真实人物 vs Avatar Composite 试穿对比实验（隔离生产环境）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "nav-bar": "/components/nav-bar/index",
+    "record-item": "/components/record-item/index",
+    "tab-bar": "/components/tabbar/index",
+    "btn": "/components/btn/index"
+  },
+  "navigationBarTitleText": "试穿记录"
+}

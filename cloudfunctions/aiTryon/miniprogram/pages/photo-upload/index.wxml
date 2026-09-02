@@ -1,0 +1,46 @@
+<view class="wx-page">
+  <nav-bar title="步骤3/3 照片上传（选填）" showBack="{{true}}"></nav-bar>
+
+  <view class="content">
+    <view class="steps"><i class="on"></i><i class="on"></i><i class="on"></i></view>
+    <view class="subtitle">上传照片可以让人物形象更像你，均为选填。</view>
+
+    <upload-card
+      title="人脸正面照"
+      desc="正面照、光线均匀 · jpg/png ≤ 10MB"
+      icon="/assets/icons/png/icon-camera-white.png"
+      state="{{faceState}}"
+      stateText="跳过"
+      bindtap="openFaceSheet"
+    />
+    <upload-card
+      class="upload-gap"
+      title="全身照（选填）"
+      desc="用于肤色与体态校准 · 可跳过"
+      icon="/assets/icons/png/icon-avatar-white.png"
+      state="{{bodyState}}"
+      stateText="跳过"
+      bindtap="openBodySheet"
+    />
+
+    <view class="step-note">不上传时使用按性别生成的默认形象；人脸照片属敏感个人信息，将单独授权、加密存储。中途退出会自动保存。</view>
+  </view>
+
+  <view class="footer-bar">
+    <btn class="footer-main" type="primary" bindtap="generate">开始生成</btn>
+  </view>
+
+  <tab-bar selected="{{0}}" navMode="{{true}}"></tab-bar>
+
+  <sheet visible="{{sheetVisible}}" bind:cancel="closePhotoSheet">
+    <view class="sheet-head">
+      <view class="grab"></view>
+      <text class="sheet-title">选择照片</text>
+      <text class="sheet-desc">建议正面照、光线均匀；jpg / png ≤ 10MB，仅用于生成人物形象。</text>
+    </view>
+    <view class="s-rows">
+      <view class="s-row" hover-class="row-hover" data-mode="album" bindtap="choosePhoto">从相册选择</view>
+      <view class="s-row" hover-class="row-hover" data-mode="camera" bindtap="choosePhoto">拍照</view>
+    </view>
+  </sheet>
+</view>

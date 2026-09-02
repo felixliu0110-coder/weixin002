@@ -1,0 +1,9 @@
+<view class="garment {{selected ? 'on' : ''}}" hover-class="garment-hover" catchtap="onTap" catchlongpress="onLongPress">
+  <view class="g-img"><image src="{{data.image}}" mode="aspectFill" /></view>
+  <view class="pick"><image class="pick-img" src="/assets/icons/png/icon-check-white.png" mode="aspectFit" /></view>
+  <view class="g-edit" wx:if="{{editable}}" catchtap="onEdit" hover-class="g-edit-hover">
+    <image class="g-edit-icon" src="/assets/icons/png/icon-settings-dark.png" mode="aspectFit" />
+  </view>
+  <view class="g-name">{{data.name}}</view>
+  <view class="g-cat">{{data.category}}{{data.size_label ? ' · ' + data.size_label : ''}}</view>
+</view>

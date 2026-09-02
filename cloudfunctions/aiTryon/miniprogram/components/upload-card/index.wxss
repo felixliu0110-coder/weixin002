@@ -1,0 +1,10 @@
+.upload-card { display: flex; align-items: center; gap: 28rpx; border: 2rpx dashed var(--accent); background: var(--surface); border-radius: var(--radius-lg); padding: 32rpx 32rpx; width: 100%; min-height: 150rpx; box-shadow: var(--shadow-card); transition: all 0.2s var(--ease); }
+.upload-card + .upload-card { margin-top: 28rpx; }
+.uc-ic { flex: 0 0 92rpx; width: 92rpx; height: 92rpx; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%); color: var(--accent-on); display: flex; align-items: center; justify-content: center; }
+.uc-img { width: 42rpx; height: 42rpx; }
+.uc-main { flex: 1; min-width: 0; }
+.uc-title { font-size: 30rpx; font-weight: 600; }
+.uc-desc { font-size: 25rpx; color: var(--fg-2); margin-top: 8rpx; line-height: 1.55; min-height: 70rpx; }
+.uc-state { font-size: 26rpx; font-weight: 600; color: var(--fg-2); padding: 8rpx 20rpx; border-radius: var(--radius-pill); background: var(--surface-2); }
+.upload-card.done .uc-state { color: var(--accent-deep); background: var(--accent-soft); }
+.upload-hover { border-color: var(--accent-deep); box-shadow: var(--shadow-card-hover); }
