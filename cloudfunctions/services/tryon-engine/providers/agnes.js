@@ -32,17 +32,23 @@ class AgnesProvider extends BaseTryOnProvider {
     return !!process.env.AGNES_API_KEY;
   }
 
-  async _generateInternal(params) {
-    const personImg = (params.person && (params.person.originalPhoto || params.person.personImage)) || params.personImage;
-    const garms = params.garments && Array.isArray(params.garments) ? params.garments : (params.garmentImage ? [{ image: params.garmentImage, category: params.category }] : []);
-    const firstGarm = garms.find((g) => g && g.image) || {};
-    const garmentImg = firstGarm.image || params.garmentImage;
+  async _generateInternal(ctx) {
+    // Provider Adapter 边界（Phase 4.3-A）：
+    // 接收 Engine 已标准化的「标准 Try-On Context」，自行提取所需字段。
+    // - 人物主图：ctx.person.personImage（Engine 已按 original>front>anchor 决定）
+    //   ——禁止再次 originalPhoto || personImage 重新选图
+    // - 单件 garment：ctx.garments[0]（Engine 已校验恰好一件且品类受支持）
+    const person = (ctx && ctx.person) || {};
+    const personImg = person.personImage;
+    const garms = Array.isArray(ctx.garments) ? ctx.garments : [];
+    const target = garms[0] || {};
+    const garmentImg = target.image;
 
-    // 使用 promptBuilder 生成 provider-neutral 的生成要求
+    // promptBuilder 接收标准 Context（含原始 person 字段供描述依据，bodyProfile 真实存在才用）
     const built = buildPrompt({
-      person: { ...(params.person || {}), personImage: personImg },
+      person: person,
       garments: garms,
-      options: params.options || {},
+      options: (ctx && ctx.options) || {},
     });
 
     // refImages：人物图 + 服装图（Agnes 以图片为主要依据）
@@ -71,33 +77,9 @@ class AgnesProvider extends BaseTryOnProvider {
       metadata: {
         model: 'agnes-image-2.1-flash',
         personSourceType: built.meta && built.meta.personSourceType,
-        hasBodyProfile: !!(params.person && params.person.bodyProfile),
+        hasBodyProfile: !!(person.bodyProfile),
       },
     };
-  }
-
-  /**
-   * 构建 Agnes prompt（不再硬编码 170cm/60kg）。
-   * 仅在有真实 bodyProfile 时补充客观身体约束。
-   */
-  buildPrompt(category, options = {}) {
-    const categoryDesc = {
-      tops: '上衣',
-      bottoms: '裤子',
-      dress: '连衣裙',
-    }[category] || '服装';
-
-    const bp = options.bodyProfile || null;
-    let bodyNote = '';
-    if (bp && typeof bp === 'object') {
-      const parts = [];
-      if (bp.heightCm) parts.push(`身高约${bp.heightCm}cm`);
-      if (bp.weightKg) parts.push(`体重约${bp.weightKg}kg`);
-      if (parts.length) bodyNote = `；参考真实身体参数（${parts.join('、')}）作为版型约束`;
-    }
-    // 无 bodyProfile 时 bodyNote 为空：不伪造人物，仅以真实人物图片为依据
-
-    return `基于真实人物图片进行虚拟试穿：为人物试穿${categoryDesc}。以人物原图为主要人物依据，以服装图片为主要服装依据；仅更换服装，不改变人物身份、面部与原有场景${bodyNote}。保持人物面部特征与身份一致性，不改变背景。`;
   }
 
   async requestJson(method, path, body) {

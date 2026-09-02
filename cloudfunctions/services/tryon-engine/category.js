@@ -37,6 +37,28 @@ function toTryOnCategory(category) {
 }
 
 /**
+ * 当前生产试穿链真正支持的品类。
+ * 仅 tops / bottoms。dress 虽已在映射层预留，但尚未进入生产生成链，
+ * 必须经真实接入验证后才可放行，因此 isSupportedForTryOn 明确排除 dress。
+ */
+const PRODUCTION_TRYON_CATEGORIES = new Set([
+  TRYON_CATEGORY.TOPS,
+  TRYON_CATEGORY.BOTTOMS,
+]);
+
+/**
+ * 判断某个「已规范化」的 category（tops/bottoms/dress/UNSUPPORTED_TRYON_CATEGORY）
+ * 是否可以进入当前生产试穿生成链。
+ *
+ * - tops / bottoms → true
+ * - dress → false（已预留定义，但未经验证，不允许进入 Provider）
+ * - UNSUPPORTED_TRYON_CATEGORY / 其它 → false
+ */
+function isSupportedForTryOn(category) {
+  return PRODUCTION_TRYON_CATEGORIES.has(category);
+}
+
+/**
  * 将单个 garment 的 category 标准化。
  * 输出新增 sourceCategory（原始业务枚举）与规范化后的 category。
  */
@@ -55,5 +77,6 @@ module.exports = {
   TRYON_CATEGORY,
   ERROR_UNSUPPORTED,
   toTryOnCategory,
+  isSupportedForTryOn,
   normalizeGarmentCategory,
 };

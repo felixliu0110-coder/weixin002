@@ -15,7 +15,7 @@
  *   内部转换为标准 Context；新代码应优先使用标准 Context。
  */
 
-const { normalizeGarmentCategory, ERROR_UNSUPPORTED } = require('./category');
+const { normalizeGarmentCategory, ERROR_UNSUPPORTED, isSupportedForTryOn } = require('./category');
 
 const PERSON_SOURCE_PRIORITY = ['originalPhoto', 'frontPhoto', 'anchorImage'];
 
@@ -113,20 +113,29 @@ function buildContext(params) {
 /**
  * 校验规范化后的 Context 是否满足 Engine 基础要求。
  *   - person.personImage 必须存在（即 original/front/anchor 至少一个）
- *   - garments 至少一件且至少一件 category 非 UNSUPPORTED
+ *   - Image MVP：单次试穿当前只支持「恰好一件」目标 garment，
+ *     多件不偷偷取第一件，而是明确拒绝（未来多衣物组合另作功能）
+ *   - 该单件 garment 的 category 必须属于当前生产支持范围（tops/bottoms），
+ *     dress 虽已预留映射但暂不进入生成链
  */
 function validateContext(ctx) {
   const errors = [];
   if (!ctx.person.personImage) {
     errors.push('person.originalPhoto / frontPhoto / anchorImage 至少一个为有效图片');
   }
-  const validGarms = ctx.garments.filter(
-    (g) => g.category && g.category !== ERROR_UNSUPPORTED && typeof g.category === 'string'
-  );
+  // Image MVP：精确一件。0 件或 >=2 件均明确拒绝，避免悄悄只试穿第一件。
   if (ctx.garments.length === 0) {
     errors.push('garments 至少提供一件');
-  } else if (validGarms.length === 0) {
-    errors.push('garments 中无支持试穿的品类（当前仅支持 tops/bottoms）');
+  } else if (ctx.garments.length > 1) {
+    errors.push('当前单次试穿仅支持一件 garment；请勿在一次请求中传入多件（MULTI_GARMENT_NOT_SUPPORTED）');
+  } else {
+    const g = ctx.garments[0];
+    if (!g.category || g.category === ERROR_UNSUPPORTED) {
+      errors.push('garment 品类不支持试穿（UNSUPPORTED_TRYON_CATEGORY）');
+    } else if (!isSupportedForTryOn(g.category)) {
+      // 规范化后为 dress 或其它预留值：当前生产不可试穿
+      errors.push(`当前生产暂不支持该品类试穿：${g.category || ''}（UNSUPPORTED_TRYON_CATEGORY）`);
+    }
   }
   return { valid: errors.length === 0, errors };
 }

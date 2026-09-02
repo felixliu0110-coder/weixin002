@@ -35,6 +35,7 @@ class BaseTryOnProvider extends TryOnProvider {
     try {
       const result = await this._generateInternal(params);
       const latencyMs = Date.now() - t0;
+      const person = params.person && typeof params.person === 'object' ? params.person : {};
       return createResponse({
         ok: true,
         provider: this.name,
@@ -44,8 +45,10 @@ class BaseTryOnProvider extends TryOnProvider {
         latencyMs,
         metadata: {
           model: this.getConfig().model,
-          // 透传已标准化的 category（可能来自 garments[0]）
-          category: params.category || (params.garments && params.garments[0] && params.garments[0].category) || null,
+          // 透传已标准化的 category（来自 garments[0]）
+          category: (params.garments && params.garments[0] && params.garments[0].category) || null,
+          // personSourceType 由 Engine/context.normalizePerson 决定，统一在 Engine 层记录
+          ...(person.personSourceType ? { personSourceType: person.personSourceType } : {}),
           ...(result.metadata || {}),
         },
       });
@@ -63,15 +66,22 @@ class BaseTryOnProvider extends TryOnProvider {
   }
 
   /**
-   * Provider 通用参数校验（Engine 已标准化后的 Context）。
-   * 必须存在：person 主图（originalPhoto 或兼容 personImage）+ garments 至少一件。
+   * Provider 通用参数校验（接收 Engine 已标准化的「标准 Try-On Context」）。
+   *
+   * 责任边界（Phase 4.3-A）：
+   *   - 人物主图统一为 ctx.person.personImage（由 Engine/context.normalizePerson 决定，
+   *     originalPhoto > frontPhoto > anchorImage）。Provider 不得再次自行选图，
+   *     禁止 originalPhoto || personImage 这类重新解释。
+   *   - 单件 garment 统一为 ctx.garments[0]（Engine 已校验恰好一件且品类受支持）。
+   *     Provider 自行从中提取 image / category 以映射自身 API payload。
    */
-  validateParams(params) {
-    const personImg = (params.person && (params.person.originalPhoto || params.person.personImage)) || params.personImage;
+  validateParams(ctx = {}) {
+    const person = ctx.person && typeof ctx.person === 'object' ? ctx.person : {};
+    const personImg = person.personImage;
     if (!personImg || typeof personImg !== 'string') {
-      return { valid: false, error: 'person.originalPhoto (or legacy personImage) is required' };
+      return { valid: false, error: 'person.personImage is required (Engine must resolve it before Provider)' };
     }
-    const garms = params.garments && Array.isArray(params.garments) ? params.garments : (params.garmentImage ? [{ image: params.garmentImage }] : []);
+    const garms = Array.isArray(ctx.garments) ? ctx.garments : [];
     if (garms.length === 0) {
       return { valid: false, error: 'garments.length >= 1 is required' };
     }

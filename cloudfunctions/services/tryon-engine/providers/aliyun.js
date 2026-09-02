@@ -37,33 +37,80 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
     return !!process.env.DASHSCOPE_API_KEY;
   }
 
-  async _generateInternal(params) {
-    const { personImage, garmentImage, category, options = {} } = params;
-    
+  /**
+   * Provider Adapter 边界（Phase 4.3-A）：
+   * 接收 Engine 已标准化的「标准 Try-On Context」，自行提取并映射为 DashScope payload。
+   *
+   * P1-1（bottoms 映射问题）：
+   *   当前 DashScope aitryon API 字段固定为 top_garment_url，无法确认其真实 bottoms 参数格式。
+   *   在未经真实 API 规范验证前，不伪造 bottoms 支持：
+   *     - tops  → 按已验证字段映射（top_garment_url）
+   *     - bottoms → 返回明确 capability error（PROVIDER_CAPABILITY_UNSUPPORTED）
+   *   最终 bottoms 映射方式待 Phase 4.3-B 真实测试后决定。
+   */
+  _resolveInput(ctx) {
+    const person = (ctx && ctx.person) || {};
+    const garms = Array.isArray(ctx.garments) ? ctx.garments : [];
+    const target = garms[0] || {};
+    return {
+      personImage: person.personImage,
+      garmentImage: target.image,
+      category: target.category, // 已规范化：tops / bottoms / dress / UNSUPPORTED_TRYON_CATEGORY
+    };
+  }
+
+  _assertCategorySupported(category) {
+    if (category === 'tops') return; // 已验证可映射
+    if (category === 'bottoms') {
+      // 未确认真实 API 的 bottoms 字段格式 → 保守拒绝，不伪造支持
+      throw Object.assign(
+        new Error('Aliyun aitryon 当前未确认 bottoms 映射方式，暂不支持裤子试穿（PROVIDER_CAPABILITY_UNSUPPORTED）。将在 Phase 4.3-B 真实验证后决定最终行为。'),
+        { code: 'PROVIDER_CAPABILITY_UNSUPPORTED' }
+      );
+    }
+    // dress / UNSUPPORTED_TRYON_CATEGORY / 其它 → 不应到达（Engine 已过滤），防御性拒绝
+    throw Object.assign(
+      new Error(`Aliyun aitryon 不支持该品类：${category || 'unknown'}（PROVIDER_CAPABILITY_UNSUPPORTED）`),
+      { code: 'PROVIDER_CAPABILITY_UNSUPPORTED' }
+    );
+  }
+
+  async _generateInternal(ctx) {
+    const { personImage, garmentImage, category } = this._resolveInput(ctx);
+
+    if (!personImage) {
+      throw new Error('Aliyun aitryon: personImage (ctx.person.personImage) is required');
+    }
+    if (!garmentImage) {
+      throw new Error('Aliyun aitryon: garment image (ctx.garments[0].image) is required');
+    }
+
+    // 品类能力检查：仅 tops 可按已验证规范映射；bottoms/dress/其它明确拒绝
+    this._assertCategorySupported(category);
+
     const body = {
       model: this.model,
       input: {
         person_image_url: personImage,
-        top_garment_url: garmentImage
+        top_garment_url: garmentImage, // 已验证：tops 使用该字段
       },
       parameters: {
         resolution: -1,
         restore_face: true,
-        ...options
-      }
+      },
     };
 
     // 提交任务
     const submitRes = await this.submitTask(body);
     const taskId = submitRes.output?.task_id;
-    
+
     if (!taskId) {
       throw new Error('Task creation failed: no task_id returned');
     }
 
     // 轮询结果
     const pollRes = await this.pollTask(taskId);
-    
+
     if (pollRes.output?.task_status !== 'SUCCEEDED') {
       throw new Error(`Task failed: ${pollRes.output?.task_status || 'UNKNOWN'}`);
     }
@@ -77,7 +124,7 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
       url: resultUrl,
       taskId,
       cost: this.getCost(),
-      metadata: { model: this.model }
+      metadata: { model: this.model, category },
     };
   }
 
