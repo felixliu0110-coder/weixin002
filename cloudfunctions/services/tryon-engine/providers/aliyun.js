@@ -1,7 +1,12 @@
 /**
  * Aliyun Try-On Provider
- * 
+ *
  * 阿里云 DashScope aitryon / aitryon-plus API
+ *
+ * Phase 4.3-B-0：修正品类映射
+ *   - tops    → input.top_garment_url
+ *   - bottoms → input.bottom_garment_url
+ *   - dress   → 继续拒绝（PROVIDER_CAPABILITY_UNSUPPORTED）
  */
 
 const https = require('https');
@@ -9,7 +14,7 @@ const BaseTryOnProvider = require('./base');
 
 class AliyunTryOnProvider extends BaseTryOnProvider {
   constructor(model = 'aitryon') {
-    const config = model === 'aitryon-plus' 
+    const config = model === 'aitryon-plus'
       ? {
           name: 'aitryon-plus',
           displayName: '阿里云 aitryon-plus',
@@ -28,7 +33,7 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
           model: 'aitryon',
           maxRetries: 1
         };
-    
+
     super(config);
     this.model = model;
   }
@@ -41,12 +46,9 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
    * Provider Adapter 边界（Phase 4.3-A）：
    * 接收 Engine 已标准化的「标准 Try-On Context」，自行提取并映射为 DashScope payload。
    *
-   * P1-1（bottoms 映射问题）：
-   *   当前 DashScope aitryon API 字段固定为 top_garment_url，无法确认其真实 bottoms 参数格式。
-   *   在未经真实 API 规范验证前，不伪造 bottoms 支持：
-   *     - tops  → 按已验证字段映射（top_garment_url）
-   *     - bottoms → 返回明确 capability error（PROVIDER_CAPABILITY_UNSUPPORTED）
-   *   最终 bottoms 映射方式待 Phase 4.3-B 真实测试后决定。
+   * 不重新选择人物图、不重新选择 garment —— 统一使用：
+   *   ctx.person.personImage
+   *   ctx.garments[0]
    */
   _resolveInput(ctx) {
     const person = (ctx && ctx.person) || {};
@@ -55,22 +57,41 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
     return {
       personImage: person.personImage,
       garmentImage: target.image,
-      category: target.category, // 已规范化：tops / bottoms / dress / UNSUPPORTED_TRYON_CATEGORY
+      category: target.category,
     };
   }
 
-  _assertCategorySupported(category) {
-    if (category === 'tops') return; // 已验证可映射
-    if (category === 'bottoms') {
-      // 未确认真实 API 的 bottoms 字段格式 → 保守拒绝，不伪造支持
+  /**
+   * Phase 4.3-B-0 品类映射：
+   *   tops    → top_garment_url
+   *   bottoms → bottom_garment_url
+   *   dress   → 拒绝（PROVIDER_CAPABILITY_UNSUPPORTED）
+   */
+  _buildInput(category, personImage, garmentImage) {
+    const input = {
+      person_image_url: personImage,
+    };
+
+    if (category === 'tops') {
+      input.top_garment_url = garmentImage;
+    } else if (category === 'bottoms') {
+      input.bottom_garment_url = garmentImage;
+    } else {
+      // dress / 其它 → 不构造 payload，由 _assertCategorySupported 拒绝
       throw Object.assign(
-        new Error('Aliyun aitryon 当前未确认 bottoms 映射方式，暂不支持裤子试穿（PROVIDER_CAPABILITY_UNSUPPORTED）。将在 Phase 4.3-B 真实验证后决定最终行为。'),
+        new Error(`Aliyun aitryon 不支持该品类：${category || 'unknown'}`),
         { code: 'PROVIDER_CAPABILITY_UNSUPPORTED' }
       );
     }
-    // dress / UNSUPPORTED_TRYON_CATEGORY / 其它 → 不应到达（Engine 已过滤），防御性拒绝
+
+    return input;
+  }
+
+  _assertCategorySupported(category) {
+    if (category === 'tops' || category === 'bottoms') return; // 均可映射
+    // dress / UNSUPPORTED_TRYON_CATEGORY / 其它 → 防御性拒绝
     throw Object.assign(
-      new Error(`Aliyun aitryon 不支持该品类：${category || 'unknown'}（PROVIDER_CAPABILITY_UNSUPPORTED）`),
+      new Error(`Aliyun aitryon 不支持该品类：${category || 'unknown'}`),
       { code: 'PROVIDER_CAPABILITY_UNSUPPORTED' }
     );
   }
@@ -85,15 +106,12 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
       throw new Error('Aliyun aitryon: garment image (ctx.garments[0].image) is required');
     }
 
-    // 品类能力检查：仅 tops 可按已验证规范映射；bottoms/dress/其它明确拒绝
+    // 品类能力检查：tops / bottoms 可按规范映射；dress/其它明确拒绝
     this._assertCategorySupported(category);
 
     const body = {
       model: this.model,
-      input: {
-        person_image_url: personImage,
-        top_garment_url: garmentImage, // 已验证：tops 使用该字段
-      },
+      input: this._buildInput(category, personImage, garmentImage),
       parameters: {
         resolution: -1,
         restore_face: true,
@@ -132,7 +150,7 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
     return new Promise((resolve, reject) => {
       const url = new URL(this.apiUrl);
       const bodyStr = JSON.stringify(body);
-      
+
       const req = https.request({
         method: 'POST',
         hostname: url.hostname,
@@ -155,7 +173,7 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
           }
         });
       });
-      
+
       req.on('timeout', () => { req.destroy(); reject(new Error('Submit timeout')); });
       req.on('error', reject);
       req.write(bodyStr);
@@ -165,10 +183,10 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
 
   async pollTask(taskId, maxAttempts = 60) {
     const PollIntervalMs = 3000;
-    
+
     for (let i = 0; i < maxAttempts; i++) {
       await this.sleep(PollIntervalMs);
-      
+
       try {
         const res = await this.getRequest(`/api/v1/tasks/${taskId}`);
         if (res.output?.task_status) {
@@ -179,14 +197,14 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
         console.log('Poll attempt failed:', e.message);
       }
     }
-    
+
     return { output: { task_status: 'TIMEOUT' } };
   }
 
   async getRequest(path) {
     return new Promise((resolve, reject) => {
       const url = new URL('https://dashscope.aliyuncs.com' + path);
-      
+
       const req = https.request({
         method: 'GET',
         hostname: url.hostname,
@@ -206,7 +224,7 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
           }
         });
       });
-      
+
       req.on('timeout', () => { req.destroy(); reject(new Error('Poll timeout')); });
       req.on('error', reject);
       req.end();
