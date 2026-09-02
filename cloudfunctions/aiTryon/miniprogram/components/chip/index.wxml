@@ -1,3 +1,0 @@
-<view class="chip {{selected ? 'on' : ''}}" hover-class="chip-hover" catchtap="onTap">
-  <text>{{label}}</text>
-</view>

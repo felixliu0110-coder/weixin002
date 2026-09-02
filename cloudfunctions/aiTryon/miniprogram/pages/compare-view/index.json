@@ -1,9 +1,0 @@
-{
-  "usingComponents": {
-    "nav-bar": "/components/nav-bar/index",
-    "btn": "/components/btn/index",
-    "compare-card": "/components/compare-card/index",
-    "tab-bar": "/components/tabbar/index"
-  },
-  "navigationBarTitleText": "对比视图"
-}

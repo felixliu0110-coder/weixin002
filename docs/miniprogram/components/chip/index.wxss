@@ -1,3 +1,0 @@
-.chip { display: inline-flex; align-items: center; justify-content: center; min-height: 88rpx; padding: 0 36rpx; border-radius: var(--radius-pill); border: 1rpx solid var(--border); background: var(--surface); color: var(--fg-2); font-size: 28rpx; font-weight: 500; transition: all 0.2s var(--ease); }
-.chip-hover { border-color: var(--accent); transform: scale(0.97); }
-.chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); font-weight: 600; box-shadow: 0 4rpx 12rpx rgba(227, 165, 149, 0.3); }

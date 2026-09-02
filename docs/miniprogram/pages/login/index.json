@@ -1,8 +1,0 @@
-{
-  "usingComponents": {
-    "btn": "/components/btn/index",
-    "sheet": "/components/sheet/index",
-    "tab-bar": "/components/tabbar/index"
-  },
-  "navigationBarTitleText": "登录"
-}

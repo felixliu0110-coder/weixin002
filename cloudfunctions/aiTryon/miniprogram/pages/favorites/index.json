@@ -1,8 +1,0 @@
-{
-  "usingComponents": {
-    "nav-bar": "/components/nav-bar/index",
-    "record-item": "/components/record-item/index",
-    "btn": "/components/btn/index"
-  },
-  "navigationBarTitleText": "收藏"
-}
