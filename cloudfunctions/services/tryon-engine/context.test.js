@@ -82,7 +82,45 @@ test('不支持品类在 validate 中报错', () => {
   assert.strictEqual(ctx.garments[0].category, ERROR_UNSUPPORTED);
   const v = validateContext(ctx);
   assert.strictEqual(v.valid, false);
-  assert.ok(v.errors.some((e) => e.includes('支持试穿')));
+  // 品类不支持 → errorCode 精确为 UNSUPPORTED_TRYON_CATEGORY（非笼统的 INVALID）
+  assert.strictEqual(v.errorCode, 'UNSUPPORTED_TRYON_CATEGORY');
+  // errors 为结构化 [{code,message}]，从 message 中匹配提示文案
+  assert.ok(v.errors.some((e) => /不支持|品类/.test((e && e.message) || '')));
+});
+
+test('validateContext 返回结构化结果 { valid, errors, errorCode }', () => {
+  const ctx = normalizeContext({
+    person: { originalPhoto: 'orig' },
+    garments: [{ image: 'g', category: '头饰' }],
+  });
+  const v = validateContext(ctx);
+  assert.strictEqual(v.valid, false);
+  assert.ok(Array.isArray(v.errors));
+  assert.strictEqual(typeof v.errorCode, 'string');
+});
+
+test('errorCode 契约：多 garment → MULTI_GARMENT_NOT_SUPPORTED', () => {
+  const ctx = normalizeContext({
+    person: { originalPhoto: 'orig' },
+    garments: [{ image: 'g1', category: '上衣' }, { image: 'g2', category: '裤子' }],
+  });
+  const v = validateContext(ctx);
+  assert.strictEqual(v.valid, false);
+  assert.strictEqual(v.errorCode, 'MULTI_GARMENT_NOT_SUPPORTED');
+});
+
+test('errorCode 契约：0 件 garment → MULTI_GARMENT_NOT_SUPPORTED', () => {
+  const ctx = normalizeContext({ person: { originalPhoto: 'orig' }, garments: [] });
+  const v = validateContext(ctx);
+  assert.strictEqual(v.valid, false);
+  assert.strictEqual(v.errorCode, 'MULTI_GARMENT_NOT_SUPPORTED');
+});
+
+test('errorCode 契约：person 缺失 → INVALID_TRYON_CONTEXT', () => {
+  const ctx = normalizeContext({ person: {}, garments: [{ image: 'g', category: '上衣' }] });
+  const v = validateContext(ctx);
+  assert.strictEqual(v.valid, false);
+  assert.strictEqual(v.errorCode, 'INVALID_TRYON_CONTEXT');
 });
 
 test('旧参数兼容：personImage/garmentImage/category 转换为标准 Context', () => {

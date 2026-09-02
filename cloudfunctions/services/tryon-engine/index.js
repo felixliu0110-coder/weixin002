@@ -45,16 +45,25 @@ async function generate(params = {}, strategy = STRATEGY_NAMES.BALANCED) {
   }
 
   // 3. 参数校验（至少一件有效 garment + person 图片）
+  //    validateContext 返回的 errors 为 [{ code, message }]，并附带顶层 errorCode：
+  //      · MULTI_GARMENT_NOT_SUPPORTED（多/0 件 garment）
+  //      · UNSUPPORTED_TRYON_CATEGORY（品类不支持）
+  //      · INVALID_TRYON_CONTEXT（其余参数/结构错误）
+  //    index 直接透传 errorCode，不再二次覆盖为统一错误码（P1 修正）。
   const v = validateContext(ctx);
   if (!v.valid) {
+    const errorMessage = (v.errors || [])
+      .map((e) => (typeof e === 'string' ? e : e && e.message) || '')
+      .filter(Boolean)
+      .join('; ');
     return {
       ok: false,
       provider: 'engine',
       imageUrl: '',
       cost: 0,
       latencyMs: 0,
-      error: v.errors.join('; '),
-      errorCode: 'INVALID_TRYON_CONTEXT',
+      error: errorMessage,
+      errorCode: v.errorCode, // ← 透传具体错误码（P1 修正）
       metadata: {},
     };
   }
@@ -91,3 +100,6 @@ module.exports = {
   _normalizeContext: normalizeContext,
   _validateContext: validateContext,
 };
+
+// 防止 lint 误报未使用（保留顶层语义）
+void STRATEGY_NAMES;

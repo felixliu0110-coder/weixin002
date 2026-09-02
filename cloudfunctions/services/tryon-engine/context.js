@@ -19,6 +19,35 @@ const { normalizeGarmentCategory, ERROR_UNSUPPORTED, isSupportedForTryOn } = req
 
 const PERSON_SOURCE_PRIORITY = ['originalPhoto', 'frontPhoto', 'anchorImage'];
 
+// validateContext 错误码枚举（Phase 4.3-A 最后 P1 修正）
+const ERROR_CODE = {
+  INVALID_TRYON_CONTEXT: 'INVALID_TRYON_CONTEXT',
+  MULTI_GARMENT_NOT_SUPPORTED: 'MULTI_GARMENT_NOT_SUPPORTED',
+  UNSUPPORTED_TRYON_CATEGORY: 'UNSUPPORTED_TRYON_CATEGORY',
+};
+
+// 错误码优先级：多条错误并存时，取最具语义的一条作为「顶层 errorCode」
+//   多 garment > 品类不支持 > 其余参数/结构错误
+const ERROR_CODE_PRIORITY = [
+  ERROR_CODE.MULTI_GARMENT_NOT_SUPPORTED,
+  ERROR_CODE.UNSUPPORTED_TRYON_CATEGORY,
+  ERROR_CODE.INVALID_TRYON_CONTEXT,
+];
+
+/**
+ * 从结构化错误列表里选出顶层 errorCode。
+ * 供 validateContext 与 index.js 共用，便于测试直接断言。
+ */
+function pickValidationErrorCode(errors) {
+  if (!Array.isArray(errors) || errors.length === 0) {
+    return ERROR_CODE.INVALID_TRYON_CONTEXT;
+  }
+  for (const code of ERROR_CODE_PRIORITY) {
+    if (errors.some((e) => e && e.code === code)) return code;
+  }
+  return ERROR_CODE.INVALID_TRYON_CONTEXT;
+}
+
 function normalizePerson(person = {}) {
   if (!person || typeof person !== 'object') {
     return { _empty: true };
@@ -111,37 +140,59 @@ function buildContext(params) {
 }
 
 /**
+ * 构造一条结构化错误 { code, message }。
+ */
+function err(code, message) {
+  return { code, message };
+}
+
+/**
  * 校验规范化后的 Context 是否满足 Engine 基础要求。
  *   - person.personImage 必须存在（即 original/front/anchor 至少一个）
  *   - Image MVP：单次试穿当前只支持「恰好一件」目标 garment，
  *     多件不偷偷取第一件，而是明确拒绝（未来多衣物组合另作功能）
  *   - 该单件 garment 的 category 必须属于当前生产支持范围（tops/bottoms），
  *     dress 虽已预留映射但暂不进入生成链
+ *
+ * 返回：{ valid, errors, errorCode }
+ *   - errors：[{ code, message }]，每条错误带精确错误码
+ *   - errorCode：顶层错误码（多条时按优先级取最具语义的一条），
+ *     供 index.js 直接透传给上层：
+ *       · 多 garment        → MULTI_GARMENT_NOT_SUPPORTED
+ *       · 品类不支持        → UNSUPPORTED_TRYON_CATEGORY
+ *       · 其余参数/结构错误 → INVALID_TRYON_CONTEXT
  */
 function validateContext(ctx) {
   const errors = [];
+
   if (!ctx.person.personImage) {
-    errors.push('person.originalPhoto / frontPhoto / anchorImage 至少一个为有效图片');
+    errors.push(err(ERROR_CODE.INVALID_TRYON_CONTEXT,
+      'person.originalPhoto / frontPhoto / anchorImage 至少一个为有效图片'));
   }
+
   // Image MVP：精确一件。0 件或 >=2 件均明确拒绝，避免悄悄只试穿第一件。
   if (ctx.garments.length === 0) {
-    errors.push('garments 至少提供一件');
+    errors.push(err(ERROR_CODE.MULTI_GARMENT_NOT_SUPPORTED, 'garments 至少提供一件'));
   } else if (ctx.garments.length > 1) {
-    errors.push('当前单次试穿仅支持一件 garment；请勿在一次请求中传入多件（MULTI_GARMENT_NOT_SUPPORTED）');
+    errors.push(err(ERROR_CODE.MULTI_GARMENT_NOT_SUPPORTED, '当前单次试穿仅支持一件 garment；请勿在一次请求中传入多件'));
   } else {
     const g = ctx.garments[0];
     if (!g.category || g.category === ERROR_UNSUPPORTED) {
-      errors.push('garment 品类不支持试穿（UNSUPPORTED_TRYON_CATEGORY）');
+      errors.push(err(ERROR_CODE.UNSUPPORTED_TRYON_CATEGORY, 'garment 品类不支持试穿'));
     } else if (!isSupportedForTryOn(g.category)) {
       // 规范化后为 dress 或其它预留值：当前生产不可试穿
-      errors.push(`当前生产暂不支持该品类试穿：${g.category || ''}（UNSUPPORTED_TRYON_CATEGORY）`);
+      errors.push(err(ERROR_CODE.UNSUPPORTED_TRYON_CATEGORY, `当前生产暂不支持该品类试穿：${g.category || ''}`));
     }
   }
-  return { valid: errors.length === 0, errors };
+
+  const errorCode = pickValidationErrorCode(errors);
+  return { valid: errors.length === 0, errors, errorCode };
 }
 
 module.exports = {
   PERSON_SOURCE_PRIORITY,
+  ERROR_CODE,
+  pickValidationErrorCode,
   normalizeContext,
   normalizePerson,
   normalizeGarments,

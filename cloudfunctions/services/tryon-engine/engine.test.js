@@ -125,7 +125,7 @@ test('engine：person 缺失返回 INVALID_TRYON_CONTEXT', async () => {
   assert.strictEqual(res.errorCode, 'INVALID_TRYON_CONTEXT');
 });
 
-test('engine：多件 garment 明确拒绝（MULTI_GARMENT_NOT_SUPPORTED，P0-3）', async () => {
+test('engine：多件 garment 明确拒绝且 errorCode = MULTI_GARMENT_NOT_SUPPORTED（P0-3）', async () => {
   const res = await generate({
     person: { originalPhoto: 'https://example.com/p.png', personImage: 'https://example.com/p.png' },
     garments: [
@@ -134,16 +134,19 @@ test('engine：多件 garment 明确拒绝（MULTI_GARMENT_NOT_SUPPORTED，P0-3�
     ],
   }, 'BALANCED');
   assert.strictEqual(res.ok, false);
+  // 【关键契约】多 garment 必须返回精确 errorCode，而非笼统的 INVALID_TRYON_CONTEXT
+  assert.strictEqual(res.errorCode, 'MULTI_GARMENT_NOT_SUPPORTED');
   assert.ok(res.error && res.error.includes('一件'), `应提示仅支持一件，实际：${res.error}`);
 });
 
-test('engine：0 件 garment 报错', async () => {
+test('engine：0 件 garment 报错且 errorCode = MULTI_GARMENT_NOT_SUPPORTED', async () => {
   const res = await generate({
     person: { originalPhoto: 'https://example.com/p.png', personImage: 'https://example.com/p.png' },
     garments: [],
   }, 'BALANCED');
   assert.strictEqual(res.ok, false);
-  assert.strictEqual(res.errorCode, 'INVALID_TRYON_CONTEXT');
+  // 0 件与 >=2 件同属「不满足恰好一件」，统一为 MULTI_GARMENT_NOT_SUPPORTED
+  assert.strictEqual(res.errorCode, 'MULTI_GARMENT_NOT_SUPPORTED');
 });
 
 test('engine：metadata 透传 personSourceType（使用 mock 显式调用）', async () => {

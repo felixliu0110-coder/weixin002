@@ -143,11 +143,12 @@ describe("Phase 4.3-A Boundary — Router 不重新解释 Context", () => {
 });
 
 describe("Phase 4.3-A Boundary — 单次 Image MVP 只支持 1 件 garment", () => {
-  it("0 件 garment → validateContext 明确拒绝", () => {
+  it("0 件 garment → validateContext 明确拒绝（errorCode = MULTI_GARMENT_NOT_SUPPORTED）", () => {
     const c = baseContext({ garments: [] });
     const v = validateContext(c);
     assert.equal(v.valid, false);
-    assert.ok(/至少|一件/i.test(v.errors.join("|")));
+    // P1 修正：通过顶层 errorCode 精确断言（errors 仍为字符串数组，向后兼容）
+    assert.equal(v.errorCode, 'MULTI_GARMENT_NOT_SUPPORTED');
   });
 
   it("多件 garment → validateContext 明确拒绝（不偷偷用第一个）", () => {
@@ -158,7 +159,11 @@ describe("Phase 4.3-A Boundary — 单次 Image MVP 只支持 1 件 garment", ()
     const c = baseContext({ garments });
     const v = validateContext(c);
     assert.equal(v.valid, false);
-    assert.ok(/一件|MULTI_GARMENT/i.test(v.errors.join("|")));
+    assert.equal(v.errorCode, 'MULTI_GARMENT_NOT_SUPPORTED',
+      `多 garment 必须返回 MULTI_GARMENT_NOT_SUPPORTED，实际：${v.errorCode}`);
+    // errors 为 [{code,message}]，提取 message 拼接后校验提示文案
+    const messages = (v.errors || []).map((e) => (e && e.message) || '').join(' ');
+    assert.ok(/一件/.test(messages), `应提示仅支持一件，实际：${messages}`);
   });
 
   it("恰好 1 件 → 校验通过", () => {
