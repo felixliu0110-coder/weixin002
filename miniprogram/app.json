@@ -19,7 +19,14 @@
     "pages/privacy-manage/index",
     "pages/feedback-about/index",
     "pages/privacy-auth/index",
-    "pages/account/index"
+    "pages/account/index",
+    "pages/body/index",
+    "pages/body-edit/index",
+    "pages/wardrobe/index",
+    "pages/garment-add/index",
+    "pages/garment-detail/index",
+    "pages/tryon-generating/index",
+    "pages/tryon-history/index"
   ],
   "window": {
     "navigationStyle": "custom",
@@ -33,10 +40,18 @@
     "selectedColor": "#7A5A4E",
     "backgroundColor": "#FFFFFF",
     "list": [
-      { "pagePath": "pages/home/index", "text": "主页" },
-      { "pagePath": "pages/tryon-select/index", "text": "试衣" },
-      { "pagePath": "pages/favorites/index", "text": "收藏" },
-      { "pagePath": "pages/profile/index", "text": "我的" }
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/wardrobe/index",
+        "text": "衣橱"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      }
     ]
   },
   "sitemapLocation": "sitemap.json"

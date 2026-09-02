@@ -1,0 +1,8 @@
+/* Phase 5-1 自动生成骨架，后续可细化 */
+page { background: #FBF5ED; }
+.container { padding: 32rpx; }
+.card { background: #fff; border-radius: 20rpx; padding: 28rpx; margin-bottom: 24rpx; }
+.title { font-size: 34rpx; font-weight: 600; color: #2C2622; margin-bottom: 16rpx; }
+.empty { text-align: center; color: #A79B92; padding: 120rpx 40rpx; }
+.btn { background: #7A5A4E; color: #fff; border-radius: 44rpx; padding: 24rpx 0; text-align: center; margin-top: 24rpx; }
+.btn-ghost { background: #fff; color: #7A5A4E; border: 2rpx solid #7A5A4E; }

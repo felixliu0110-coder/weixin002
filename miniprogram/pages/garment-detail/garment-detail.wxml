@@ -1,0 +1,19 @@
+<view class="container">
+  <view wx:if="{{garment}}" class="card">
+    <image class="preview" src="{{garment.image}}" mode="aspectFit"/>
+    <view wx:if="{{!editing}}">
+      <view class="title">{{garment.name}}</view>
+      <view class="meta">{{garment.category}} · {{garment.size_label || "尺码未填"}}</view>
+      <view class="btn" bindtap="onTryon">试穿这件</view>
+      <view class="btn btn-ghost" bindtap="toggleEdit">编辑</view>
+      <view class="btn btn-ghost del" bindtap="onDelete">删除</view>
+    </view>
+    <view wx:else>
+      <input class="input" placeholder="名称" value="{{name}}" bindinput="onName"/>
+      <input class="input" placeholder="尺码" value="{{sizeLabel}}" bindinput="onSize"/>
+      <view class="btn" bindtap="save">保存</view>
+      <view class="btn btn-ghost" bindtap="toggleEdit">取消</view>
+    </view>
+  </view>
+  <view wx:else class="empty">衣物不存在或已删除</view>
+</view>

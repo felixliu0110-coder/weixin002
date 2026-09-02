@@ -1,0 +1,21 @@
+<view class="container">
+  <view class="card"><view class="title">我的衣橱</view></view>
+  <view wx:if="{{loading}}" class="empty">加载中…</view>
+  <view wx:elif="{{garments.length === 0}}" class="empty">
+    <view>衣橱还是空的</view>
+    <view class="btn" bindtap="onAdd">添加第一件衣物</view>
+  </view>
+  <view wx:else>
+    <view class="cat" wx:for="{{byCat}}" wx:for-item="items" wx:for-index="cat" wx:key="cat">
+      <view class="cat-title">{{cat}} ({{items.length}})</view>
+      <view class="grid">
+        <view class="item" wx:for="{{items}}" wx:key="id"
+          data-id="{{item.id}}" bindtap="onTap" bindlongpress="onTryon">
+          <image class="thumb" src="{{item.image}}" mode="aspectFill"/>
+          <text class="name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="btn" bindtap="onAdd">+ 添加衣物</view>
+</view>

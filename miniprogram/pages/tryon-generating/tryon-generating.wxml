@@ -1,0 +1,12 @@
+<view class="container">
+  <view class="card">
+    <view class="title">试穿生成</view>
+    <view class="status {{status}}">{{statusText}}</view>
+    <view class="task-id" wx:if="{{taskId}}">任务：{{taskId}}</view>
+    <view wx:if="{{result}}" class="result">
+      <image src="{{result}}" mode="aspectFit"/>
+      <view class="btn" bindtap="onDone">查看结果</view>
+    </view>
+    <view wx:if="{{status==='FAILED'}}" class="btn btn-ghost" bindtap="onRetry">返回重试</view>
+  </view>
+</view>

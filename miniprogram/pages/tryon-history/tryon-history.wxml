@@ -1,0 +1,18 @@
+<view class="container">
+  <view class="card"><view class="title">试穿历史</view></view>
+  <view wx:if="{{loading}}" class="empty">加载中…</view>
+  <view wx:elif="{{records.length === 0}}" class="empty">
+    <view>还没有试穿记录</view>
+    <view class="hint">完成一次试穿后，结果会保存在这里</view>
+  </view>
+  <view wx:else class="list">
+    <view class="item {{r.status}}" wx:for="{{records}}" wx:for-item="r" wx:key="id"
+      data-record="{{r}}" bindtap="onTap">
+      <image class="thumb" src="{{r.image || r.resultUrls[0]}}" mode="aspectFill"/>
+      <view class="info">
+        <text class="name">{{r.garmentName || "试穿记录"}}</text>
+        <text class="meta">{{r.status === "success" ? "成功" : (r.status === "failed" ? "失败" : r.status)}}</text>
+      </view>
+    </view>
+  </view>
+</view>

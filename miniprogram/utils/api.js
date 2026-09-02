@@ -151,6 +151,21 @@ module.exports = {
     }
   },
 
+  // Phase 5-1：Person Asset 精确查询 —— 必须传 avatarProfileId，禁止取最新/第一条
+  async getPersonAsset(avatarProfileId) {
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.getPersonAsset ? mock.getPersonAsset(avatarProfileId) : null;
+      throw serviceError("云环境未配置");
+    }
+    if (!avatarProfileId) throw serviceError("avatarProfileId 不能为空");
+    const res = await wx.cloud.callFunction({
+      name: "aiTryon",
+      data: { action: "findByAvatarProfileId", avatarProfileId, openid: this._openid || undefined }
+    });
+    const r = res.result;
+    if (!r || !r.ok) throw serviceError((r && r.message) || "Person Asset 查询失败");
+    return r.asset || null;
+  },
   async updateGarment(id, data) {
     if (!cloudReady()) {
       if (mockAllowed()) return mock.updateGarment(id, data);

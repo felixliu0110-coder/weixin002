@@ -336,7 +336,15 @@ async function submit(event, openid) {
     "garmentCount=" + ((garmentIds || []).length));
   requireLogin(openid);
   const avId = requireId(avatarViewId, "avatarViewId");
-  const gIds = requireArray(garmentIds, "garmentIds", { min: 1, max: 10 }).map((v) => requireId(v, "garmentId"));
+  // Phase 5-1：一次试穿严格 1 件；0 件与多件分别给出明确错误码，绝不 silently slice
+  const gCount = Array.isArray(garmentIds) ? garmentIds.length : 0;
+  if (gCount === 0) {
+    throw appError("INVALID_TRYON_CONTEXT", "请选择一件衣物后再试穿");
+  }
+  if (gCount > 1) {
+    throw appError("MULTI_GARMENT_NOT_SUPPORTED", "暂不支持多件衣物同时试穿，请只选择一件");
+  }
+  const gIds = [requireId(garmentIds[0], "garmentId")];
 
   // 人物三视图必须属于当前用户
   const av = await getOwnedDoc(db, "avatar_views", avId, openid);
@@ -836,6 +844,17 @@ exports.main = async (event) => {
       return runDeletion(db, cloud, openid, req.jobId);
     }
     if (event.action === "status") return status(event, openid);
+    // Phase 5-1：Person Asset 精确查询（复用现有 person-asset service，禁止重新实现 / 禁止取最新）
+    if (event.action === "findByAvatarProfileId") {
+      const { avatarProfileId, openid: qOpenid } = event;
+      const { getPersonAssetService } = require("../services/person-asset");
+      const service = getPersonAssetService(db);
+      if (typeof service.findByAvatarProfileId !== "function") {
+        throw appError("INTERNAL", "Person Asset 查询能力未就绪");
+      }
+      const asset = await service.findByAvatarProfileId(avatarProfileId, qOpenid || openid);
+      return { ok: true, asset: asset || null };
+    }
     return await submit(event, openid);
   } catch (e) {
     console.log("aiTryon main fail", "error=" + fmtErr(e));

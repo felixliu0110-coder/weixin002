@@ -3,13 +3,14 @@ const api = require("../../utils/api");
 
 Page({
   data: {
-    estimate: true,
-    leg: 96,
-    skin: 55,
-    neck: 10,
-    shoulder: 38,
-    arm: 55,
-    shoe: 38,
+    // Phase 5-1：estimate 默认关闭；估算值仅本地 UI 占位，绝不写入真实 Body Profile
+    estimate: false,
+    leg: null,
+    skin: null,
+    neck: null,
+    shoulder: null,
+    arm: null,
+    shoe: null,
     editVisible: false,
     editField: "neck",
     editTitle: "颈长",
@@ -75,21 +76,18 @@ Page({
     toast(this.data.editTitle + "已改为 " + this.data.editValue + (this.data.editUnit || ""));
   },
   next() {
-    // slider 0-100 → 数据模型约定的肤色字符串（mock/云档案 skinTone 均为字符串）
-    const s = this.data.skin;
-    const skinTone = s >= 76 ? "deep" : s >= 51 ? "tan" : s >= 26 ? "natural" : "light";
-    api.saveAvatarProfile({
-      legLengthCm: this.data.leg,
-      neckLengthCm: this.data.neck,
-      shoulderCm: this.data.shoulder,
-      armLengthCm: this.data.arm,
-      shoeSize: this.data.shoe,
-      skinTone,
-      estimate: this.data.estimate
-    }).then(() => {
-      navigate("/pages/photo-upload/index");
-    }).catch(() => {
-      toast("保存失败，请重试");
-    });
+    // Phase 5-1：仅在用户确实填写过真实测量值（非 null）时才持久化；
+    // estimate 开启时滑块只是预览，绝不冒充真实身体数据写入档案。
+    const patch = {};
+    const d = this.data;
+    if (d.leg != null) patch.legLengthCm = d.leg;
+    if (d.neck != null) patch.neckLengthCm = d.neck;
+    if (d.shoulder != null) patch.shoulderCm = d.shoulder;
+    if (d.arm != null) patch.armLengthCm = d.arm;
+    if (d.shoe != null) patch.shoeSize = d.shoe;
+    const hasReal = Object.keys(patch).length > 0;
+    const done = () => navigate("/pages/photo-upload/index");
+    if (!hasReal) { done(); return; }
+    api.saveAvatarProfile(patch).then(done).catch(() => toast("保存失败，请重试"));
   }
 });

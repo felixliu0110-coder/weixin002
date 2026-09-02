@@ -1,0 +1,16 @@
+<view class="container">
+  <view class="card">
+    <view class="title">编辑身形（真实数据）</view>
+    <view class="hint">请填写你的真实身体数据，未填写项将保持为空</view>
+    <view class="field" wx:for="{{fields}}" wx:key="key">
+      <text class="label">{{item.label}}</text>
+      <input wx:if="{{item.type==='number'}}" class="input" type="digit" value="{{form[item.key]}}"
+        data-key="{{item.key}}" bindinput="onChange" placeholder="未填写"/>
+      <picker wx:if="{{item.type==='select'}}" range="{{item.options}}" range-key="t"
+        data-key="{{item.key}}" bindchange="onSelect" value="{{form[item.key]}}">
+        <view class="picker">{{form[item.key] ? form[item.key] : "请选择"}}</view>
+      </picker>
+    </view>
+  </view>
+  <view class="btn" bindtap="save">保存</view>
+</view>

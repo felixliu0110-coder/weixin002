@@ -1,0 +1,13 @@
+<view class="container">
+  <view class="card">
+    <view class="title">我的身形</view>
+    <view wx:if="{{profile}}">
+      <view class="field" wx:for="{{fields}}" wx:key="label">
+        <text class="label">{{item.label}}</text>
+        <text class="value">{{item.value}}</text>
+      </view>
+    </view>
+    <view wx:else class="empty">尚未完善身形资料，请先填写真实身体数据</view>
+  </view>
+  <view class="btn" bindtap="goEdit">{{complete ? "修改资料" : "完善身形资料"}}</view>
+</view>

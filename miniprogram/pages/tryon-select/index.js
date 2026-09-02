@@ -75,13 +75,13 @@ Page({
       this.setData({ myGarments: my.map((g) => Object.assign({}, g, { selected: false })) });
     });
   },
+  // Phase 5-1：一次试穿严格 1 件；count 为 0 或 1，选中项恒为单一 ID
   computeSelectInfo(myTemplates, myGarments) {
-    const count =
-      myTemplates.filter((t) => t.selected).length +
-      (myGarments || []).filter((t) => t.selected).length;
+    const chosen = [].concat(myTemplates || []).concat(myGarments || []).find((t) => t.selected) || null;
     return {
-      selectedCount: count,
-      buttonText: count > 0 ? "生成穿搭（已选 " + count + " 件）" : "生成穿搭"
+      selectedId: chosen ? chosen.id : null,
+      selectedCount: chosen ? 1 : 0,
+      buttonText: chosen ? "试穿「" + chosen.name + "」" : "请先选择一件衣物"
     };
   },
   computeCatCounts(lib) {
@@ -179,16 +179,17 @@ Page({
   },
 
   /* ---------- 我的模板：选择试穿 ---------- */
+  // Phase 5-1：单选 —— 再次点击同一件取消；点击另一件则切换（取消前一件）
   toggleGarment(e) {
     const id = e.detail.id;
     const name = e.detail.name;
     const myTemplates = this.data.myTemplates.map((t) =>
-      t.id === id ? Object.assign({}, t, { selected: !t.selected }) : t
+      Object.assign({}, t, { selected: t.id === id ? !t.selected : false })
     );
-    const chosen = myTemplates.find((t) => t.id === id);
+    const chosen = myTemplates.find((t) => t.selected) || null;
     const info = this.computeSelectInfo(myTemplates, this.data.myGarments);
     this.setData(Object.assign({ myTemplates }, info));
-    toast(chosen.selected ? "已选择「" + name + "」" : "已取消选择");
+    toast(chosen ? "已选择「" + name + "」" : "已取消选择");
   },
   onMyGarmentTap(e) {
     this.toggleMyGarment(e);
@@ -197,12 +198,12 @@ Page({
     const id = e.detail.id;
     const name = e.detail.name;
     const myGarments = this.data.myGarments.map((t) =>
-      t.id === id ? Object.assign({}, t, { selected: !t.selected }) : t
+      Object.assign({}, t, { selected: t.id === id ? !t.selected : false })
     );
-    const chosen = myGarments.find((t) => t.id === id);
+    const chosen = myGarments.find((t) => t.selected) || null;
     const info = this.computeSelectInfo(this.data.myTemplates, myGarments);
     this.setData(Object.assign({ myGarments }, info));
-    toast(chosen.selected ? "已选择「" + name + "」" : "已取消选择");
+    toast(chosen ? "已选择「" + name + "」" : "已取消选择");
   },
   startTryon() {
     if (this.data.selectedCount === 0) {
@@ -210,18 +211,25 @@ Page({
       return;
     }
     if (this._submitting) return;
+    // Phase 5-1：单选已保证恰好 1 件；此处仅读取唯一 ID，不 slice / 不自动选取
+    const items = [].concat(this.data.myTemplates || []).concat(this.data.myGarments || [])
+      .filter((t) => t.selected);
+    if (items.length !== 1) {
+      toast("请只选择一件衣物");
+      this.setData(this.computeSelectInfo(this.data.myTemplates, this.data.myGarments));
+      return;
+    }
     this._submitting = true;
-    const items = this.data.myTemplates
-      .filter((t) => t.selected)
-      .concat(this.data.myGarments.filter((t) => t.selected));
-    const names = items.map((g) => g.name).join("、");
+    const garmentId = items[0].id;
+    const names = items[0].name;
     // 订阅消息授权需在用户点击的调用栈中请求（微信限制）；
     // 授权完成后立即跳转进度页，实际的四视图预处理与任务提交由 tryon-progress 页内完成，本页不等待
     requestSubscribe().then(() => {
       // 将待生成的衣物信息存入 storage（含分类，供结果页"保存模板"按单件衣物归档）
       wx.setStorageSync("aiTryonPending", {
-        garmentIds: items.map((g) => g.id),
-        garmentNames: items.map((g) => g.name),
+        garmentId,                       // Phase 5-1：单次试穿仅 1 件
+        garmentIds: [garmentId],
+        garmentNames: [items[0].name],
         garmentImages: items.map((g) => g.image),
         garmentCategories: items.map((g) => g.category || "其他"),
         displayName: names

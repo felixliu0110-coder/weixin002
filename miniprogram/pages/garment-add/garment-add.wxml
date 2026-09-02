@@ -1,0 +1,22 @@
+<view class="container">
+  <view class="card">
+    <view class="title">添加衣物</view>
+    <view class="thumb-box" bindtap="pickPhoto" data-mode="album">
+      <image wx:if="{{tempPath}}" class="preview" src="{{tempPath}}" mode="aspectFit"/>
+      <view wx:else class="empty">点击选择衣物图片（建议单件、平铺、背景干净）</view>
+    </view>
+    <input class="input" placeholder="衣物名称" value="{{name}}" bindinput="onName"/>
+    <view class="cats">
+      <view wx:for="{{categories}}" wx:key="*this" class="cat-chip {{item===category?'on':''}}"
+        data-cat="{{item}}" bindtap="onCategory">{{item}}</view>
+    </view>
+    <input class="input" placeholder="尺码（选填）" value="{{sizeLabel}}" bindinput="onSize"/>
+    <view class="measurements" wx:if="{{category==='上衣'}}">
+      <input class="input" placeholder="衣长 cm" value="{{lengthCm}}" data-field="lengthCm" bindinput="onInput"/>
+      <input class="input" placeholder="胸宽 cm" value="{{chestWidthCm}}" data-field="chestWidthCm" bindinput="onInput"/>
+      <input class="input" placeholder="肩宽 cm" value="{{shoulderWidthCm}}" data-field="shoulderWidthCm" bindinput="onInput"/>
+      <input class="input" placeholder="袖长 cm" value="{{sleeveLengthCm}}" data-field="sleeveLengthCm" bindinput="onInput"/>
+    </view>
+  </view>
+  <view class="btn" bindtap="submit">{{uploading ? "上传中…" : "保存并回到衣橱"}}</view>
+</view>

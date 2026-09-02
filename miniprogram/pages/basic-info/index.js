@@ -14,24 +14,26 @@ Page({
       { label: "女性", value: "female" },
       { label: "男性", value: "male" }
     ],
-    gender: "female",
-    height: 165,
-    weight: 50,
-    bust: 88,
-    waist: 66,
-    hip: 92
+    // Phase 5-1：禁止默认身体数值；无用户数据时保持 null，由 UI 提示完善资料
+    gender: "",
+    height: null,
+    weight: null,
+    bust: null,
+    waist: null,
+    hip: null
   },
   onLoad() {
     // 回填已保存档案：编辑场景必须看到当前值而非默认值
     api.getAvatarProfile().then((p) => {
       if (!p || p.isExample) return;
+      // 精确回填：仅用已保存的真实值（??），falsey 值（含 0）不再回退到默认值
       this.setData({
-        gender: p.gender || this.data.gender,
-        height: p.heightCm || this.data.height,
-        weight: p.weightKg || this.data.weight,
-        bust: p.bustCm || this.data.bust,
-        waist: p.waistCm || this.data.waist,
-        hip: p.hipCm || this.data.hip
+        gender: p.gender ?? this.data.gender,
+        height: p.heightCm != null ? p.heightCm : this.data.height,
+        weight: p.weightKg != null ? p.weightKg : this.data.weight,
+        bust: p.bustCm != null ? p.bustCm : this.data.bust,
+        waist: p.waistCm != null ? p.waistCm : this.data.waist,
+        hip: p.hipCm != null ? p.hipCm : this.data.hip
       });
     }).catch(() => {});
   },

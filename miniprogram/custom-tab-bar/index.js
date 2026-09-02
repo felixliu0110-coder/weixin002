@@ -5,10 +5,10 @@ Component({
     pill: { type: Boolean, value: false }
   },
   data: {
+    // Phase 5-1：tabBar 收敛为 3 项（首页 / 衣橱 / 我的）；收藏页保留但移出 tab 入口
     list: [
-      { pagePath: "/pages/home/index", text: "主页", type: "home" },
-      { pagePath: "/pages/tryon-select/index", text: "试衣", type: "hanger" },
-      { pagePath: "/pages/favorites/index", text: "收藏", type: "heart" },
+      { pagePath: "/pages/home/index", text: "首页", type: "home" },
+      { pagePath: "/pages/wardrobe/index", text: "衣橱", type: "hanger" },
       { pagePath: "/pages/profile/index", text: "我的", type: "user" }
     ]
   },

@@ -8,6 +8,10 @@ const ERR = {
   RATE_LIMITED: { code: "RATE_LIMITED", message: "请求过于频繁", http: 429 },
   PAYLOAD_TOO_LARGE: { code: "PAYLOAD_TOO_LARGE", message: "文件过大", http: 413 },
   PROVIDER_ERROR: { code: "PROVIDER_ERROR", message: "AI 服务暂不可用", http: 502 },
+  // ---- Phase 4.3-A / 5-1 Try-On 参数契约（前端与服务端共用） ----
+  INVALID_TRYON_CONTEXT: { code: "INVALID_TRYON_CONTEXT", message: "试穿参数不合法", http: 400 },
+  MULTI_GARMENT_NOT_SUPPORTED: { code: "MULTI_GARMENT_NOT_SUPPORTED", message: "暂不支持多件衣物同时试穿，请只选择一件", http: 400 },
+  UNSUPPORTED_TRYON_CATEGORY: { code: "UNSUPPORTED_TRYON_CATEGORY", message: "该品类暂不支持试穿", http: 400 },
   INTERNAL: { code: "INTERNAL", message: "内部错误", http: 500 }
 };
 
