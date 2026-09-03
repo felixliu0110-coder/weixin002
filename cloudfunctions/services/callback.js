@@ -70,6 +70,13 @@ async function finalizeTryonSuccessAtomically({ db, taskId, tryonImage, tryonVid
 
     if (task.status === "success" && existList.length === 0) {
       // 情况 C：Task=success 但 Result 缺失 → 补建 Result（修复历史坏状态）
+      // 并发保护（Phase 5-3-C-P1.1）：对 Task 做轻量更新（updated_at）作为冲突点。
+      // CloudBase Transaction 对同一文档的并发写入会产生冲突，确保两个并发 repair
+      // 只有一个能成功 commit，另一个会因事务冲突而 rollback，从而保证
+      // tryon_results(task_id=X) 最终只有一条。
+      await tx.collection("tryon_tasks").doc(taskId).update({
+        data: { updated_at: ts }
+      });
       await tx.collection("tryon_results").add({
         data: {
           _openid: task._openid || task.user_id,

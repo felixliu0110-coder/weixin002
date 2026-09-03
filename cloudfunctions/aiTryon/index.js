@@ -425,19 +425,20 @@ async function submit(event, openid) {
     const hit = prev.data.find((d) => isImageCacheHit(d, Date.now()));
     if (hit) {
       console.log("aiTryon image cache hit", "taskId=" + hit._id, "cacheKey=" + cacheKey.slice(0, 8), "costMs=" + (Date.now() - t0));
-      // Phase 5-3-C-P1：检查 Result 是否存在，缺失则修复，修复失败返回明确错误
-      const existRes = await db.collection("tryon_results").where({ task_id: hit._id }).limit(1).get();
-      if (existRes.data.length === 0) {
-        try {
-          await finalizeTryonSuccessAtomically({
-            db, taskId: hit._id,
-            tryonImage: hit.tryon_image || "", tryonVideo: "",
-            provider: hit.provider || "", now: Date.now()
-          });
-        } catch (_e) {
-          console.log("aiTryon cache repair fail", "taskId=" + hit._id, "error=" + fmtErr(_e));
-          return { ok: false, error: "TRYON_RESULT_INCONSISTENT", message: "缓存任务结果不一致且修复失败" };
-        }
+      // Phase 5-3-C-P1.1：消除 TOCTOU，不再在事务外检查 Result 是否存在。
+      // 直接委托 finalizeTryonSuccessAtomically 在事务内统一判断：
+      //   Task=success + Result exists → idempotent
+      //   Task=success + Result missing → repair（事务内 Task 更新作冲突点防并发重复）
+      //   无真实结果 → 抛错
+      try {
+        await finalizeTryonSuccessAtomically({
+          db, taskId: hit._id,
+          tryonImage: hit.tryon_image || "", tryonVideo: "",
+          provider: hit.provider || "", now: Date.now()
+        });
+      } catch (_e) {
+        console.log("aiTryon cache repair fail", "taskId=" + hit._id, "error=" + fmtErr(_e));
+        return { ok: false, error: "TRYON_RESULT_INCONSISTENT", message: "缓存任务结果不一致且修复失败" };
       }
       return {
         ok: true, taskId: hit._id, status: "success", cached: true,
