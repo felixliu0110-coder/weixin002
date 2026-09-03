@@ -34,7 +34,18 @@ Page({
   submitTask(pending) {
     // 挂到实例：生成完成时 animateTo100 需要用 pending 构造单件衣物清单（供结果页保存模板）
     this._pending = pending;
-    const avatarViewId = wx.getStorageSync("avatarViewId") || "av-current";
+    // 严禁伪造/占位 avatarViewId：必须来自真实 createAvatarViews() 返回值或已存真实值。
+    // 缺失时不得提交 aiTryon，提示用户先完成人物档案/人物视图生成。
+    const avatarViewId = wx.getStorageSync("avatarViewId");
+    if (!avatarViewId) {
+      this.setData({
+        submitting: false,
+        error: true,
+        errorMsg: "缺少人物视图，请先完成人物档案生成。",
+        errorHint: "请返回人物档案页重新生成三视图后再试。"
+      });
+      return;
+    }
 
     // 图片任务直接提交：云函数只生成穿搭效果图（视频由结果页选择生成，不再阻塞出图）
     // garmentImages 一并传给云函数作生图参考图（提示词锚定：人物三视图 + 衣物原图）

@@ -14,10 +14,16 @@ Page({
         this.setData({ error: true, errorMsg: av.error });
         return;
       }
+      // 严禁伪造 avatarViewId：只允许来自真实 createAvatarViews() 返回值。
+      // 成功但未返回 avatarViewId → 判定异常，不写 storage、不进入 avatar-3d。
       if (av && av.avatarViewId) {
         wx.setStorageSync("avatarViewId", av.avatarViewId);
       } else {
-        wx.setStorageSync("avatarViewId", "av-current");
+        this.setData({
+          error: true,
+          errorMsg: "人物视图生成异常，请重新尝试。"
+        });
+        return;
       }
       this._started = true;
       this.animateTo100();
