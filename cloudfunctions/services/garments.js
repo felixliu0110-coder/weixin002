@@ -19,10 +19,12 @@ async function resolveGarment(db, garmentId, openid) {
   }
   const owner = (doc && (doc.user_id || doc._openid)) || "";
   if (!owner || owner !== openid) throw appError("FORBIDDEN");
+  if (!doc.category) throw appError("INVALID_GARMENT_CATEGORY");
+  if (doc.category !== "上衣" && doc.category !== "裤子") throw appError("INVALID_GARMENT_CATEGORY");
   return {
     id: garmentId,
     name: doc.name || "未命名衣物",
-    category: doc.category || "上衣",
+    category: doc.category,
     type: "upload",
     originalFileId: doc.original_file_id || ""
   };

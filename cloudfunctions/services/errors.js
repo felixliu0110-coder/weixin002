@@ -12,6 +12,7 @@ const ERR = {
   INVALID_TRYON_CONTEXT: { code: "INVALID_TRYON_CONTEXT", message: "试穿参数不合法", http: 400 },
   MULTI_GARMENT_NOT_SUPPORTED: { code: "MULTI_GARMENT_NOT_SUPPORTED", message: "暂不支持多件衣物同时试穿，请只选择一件", http: 400 },
   UNSUPPORTED_TRYON_CATEGORY: { code: "UNSUPPORTED_TRYON_CATEGORY", message: "该品类暂不支持试穿", http: 400 },
+  INVALID_GARMENT_CATEGORY: { code: "INVALID_GARMENT_CATEGORY", message: "衣物分类不合法或缺失", http: 400 },
   INTERNAL: { code: "INTERNAL", message: "内部错误", http: 500 }
 };
 

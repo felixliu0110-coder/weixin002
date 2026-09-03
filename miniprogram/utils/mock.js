@@ -121,8 +121,8 @@ async function mockGetAiTryonStatus(taskId) {
 module.exports = {
   getAvatarProfile() { return Promise.resolve(JSON.parse(JSON.stringify(avatarProfile))); },
   saveAvatarProfile(data) { Object.assign(avatarProfile, data); return Promise.resolve({ ok: true }); },
-  getGarmentTemplates() { return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary))); },
-  getGarmentLibrary() { return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary))); },
+  getGarmentTemplates() { return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary.filter((i) => i.category === "上衣" || i.category === "裤子")))); },
+  getGarmentLibrary() { return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary.filter((i) => i.category === "上衣" || i.category === "裤子")))); },
   getMyTemplates() { return Promise.resolve(JSON.parse(JSON.stringify(myTemplates))); },
     getMyGarments() {
     return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary.filter((i) => String(i.id).indexOf("g-upload-") === 0).map((g) => ({ id: g.id, image: g.image, name: g.name, category: g.category, size_label: g.size_label, measurements: g.measurements })))));
@@ -171,6 +171,11 @@ module.exports = {
   getHistory() { return Promise.resolve(JSON.parse(JSON.stringify(history))); },
   getFavorites() { return Promise.resolve(JSON.parse(JSON.stringify(favorites))); },
   async deleteItems(kind, ids) {
+    // 拦截 builtin id，不允许删除内置模板
+    const builtinIds = ids.filter((id) => id.startsWith("g-") && !id.startsWith("g-upload-") && !id.startsWith("t-user-"));
+    if (builtinIds.length > 0) {
+      throw new Error("内置模板衣物不可删除");
+    }
     if (kind === "history") history = history.filter((i) => !ids.includes(i.id));
     if (kind === "favorites") favorites = favorites.filter((i) => !ids.includes(i.id));
     if (kind === "myTemplates") myTemplates = myTemplates.filter((i) => !ids.includes(i.id));

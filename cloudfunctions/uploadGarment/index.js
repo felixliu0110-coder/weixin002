@@ -117,14 +117,20 @@ async function listGarments(event, openid) {
     .orderBy("created_at", "desc")
     .limit(100)
     .get();
-  const list = (res.data || []).map((d) => ({
-    id: d._id,
-    image: d.original_file_id || "",
-    name: d.name || "",
-    category: d.category || "上衣",
-    size_label: d.size_label || undefined,
-    measurements: d.measurements || undefined
-  }));
+  const list = (res.data || []).map((d) => {
+    if (!d.category || (d.category !== "上衣" && d.category !== "裤子")) {
+      console.log("listGarments invalid category", "id=" + d._id, "category=" + d.category);
+      return null;
+    }
+    return {
+      id: d._id,
+      image: d.original_file_id || "",
+      name: d.name || "",
+      category: d.category,
+      size_label: d.size_label || undefined,
+      measurements: d.measurements || undefined
+    };
+  }).filter(Boolean);
   return { ok: true, list };
 }
 

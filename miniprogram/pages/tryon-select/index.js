@@ -147,6 +147,12 @@ Page({
       toast("请先选择要删除的衣物");
       return;
     }
+    // 拦截 builtin id，不允许删除内置模板
+    const builtinIds = ids.filter((id) => id.startsWith("g-") && !id.startsWith("g-upload-") && !id.startsWith("t-user-"));
+    if (builtinIds.length > 0) {
+      toast("内置模板衣物不可删除");
+      return;
+    }
     wx.showModal({
       title: "删除模板衣物",
       content: `将删除 ${ids.length} 件模板衣物，删除后不可恢复。`,
