@@ -63,6 +63,8 @@
 
 ## Task Schema
 
+### 当前已实际写入字段
+
 ```javascript
 {
   _openid,
@@ -82,27 +84,42 @@
   
   strategy,
   provider,
-  model,
-  provider_task_id,
+  provider_task_id,  // 当前为空字符串，未来真实异步 Provider 返回后填写
   
   status,  // queued/processing/success/failed/cancelled
   
   error_code,
   error_message,
   
-  quota_reserved,
-  quota_consumed,
-  
   cache_key,
   
   retry_count,
   
   created_at,
+  createdAt,  // 兼容旧字段
   started_at,      // processing 时记录
   completed_at,    // success/failed/cancelled 时记录
   updated_at
 }
 ```
+
+### 未来预留字段（当前未完整启用）
+
+```javascript
+{
+  model,  // 预留字段，当前 legacy/Engine 路径可能为空，禁止硬编码虚假模型名称
+  
+  quota_reserved,  // 预留字段，当前未实现 reserve/consume 生命周期
+  quota_consumed   // 预留字段，当前仍沿用既有 quota consume/refund 机制
+}
+```
+
+**重要说明**：
+- `quota_reserved` / `quota_consumed` 当前不能被描述为"已经完整实现 reserve/consume 生命周期"
+- 当前仍沿用既有 quota consume/refund 机制（consumeQuota / refundQuota）
+- 未来 Phase 5-5 再正式收口 quota 状态字段
+- `model` 是正式 Task Contract 的预留字段，禁止为了"补齐 schema"硬编码虚假的模型名称（如 `model: "aitryon"`），除非实际 Provider 已经确定并真实执行
+- `provider_task_id` 当前为空字符串，未来真实异步 Provider 返回外部 task_id 后才填写，禁止当前伪造 Provider task ID
 
 ## Result Schema
 
