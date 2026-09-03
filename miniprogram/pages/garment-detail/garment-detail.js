@@ -36,7 +36,7 @@ Page({
   },
   onTryon() {
     const g = this.data.garment;
-    wx.setStorageSync("aiTryonPending", { garmentId: g.id, garmentIds: [g.id], garmentName: g.name, garmentImage: g.image, garmentCategory: g.category });
+    wx.setStorageSync("aiTryonPending", { garmentId: g.id, garmentIds: [g.id], garmentNames: [g.name], garmentImages: [g.image], garmentCategories: [g.category || "上衣"] });
     wx.switchTab({ url: "/pages/wardrobe/index" }); // 回到衣橱后再进入试穿流程
     setTimeout(() => wx.navigateTo({ url: "/pages/tryon-select/index" }), 300);
   }

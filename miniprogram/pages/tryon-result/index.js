@@ -8,7 +8,7 @@ Page({
     collecting: false,
     tplName: "",
     tplCategory: "",
-    categories: ["上衣", "裤子", "头饰", "鞋子", "其他"],
+    categories: ["上衣", "裤子"],
     result: { tryonImage: "/assets/img/p07-result.jpg", tryonVideo: "", garmentName: "AI 试穿", garments: [] },
     // 保存模板多选相关
     tplGarments: [],      // 本次穿搭的衣物列表（供弹层展示）
@@ -105,7 +105,7 @@ Page({
       _index: i,
       _checked: false,
       _editName: g.name,
-      _editCategory: g.category || "其他"
+      _editCategory: g.category || "上衣"
     }));
     this.setData({
       templateVisible: true,

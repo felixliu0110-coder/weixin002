@@ -22,7 +22,7 @@ async function resolveGarment(db, garmentId, openid) {
   return {
     id: garmentId,
     name: doc.name || "未命名衣物",
-    category: doc.category || "其他",
+    category: doc.category || "上衣",
     type: "upload",
     originalFileId: doc.original_file_id || ""
   };

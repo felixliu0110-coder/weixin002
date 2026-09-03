@@ -157,7 +157,7 @@ Page({
               id,
               name: pending.garmentNames[i],
               image: pending.garmentImages[i],
-              category: pending.garmentCategories[i] || "其他"
+              category: pending.garmentCategories[i] || "上衣"
             })) : (prevResult.garments || [])
           });
           toast("生成完成 · 效果仅供参考");

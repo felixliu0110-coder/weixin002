@@ -5,7 +5,7 @@ const { detectImageContentType } = require("../services/storage");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
-const CATEGORIES = ["上衣", "裤子", "头饰", "鞋子", "其他"];
+const CATEGORIES = ["上衣", "裤子"];
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 与 storage.MAX_BYTES 一致
 
 /* 内容安全检测（下载 → 大小校验 → 按文件真实内容识别 MIME → imgSecCheck）。
@@ -121,7 +121,7 @@ async function listGarments(event, openid) {
     id: d._id,
     image: d.original_file_id || "",
     name: d.name || "",
-    category: d.category || "其他",
+    category: d.category || "上衣",
     size_label: d.size_label || undefined,
     measurements: d.measurements || undefined
   }));

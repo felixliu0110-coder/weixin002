@@ -9,8 +9,8 @@ Page({
     ],
     tab: "lib",
     viewMode: "home", // home: 分类入口+我的模板；select: 分类内选择衣物
-    categories: ["上衣", "裤子", "头饰", "鞋子", "其他"],
-    catIcons: { "上衣": "/assets/icons/svg/cat-top.svg", "裤子": "/assets/icons/svg/cat-pants.svg", "头饰": "/assets/icons/svg/cat-hat.svg", "鞋子": "/assets/icons/svg/cat-shoes.svg", "其他": "/assets/icons/svg/cat-other.svg" },
+    categories: ["上衣", "裤子"],
+    catIcons: { "上衣": "/assets/icons/svg/cat-top.svg", "裤子": "/assets/icons/svg/cat-pants.svg" },
     curCategory: "上衣",
     garmentLibrary: [],
     libItems: [],
@@ -231,7 +231,7 @@ Page({
         garmentIds: [garmentId],
         garmentNames: [items[0].name],
         garmentImages: items.map((g) => g.image),
-        garmentCategories: items.map((g) => g.category || "其他"),
+        garmentCategories: items.map((g) => g.category || "上衣"),
         displayName: names
       });
       this._submitting = false;

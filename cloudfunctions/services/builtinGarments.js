@@ -1,6 +1,9 @@
 /* 内置模板衣物白名单（服务端可信数据源）：
    客户端提交的 garmentName/garmentImage 不作为生成依据；内置模板无云存储原图，
-   生成四视图/试穿图时不携带参考图（纯提示词）。 */
+   生成四视图/试穿图时不携带参考图（纯提示词）。
+   V1 用户入口仅允许 上衣/裤子 分类；g-skirt 等未来能力保留但不在 V1 路径展示。 */
+const V1_CATEGORIES = ["上衣", "裤子"];
+
 const BUILTIN_GARMENTS = {
   "g-tee": { name: "白色基础T恤", category: "上衣" },
   "g-shirt": { name: "蓝色条纹衬衫", category: "上衣" },
@@ -18,4 +21,11 @@ function getBuiltinGarment(id) {
   return BUILTIN_GARMENTS[id] || null;
 }
 
-module.exports = { BUILTIN_GARMENTS, isBuiltinGarment, getBuiltinGarment };
+/* V1 过滤：仅返回属于 V1 分类（上衣/裤子）的内置模板 */
+function getV1BuiltinList() {
+  return Object.keys(BUILTIN_GARMENTS)
+    .filter(function (id) { return V1_CATEGORIES.indexOf(BUILTIN_GARMENTS[id].category) >= 0; })
+    .map(function (id) { return Object.assign({ id: id }, BUILTIN_GARMENTS[id]); });
+}
+
+module.exports = { BUILTIN_GARMENTS, isBuiltinGarment, getBuiltinGarment, getV1BuiltinList, V1_CATEGORIES };

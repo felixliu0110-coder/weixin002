@@ -6,7 +6,7 @@ Page({
     name: "", category: "上衣", sizeLabel: "",
     lengthCm: "", chestWidthCm: "", shoulderWidthCm: "", sleeveLengthCm: "",
     tempPath: "", uploading: false,
-    categories: ["上衣", "裤子", "裙子", "外套", "连衣裙", "其他"]
+    categories: ["上衣", "裤子"]
   },
   pickPhoto(e) {
     const source = e.currentTarget.dataset.mode === "camera" ? ["camera"] : ["album"];

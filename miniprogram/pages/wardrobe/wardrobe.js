@@ -1,7 +1,7 @@
 const { toast, navigate } = require("../../utils/interaction");
 const api = require("../../utils/api");
 
-const CATEGORIES = ["上衣", "裤子", "裙子", "外套", "连衣裙", "其他"];
+const CATEGORIES = ["上衣", "裤子"];
 
 Page({
   data: { garments: [], byCat: {}, loading: true },
