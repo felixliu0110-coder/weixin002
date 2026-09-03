@@ -425,14 +425,20 @@ async function submit(event, openid) {
     const hit = prev.data.find((d) => isImageCacheHit(d, Date.now()));
     if (hit) {
       console.log("aiTryon image cache hit", "taskId=" + hit._id, "cacheKey=" + cacheKey.slice(0, 8), "costMs=" + (Date.now() - t0));
-      // Phase 5-3-C：缓存命中时修复缺失 Result（不重新调用 AI）
-      try {
-        await finalizeTryonSuccessAtomically({
-          db, taskId: hit._id,
-          tryonImage: hit.tryon_image || "", tryonVideo: "",
-          provider: hit.provider || "", now: Date.now()
-        });
-      } catch (_e) { /* 幂等/无真实结果均忽略 */ }
+      // Phase 5-3-C-P1：检查 Result 是否存在，缺失则修复，修复失败返回明确错误
+      const existRes = await db.collection("tryon_results").where({ task_id: hit._id }).limit(1).get();
+      if (existRes.data.length === 0) {
+        try {
+          await finalizeTryonSuccessAtomically({
+            db, taskId: hit._id,
+            tryonImage: hit.tryon_image || "", tryonVideo: "",
+            provider: hit.provider || "", now: Date.now()
+          });
+        } catch (_e) {
+          console.log("aiTryon cache repair fail", "taskId=" + hit._id, "error=" + fmtErr(_e));
+          return { ok: false, error: "TRYON_RESULT_INCONSISTENT", message: "缓存任务结果不一致且修复失败" };
+        }
+      }
       return {
         ok: true, taskId: hit._id, status: "success", cached: true,
         tryonImage: hit.tryon_image, tryonImageUrl: hit.tryon_image_url || "", tryonVideo: "", garmentName
@@ -505,14 +511,20 @@ async function submit(event, openid) {
       update.video_task_id = vidRes.videoTaskId;
       update.provider_task_id = vidRes.videoTaskId;
       update.provider = vidRes.provider || "agnes";
-    } else {
-      assertTransition("processing", "success");
+      await db.collection("tryon_tasks").doc(taskId).update({ data: update });
+    } else if (vidRes.videoUrl) {
+      // Phase 5-3-C-P1：视频直接完成 → 事务原子写入 Task success + Result
+      await finalizeTryonSuccessAtomically({
+        db, taskId,
+        tryonImage: imgTask.tryon_image || "",
+        tryonVideo: vidRes.videoUrl,
+        provider: vidRes.provider || "mock",
+        now: Date.now()
+      });
       update.status = "success";
-      update.tryon_video = vidRes.videoUrl;
       update.provider = vidRes.provider || "mock";
-      update.completed_at = Date.now();
     }
-    await db.collection("tryon_tasks").doc(taskId).update({ data: update });
+    // 无 videoTaskId 且无 videoUrl → 不 success，保持 processing 等待后续轮询
     console.log("aiTryon video submit ok", "taskId=" + taskId, "status=" + (update.status || "processing"), "costMs=" + (Date.now() - t0));
     return { ok: true, taskId, status: update.status || "processing", tryonImage: imgTask.tryon_image || "", tryonImageUrl: imageUrl };
   }
