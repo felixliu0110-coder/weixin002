@@ -6,7 +6,7 @@ const { appError } = require("./errors");
 const { assertTransition } = require("./taskState");
 const { requireString, requireEnum } = require("./validation");
 
-async function handleCallback({ db, taskId, status, result, now }) {
+async function handleCallback({ db, taskId, status, result, now, providerTaskId }) {
   const tid = requireString(taskId, "taskId", 128);
   const st = requireEnum(status, "status", ["success", "failed", "processing", "cancelled"]);
   let task;
@@ -22,7 +22,9 @@ async function handleCallback({ db, taskId, status, result, now }) {
   assertTransition(task.status, st);
   const ts = now || Date.now();
   const update = { status: st, updated_at: ts };
+  if (st === "processing") update.started_at = ts;
   if (st === "success" || st === "failed" || st === "cancelled") update.completed_at = ts;
+  if (providerTaskId) update.provider_task_id = providerTaskId;
   await db.collection("tryon_tasks").doc(tid).update({ data: update });
   if (st === "success") {
     const r = result || {};

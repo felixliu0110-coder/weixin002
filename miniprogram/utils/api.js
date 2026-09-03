@@ -202,25 +202,12 @@ module.exports = {
   },
 
   async submitTryon(params) {
-    if (!cloudReady()) {
-      if (mockAllowed()) return mock.submitTryon(params);
-      throw serviceError("云环境未配置");
-    }
-    try {
-      const task = {
-        avatarId: params.avatarId,
-        garmentId: params.garmentId,
-        pose: params.pose || "front",
-        status: "success",
-        resultUrls: ["/assets/img/p07-result.jpg"],
-        createdAt: Date.now()
-      };
-      const res = await db().collection("tryon_tasks").add({ data: task });
-      return { taskId: res._id, status: "success", pose: task.pose, resultUrls: task.resultUrls };
-    } catch (e) {
-      if (mockAllowed()) return mock.submitTryon(params);
-      throw serviceError("试穿提交失败");
-    }
+    // 兼容入口：转发到 submitAiTryon，禁止直接写 tryon_tasks
+    return this.submitAiTryon({
+      avatarViewId: params.avatarId || params.avatarViewId,
+      garmentIds: params.garmentId ? [params.garmentId] : params.garmentIds,
+      strategy: params.strategy || "image"
+    });
   },
 
   async getTryonStatus(taskId) {

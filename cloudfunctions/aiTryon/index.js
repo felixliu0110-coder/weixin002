@@ -441,6 +441,9 @@ async function submit(event, openid) {
     person_source_type: null,   // 在生成路径中填充
     strategy: strategy || "BALANCED",
     provider: null,
+    provider_task_id: "",
+    started_at: null,
+    completed_at: null,
     created_at: Date.now(),
     createdAt: Date.now(),
     updated_at: Date.now()
@@ -462,7 +465,7 @@ async function submit(event, openid) {
     const addRes = await db.collection("tryon_tasks").add({ data: task });
     const taskId = addRes._id;
     assertTransition("queued", "processing");
-    await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "processing", updated_at: Date.now() } });
+    await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "processing", started_at: Date.now(), updated_at: Date.now() } });
     let vidRes = null;
     let lastErr = null;
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -567,7 +570,7 @@ async function submit(event, openid) {
     const taskAddRes = await db.collection("tryon_tasks").add({ data: task });
     const taskId = taskAddRes._id;
     assertTransition("queued", "processing");
-    await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "processing", person_source_type: personSourceType, updated_at: Date.now() } });
+    await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "processing", person_source_type: personSourceType, started_at: Date.now(), updated_at: Date.now() } });
 
     // 衣物 HTTPS 参考图已就位（refImages[0] = person，其余 = garments）
     const engineGarms = garments.map((g, i) => ({
@@ -647,7 +650,7 @@ async function submit(event, openid) {
   const addRes = await db.collection("tryon_tasks").add({ data: task });
   const taskId = addRes._id;
   assertTransition("queued", "processing");
-  await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "processing", updated_at: Date.now() } });
+  await db.collection("tryon_tasks").doc(taskId).update({ data: { status: "processing", started_at: Date.now(), updated_at: Date.now() } });
   let lastErr = null;
   let imgRes = null;
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -734,6 +737,7 @@ async function status(event, openid) {
   console.log("aiTryon status", "taskId=" + event.taskId, "status=" + d.status, "costMs=" + (Date.now() - t0));
   return {
     ok: true, taskId: event.taskId, status: d.status, stage: d.stage,
+    provider: d.provider || "", providerTaskId: d.provider_task_id || "",
     tryonImage: d.tryon_image, tryonImageUrl: d.tryon_image_url || "",
     tryonVideo: d.tryon_video, error: d.error, errorCode: d.error_code || "", errorMessage: d.error_message || ""
   };
