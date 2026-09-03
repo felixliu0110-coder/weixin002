@@ -139,6 +139,16 @@ Page({
     const pending = this._pending || {};
     // 无 pending 重入（仅 taskId 轮询）时保留已存的衣物明细，避免覆盖丢失
     const prevResult = wx.getStorageSync("aiTryonResult") || {};
+    // 禁止 success + 无真实图片进入成功结果页
+    const realImage = st.tryonImage || st.tryonImageUrl || "";
+    if (st.status === "success" && !realImage) {
+      this.setData({
+        error: true,
+        errorMsg: "",
+        errorHint: "生成结果暂时不可用，请稍后重试。"
+      });
+      return;
+    }
     this._startTimer = setTimeout(() => {
       // 40ms/帧（25fps）：顺滑且避免高频 setData 通信拥堵
       this._frameTimer = setInterval(() => {
@@ -148,7 +158,11 @@ Page({
           clearInterval(this._frameTimer);
           this._frameTimer = null;
           wx.setStorageSync("aiTryonResult", {
-            tryonImage: st.tryonImage || "/assets/img/p07-result.jpg",
+            resultId: st.resultId || "",
+            taskId: st.taskId || "",
+            garmentId: (pending.garmentIds && pending.garmentIds[0]) || "",
+            avatarViewId: pending.avatarViewId || "",
+            tryonImage: realImage,
             tryonImageUrl: st.tryonImageUrl || "",
             imageTaskId: st.taskId || "",
             tryonVideo: st.tryonVideo || "",

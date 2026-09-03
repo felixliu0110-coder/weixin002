@@ -24,9 +24,7 @@
     "pages/body-edit/index",
     "pages/wardrobe/index",
     "pages/garment-add/index",
-    "pages/garment-detail/index",
-    "pages/tryon-generating/index",
-    "pages/tryon-history/index"
+    "pages/garment-detail/index"
   ],
   "window": {
     "navigationStyle": "custom",

@@ -31,6 +31,10 @@ Page({
       const item = this.data.records.find((r) => r.id === e.detail.id);
       if (item && item.image) {
         wx.setStorageSync("aiTryonResult", {
+          resultId: item.resultId || item.id,
+          taskId: item.taskId || "",
+          garmentId: item.garmentId || "",
+          avatarViewId: item.avatarViewId || "",
           tryonImage: item.image,
           tryonVideo: item.videoUrl || "",
           garmentName: item.garmentName

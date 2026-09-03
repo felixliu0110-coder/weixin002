@@ -237,9 +237,13 @@ module.exports = {
       if (!r.list || r.list.length === 0) return [];   // 确实无记录 → 空态，不再显示示例
       return r.list.map((d) => ({
         id: d.id,
+        resultId: d.resultId || d.id,
         taskId: d.taskId || "",
+        garmentId: d.garmentId || "",
+        avatarViewId: d.avatarViewId || "",
         garmentName: d.garmentName,
         date: fmtDate(d.createdAt),
+        createdAt: d.createdAt,
         image: d.image,
         aiTagged: true,
         videoUrl: d.videoUrl || ""

@@ -154,6 +154,7 @@ async function saveTryonResult(task) {
         }
       }
     }
+    const createdAt = task.created_at || task.createdAt || Date.now();
     await coll.add({
       data: {
         _openid: task._openid || task.user_id,
@@ -166,7 +167,9 @@ async function saveTryonResult(task) {
         tryon_video: task.tryon_video || "",
         cache_key: task.cache_key || "",
         ai_tagged: true,
-        createdAt: Date.now()
+        created_at: createdAt,
+        createdAt: createdAt,
+        updated_at: createdAt
       }
     });
     return true;
@@ -829,9 +832,12 @@ exports.main = async (event) => {
         ok: true,
         list: res.data.map((d) => ({
           id: d._id,
+          resultId: d._id,
           taskId: d.task_id || "",
+          garmentId: d.garment_id || "",
+          avatarViewId: d.avatar_view_id || "",
           garmentName: d.garment_name,
-          createdAt: d.createdAt,
+          createdAt: d.createdAt || d.created_at || 0,
           image: d.tryon_image,
           videoUrl: d.tryon_video || ""
         }))

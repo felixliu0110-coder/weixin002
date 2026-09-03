@@ -9,7 +9,7 @@ Page({
     tplName: "",
     tplCategory: "",
     categories: ["上衣", "裤子"],
-    result: { tryonImage: "/assets/img/p07-result.jpg", tryonVideo: "", garmentName: "AI 试穿", garments: [] },
+    result: { tryonImage: "", tryonVideo: "", garmentName: "AI 试穿", garments: [] },
     // 保存模板多选相关
     tplGarments: [],      // 本次穿搭的衣物列表（供弹层展示）
     tplSelected: [],      // 用户勾选的衣物索引
@@ -19,8 +19,13 @@ Page({
   },
   onLoad() {
     const r = wx.getStorageSync("aiTryonResult") || {};
+    // 禁止默认 AI 示例图片：无真实图片则返回选择页
+    if (!r.tryonImage && !r.tryonImageUrl) {
+      navigate("/pages/tryon-select/index", { reLaunch: true });
+      return;
+    }
     this.setData({
-      result: Object.assign({ tryonImage: "/assets/img/p07-result.jpg", tryonVideo: "", garmentName: "AI 试穿", garments: [] }, r),
+      result: Object.assign({ tryonImage: "", tryonVideo: "", garmentName: "AI 试穿", garments: [] }, r),
       collecting: false
     });
   },

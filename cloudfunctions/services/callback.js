@@ -45,6 +45,7 @@ async function handleCallback({ db, taskId, status, result, now, providerTaskId 
           tryon_video: tryonVideo,
           ai_tagged: true,
           created_at: ts,
+          createdAt: ts,
           updated_at: ts
         }
       });
