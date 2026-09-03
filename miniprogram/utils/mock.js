@@ -124,8 +124,8 @@ module.exports = {
   getGarmentTemplates() { return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary.filter((i) => i.category === "上衣" || i.category === "裤子")))); },
   getGarmentLibrary() { return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary.filter((i) => i.category === "上衣" || i.category === "裤子")))); },
   getMyTemplates() { return Promise.resolve(JSON.parse(JSON.stringify(myTemplates))); },
-    getMyGarments() {
-    return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary.filter((i) => String(i.id).indexOf("g-upload-") === 0).map((g) => ({ id: g.id, image: g.image, name: g.name, category: g.category, size_label: g.size_label, measurements: g.measurements })))));
+  getMyGarments() {
+    return Promise.resolve(JSON.parse(JSON.stringify(garmentLibrary.filter((i) => i.type === "upload").map((g) => ({ id: g.id, image: g.image, name: g.name, category: g.category, type: g.type, size_label: g.size_label, measurements: g.measurements })))));
   },
   async addToMyTemplates(ids) {
     const items = garmentLibrary.filter(
@@ -148,7 +148,7 @@ module.exports = {
     return item;
   },
   async updateGarment(id, data) {
-    const idx = garmentLibrary.findIndex((g) => g.id === id && String(g.id).indexOf("g-upload-") === 0);
+    const idx = garmentLibrary.findIndex((g) => g.id === id && g.type === "upload");
     if (idx < 0) throw new Error("NOT_FOUND");
     const item = garmentLibrary[idx];
     if (data.name !== undefined) item.name = data.name;

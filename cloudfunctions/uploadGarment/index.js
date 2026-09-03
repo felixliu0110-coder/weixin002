@@ -140,7 +140,7 @@ async function listGarments(event, openid) {
 async function getLibrary(event, openid) {
   const builtinList = getV1BuiltinList().map((g) => ({
     id: g.id,
-    image: "",
+    image: g.displayImage || "",
     name: g.name,
     category: g.category,
     type: "builtin"

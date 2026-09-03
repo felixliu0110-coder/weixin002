@@ -13,6 +13,7 @@ const ERR = {
   MULTI_GARMENT_NOT_SUPPORTED: { code: "MULTI_GARMENT_NOT_SUPPORTED", message: "暂不支持多件衣物同时试穿，请只选择一件", http: 400 },
   UNSUPPORTED_TRYON_CATEGORY: { code: "UNSUPPORTED_TRYON_CATEGORY", message: "该品类暂不支持试穿", http: 400 },
   INVALID_GARMENT_CATEGORY: { code: "INVALID_GARMENT_CATEGORY", message: "衣物分类不合法或缺失", http: 400 },
+  BUILTIN_GARMENT_REFERENCE_UNAVAILABLE: { code: "BUILTIN_GARMENT_REFERENCE_UNAVAILABLE", message: "该系统模板暂时无法用于 AI 试穿", http: 400 },
   INTERNAL: { code: "INTERNAL", message: "内部错误", http: 500 }
 };
 
