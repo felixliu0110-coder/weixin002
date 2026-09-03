@@ -2,6 +2,7 @@ const cloud = require("wx-server-sdk");
 const { requireLogin, requireId, requireString, requireEnum, requireArray, parseSizeLabel, parseMeasurements } = require("../services/validation");
 const { appError, fmtErr } = require("../services/errors");
 const { detectImageContentType } = require("../services/storage");
+const { getV1BuiltinList } = require("../services/builtinGarments");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
@@ -127,11 +128,44 @@ async function listGarments(event, openid) {
       image: d.original_file_id || "",
       name: d.name || "",
       category: d.category,
+      type: "upload",
       size_label: d.size_label || undefined,
       measurements: d.measurements || undefined
     };
   }).filter(Boolean);
   return { ok: true, list };
+}
+
+/* Library 入口：返回 builtin + 当前用户 upload，统一结构含 type */
+async function getLibrary(event, openid) {
+  const builtinList = getV1BuiltinList().map((g) => ({
+    id: g.id,
+    image: "",
+    name: g.name,
+    category: g.category,
+    type: "builtin"
+  }));
+  const res = await db.collection("garments")
+    .where({ user_id: openid, type: "upload", status: "ready" })
+    .orderBy("created_at", "desc")
+    .limit(100)
+    .get();
+  const uploadList = (res.data || []).map((d) => {
+    if (!d.category || (d.category !== "上衣" && d.category !== "裤子")) {
+      console.log("getLibrary invalid category", "id=" + d._id, "category=" + d.category);
+      return null;
+    }
+    return {
+      id: d._id,
+      image: d.original_file_id || "",
+      name: d.name || "",
+      category: d.category,
+      type: "upload",
+      size_label: d.size_label || undefined,
+      measurements: d.measurements || undefined
+    };
+  }).filter(Boolean);
+  return { ok: true, list: builtinList.concat(uploadList) };
 }
 
 /* 更新衣物：保存用户当前编辑后的完整 Metadata 状态（非 PATCH） */
@@ -180,6 +214,7 @@ exports.main = async (event) => {
   try {
     const { OPENID: openid } = cloud.getWXContext();
     requireLogin(openid);
+    if (event && event.action === "library") return getLibrary(event, openid);
     if (event && event.action === "list") return listGarments(event, openid);
     if (event && event.action === "deleteGarment") return deleteGarment(event, openid);
     if (event && event.action === "create") return createGarment(event, openid);

@@ -77,7 +77,21 @@ module.exports = {
   },
 
   getGarmentTemplates: mock.getGarmentTemplates,
-  getGarmentLibrary: mock.getGarmentLibrary,
+  async getGarmentLibrary() {
+    if (!cloudReady()) {
+      if (mockAllowed()) return mock.getGarmentLibrary();
+      throw serviceError("云环境未配置");
+    }
+    try {
+      const res = await wx.cloud.callFunction({ name: "uploadGarment", data: { action: "library" } });
+      const r = res.result;
+      if (!r || !r.ok) throw serviceError((r && r.message) || "衣物库读取失败");
+      return r.list || [];
+    } catch (e) {
+      if (mockAllowed()) return mock.getGarmentLibrary();
+      throw serviceError("衣物库读取失败");
+    }
+  },
   getMyTemplates: mock.getMyTemplates,
   addToMyTemplates: mock.addToMyTemplates,
   getHomeTemplates: mock.getHomeTemplates,
@@ -125,7 +139,7 @@ module.exports = {
       const res = await wx.cloud.callFunction({ name: "uploadGarment", data: { action: "list" } });
       const r = res.result;
       if (!r || !r.ok) throw serviceError((r && r.message) || "衣物列表读取失败");
-      return (r.list || []).map((g) => ({ id: g.id, image: g.image, name: g.name, category: g.category, size_label: g.size_label || undefined, measurements: g.measurements || undefined }));
+      return (r.list || []).map((g) => ({ id: g.id, image: g.image, name: g.name, category: g.category, type: g.type || "upload", size_label: g.size_label || undefined, measurements: g.measurements || undefined }));
     } catch (e) {
       if (mockAllowed()) return mock.getMyGarments();
       throw serviceError("衣物列表读取失败");

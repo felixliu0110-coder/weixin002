@@ -24,12 +24,12 @@ const avatarProfile = {
 const quota = { userId: "u-demo", dailyFree: 3, used: 0, resetDate: "2026-08-16", isExample: true };
 
 let garmentLibrary = [
-  { id: "g-tee", name: "白色基础T恤", category: "上衣", image: "/assets/img/p06-tee.jpg" },
-  { id: "g-shirt", name: "蓝色条纹衬衫", category: "上衣", image: "/assets/img/p06-shirt.jpg" },
-  { id: "g-hoodie", name: "米白连帽卫衣", category: "上衣", image: "/assets/img/p06-hoodie.jpg" },
-  { id: "g-jeans", name: "蓝色直筒牛仔裤", category: "裤子", image: "/assets/img/p06-jeans.jpg" },
-  { id: "g-pants", name: "浅灰休闲裤", category: "裤子", image: "/assets/img/p06-pants.jpg" },
-  { id: "g-skirt", name: "粉色半身裙", category: "其他", image: "/assets/img/p06-skirt.jpg" }
+  { id: "g-tee", name: "白色基础T恤", category: "上衣", image: "/assets/img/p06-tee.jpg", type: "builtin" },
+  { id: "g-shirt", name: "蓝色条纹衬衫", category: "上衣", image: "/assets/img/p06-shirt.jpg", type: "builtin" },
+  { id: "g-hoodie", name: "米白连帽卫衣", category: "上衣", image: "/assets/img/p06-hoodie.jpg", type: "builtin" },
+  { id: "g-jeans", name: "蓝色直筒牛仔裤", category: "裤子", image: "/assets/img/p06-jeans.jpg", type: "builtin" },
+  { id: "g-pants", name: "浅灰休闲裤", category: "裤子", image: "/assets/img/p06-pants.jpg", type: "builtin" },
+  { id: "g-skirt", name: "粉色半身裙", category: "其他", image: "/assets/img/p06-skirt.jpg", type: "builtin" }
 ];
 
 let myTemplates = [];
@@ -141,6 +141,7 @@ module.exports = {
       image: (params && params.fileID) || imagePath,
       name: (params && params.name) || "上传衣物",
       category: (params && params.category) || "上衣",
+      type: "upload",
       status: "ok"
     };
     garmentLibrary.push(item);
@@ -171,10 +172,12 @@ module.exports = {
   getHistory() { return Promise.resolve(JSON.parse(JSON.stringify(history))); },
   getFavorites() { return Promise.resolve(JSON.parse(JSON.stringify(favorites))); },
   async deleteItems(kind, ids) {
-    // 拦截 builtin id，不允许删除内置模板
-    const builtinIds = ids.filter((id) => id.startsWith("g-") && !id.startsWith("g-upload-") && !id.startsWith("t-user-"));
-    if (builtinIds.length > 0) {
-      throw new Error("内置模板衣物不可删除");
+    // 使用 garment.type 判断，builtin 不可删除
+    if (kind === "library" || kind === "myGarments") {
+      const builtinItems = garmentLibrary.filter((i) => ids.includes(i.id) && i.type === "builtin");
+      if (builtinItems.length > 0) {
+        throw new Error("内置模板衣物不可删除");
+      }
     }
     if (kind === "history") history = history.filter((i) => !ids.includes(i.id));
     if (kind === "favorites") favorites = favorites.filter((i) => !ids.includes(i.id));

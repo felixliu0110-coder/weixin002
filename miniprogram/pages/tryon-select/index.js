@@ -67,13 +67,20 @@ Page({
         libItems: lib.filter((i) => i.category === this.data.curCategory)
       });
       this.computeCatCounts(lib);
-    });
-    api.getMyTemplates().then((my) => {
-      this.setData({ myTemplates: my.map((t) => Object.assign({}, t, { selected: false, del: false })) });
+      // 从 library 和 selectedGarmentIds 派生 myTemplates
+      this.refreshMyTemplates();
     });
     api.getMyGarments().then((my) => {
       this.setData({ myGarments: my.map((g) => Object.assign({}, g, { selected: false })) });
     });
+  },
+  // 从 garmentLibrary 和 selectedGarmentIds 派生 myTemplates
+  refreshMyTemplates() {
+    const selectedIds = this._selectedGarmentIds || [];
+    const myTemplates = this.data.garmentLibrary
+      .filter((g) => selectedIds.indexOf(g.id) >= 0)
+      .map((t) => Object.assign({}, t, { selected: false, del: false }));
+    this.setData({ myTemplates });
   },
   // Phase 5-1：一次试穿严格 1 件；count 为 0 或 1，选中项恒为单一 ID
   computeSelectInfo(myTemplates, myGarments) {
@@ -147,20 +154,26 @@ Page({
       toast("请先选择要删除的衣物");
       return;
     }
-    // 拦截 builtin id，不允许删除内置模板
-    const builtinIds = ids.filter((id) => id.startsWith("g-") && !id.startsWith("g-upload-") && !id.startsWith("t-user-"));
-    if (builtinIds.length > 0) {
+    // 使用 garment.type 判断，builtin 不可删除
+    const builtinItems = items.filter((t) => t.type === "builtin");
+    if (builtinItems.length > 0) {
       toast("内置模板衣物不可删除");
       return;
     }
+    // 只允许删除 upload 类型的衣物
+    const uploadIds = items.filter((t) => t.type === "upload").map((t) => t.id);
+    if (uploadIds.length === 0) {
+      toast("没有可删除的衣物");
+      return;
+    }
     wx.showModal({
-      title: "删除模板衣物",
-      content: `将删除 ${ids.length} 件模板衣物，删除后不可恢复。`,
+      title: "删除衣物",
+      content: `将删除 ${uploadIds.length} 件衣物，删除后不可恢复。`,
       confirmText: "删除",
       confirmColor: "#C0392B",
       success: (res) => {
         if (res.confirm) {
-          api.deleteItems("library", ids)
+          api.deleteItems("library", uploadIds)
             .then(() => {
               toast("已删除");
               this.loadAll();
@@ -177,11 +190,13 @@ Page({
       toast("请先选择衣物加入穿搭");
       return;
     }
-    api.addToMyTemplates(ids).then(() => {
-      toast("已加入穿搭");
-      this.setData({ viewMode: "home" });
-      this.loadAll();
-    });
+    // 只更新本地选择状态，不调用 api.addToMyTemplates
+    const selectedIds = this._selectedGarmentIds || [];
+    const newIds = ids.filter((id) => selectedIds.indexOf(id) < 0);
+    this._selectedGarmentIds = selectedIds.concat(newIds);
+    toast("已加入穿搭");
+    this.setData({ viewMode: "home" });
+    this.refreshMyTemplates();
   },
 
   /* ---------- 我的模板：选择试穿 ---------- */
@@ -275,21 +290,22 @@ Page({
     const ids = this.data.myTemplates.filter((t) => t.del).map((t) => t.id);
     const count = ids.length;
     if (count === 0) {
-      toast("请先选择要删除的衣物");
+      toast("请先选择要移除的衣物");
       return;
     }
     wx.showModal({
-      title: "删除模板衣物",
-      content: `将删除 ${count} 件模板衣物，删除后不可恢复。`,
-      confirmText: "删除",
+      title: "移除已选衣物",
+      content: `将从穿搭中移除 ${count} 件衣物`,
+      confirmText: "移除",
       confirmColor: "#C0392B",
       success: (res) => {
         if (res.confirm) {
-          api.deleteItems("myTemplates", ids).then(() => {
-            toast("已删除");
-            this.setData({ manageMode: false });
-            this.loadAll();
-          });
+          // 只从 selectedGarmentIds 中移除，不删除实体
+          const selectedIds = this._selectedGarmentIds || [];
+          this._selectedGarmentIds = selectedIds.filter((id) => ids.indexOf(id) < 0);
+          toast("已移除");
+          this.setData({ manageMode: false });
+          this.refreshMyTemplates();
         }
       }
     });
