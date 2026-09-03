@@ -2,9 +2,9 @@
    - 状态机校验：只允许合法迁移；
    - 幂等：同 task 同状态重复回调直接返回；结果按 task_id 去重；
    - 结果值优先取服务端任务字段，不信任回调携带的任意 URL 作为授权/归属依据。
-   - 原子性：success 必须先验证真实结果（tryonImage/tryonVideo 至少一个存在），
-     验证通过后才写 tryon_tasks=success，再创建/更新 tryon_results；
-     验证失败（结果为空）不得把 Task 写成 success。 */
+   - 原子性（Phase 5-3-C）：success 的 Task 更新与 Result 创建/更新
+     统一在 finalizeTryonSuccessAtomically() 的 CloudBase Transaction 内完成。
+     AI/Provider 调用绝不进入事务。 */
 
 const { appError } = require("./errors");
 const { assertTransition } = require("./taskState");
@@ -23,6 +23,118 @@ function resolveSuccessResult(result, task) {
   return { tryonImage, tryonVideo };
 }
 
+/* ============================================================
+   Phase 5-3-C：事务原子完成函数
+   将 Task success 更新 + Result 创建/更新 放在同一个
+   CloudBase Transaction 内，杜绝"Task=success 但 Result 缺失"的不一致。
+
+   调用时机：AI/Provider 调用已在事务外完成，已获得真实结果。
+   事务内绝不调用 AI / Provider / 下载图片 / 任何长耗时网络操作。
+
+   覆盖五种状态：
+     A) processing + 无 Result → Task=success + 创建 Result
+     B) success + Result 已存在 → idempotent（不新增）
+     C) success + Result 缺失 + 有真实结果 → 补建 Result（修复坏状态）
+     D) processing + 结果为空 → 抛 INVALID_ARGUMENT，Task 不变
+     E) 事务内任一操作失败 → rollback，Task 不留 success
+   ============================================================ */
+async function finalizeTryonSuccessAtomically({ db, taskId, tryonImage, tryonVideo, provider, now }) {
+  if (!tryonImage && !tryonVideo) {
+    throw appError("INVALID_ARGUMENT", "真实结果为空，不得写入 success");
+  }
+
+  const ts = now || Date.now();
+  let tx;
+  try {
+    tx = await db.startTransaction();
+
+    // 1. 事务内重新读取 Task（防止并发脏写）
+    const taskRes = await tx.collection("tryon_tasks").doc(taskId).get();
+    const task = taskRes.data;
+    if (!task) {
+      await tx.rollback();
+      throw appError("NOT_FOUND");
+    }
+
+    // 2. 查询 tryon_results where task_id
+    const existRes = await tx.collection("tryon_results")
+      .where({ task_id: taskId }).limit(1).get();
+    const existList = (existRes && existRes.data) || [];
+
+    // 3. 按状态分支处理
+    if (task.status === "success" && existList.length > 0) {
+      // 情况 B：幂等，Task=success + Result 已存在
+      await tx.commit();
+      return { ok: true, idempotent: true };
+    }
+
+    if (task.status === "success" && existList.length === 0) {
+      // 情况 C：Task=success 但 Result 缺失 → 补建 Result（修复历史坏状态）
+      await tx.collection("tryon_results").add({
+        data: {
+          _openid: task._openid || task.user_id,
+          user_id: task.user_id,
+          task_id: taskId,
+          avatar_view_id: task.avatar_view_id,
+          garment_id: (task.garment_ids || [])[0],
+          garment_name: task.garment_name || "AI 试穿",
+          tryon_image: tryonImage,
+          tryon_video: tryonVideo,
+          cache_key: task.cache_key || "",
+          ai_tagged: true,
+          created_at: ts,
+          createdAt: ts,
+          updated_at: ts
+        }
+      });
+      await tx.commit();
+      return { ok: true, repaired: true };
+    }
+
+    // 情况 A：processing → success + 创建 Result
+    assertTransition(task.status, "success");
+
+    await tx.collection("tryon_tasks").doc(taskId).update({
+      data: {
+        status: "success",
+        tryon_image: tryonImage,
+        tryon_video: tryonVideo,
+        provider: provider || task.provider,
+        completed_at: ts,
+        updated_at: ts
+      }
+    });
+
+    await tx.collection("tryon_results").add({
+      data: {
+        _openid: task._openid || task.user_id,
+        user_id: task.user_id,
+        task_id: taskId,
+        avatar_view_id: task.avatar_view_id,
+        garment_id: (task.garment_ids || [])[0],
+        garment_name: task.garment_name || "AI 试穿",
+        tryon_image: tryonImage,
+        tryon_video: tryonVideo,
+        cache_key: task.cache_key || "",
+        ai_tagged: true,
+        created_at: ts,
+        createdAt: ts,
+        updated_at: ts
+      }
+    });
+
+    await tx.commit();
+    return { ok: true };
+  } catch (e) {
+    // 情况 E：事务失败 → 尝试 rollback（rollback 本身失败不覆盖原始业务错误）
+    if (tx) {
+      try { await tx.rollback(); } catch (_re) { /* ignore */ }
+    }
+    if (e && e.appCode) throw e;
+    throw appError("TRANSACTION_FAILED", "事务执行失败: " + (e.message || e));
+  }
+}
+
 async function handleCallback({ db, taskId, status, result, now, providerTaskId }) {
   const tid = requireString(taskId, "taskId", 128);
   const st = requireEnum(status, "status", ["success", "failed", "processing", "cancelled"]);
@@ -33,56 +145,41 @@ async function handleCallback({ db, taskId, status, result, now, providerTaskId 
   } catch (e) {
     throw appError("NOT_FOUND");
   }
-  // 幂等：同状态重复回调直接返回（合法幂等逻辑保留）
-  if (task.status === st) return { ok: true, idempotent: true };
+  // 非 success 幂等：同状态重复回调直接返回
+  if (task.status === st && st !== "success") return { ok: true, idempotent: true };
+  // success 幂等 + 坏状态修复统一交由 finalizeTryonSuccessAtomically 处理
+  if (task.status === st && st === "success") {
+    const successResult = resolveSuccessResult(result, task);
+    return finalizeTryonSuccessAtomically({
+      db, taskId: tid,
+      tryonImage: successResult.tryonImage, tryonVideo: successResult.tryonVideo,
+      provider: task.provider, now
+    });
+  }
   // 只允许合法状态迁移
   assertTransition(task.status, st);
 
   const ts = now || Date.now();
 
-  // 【原子性保证】success 必须先解析并验证真实结果，在任何 Task 状态写入之前完成。
-  // 验证失败（tryonImage/tryonVideo 都为空）直接抛错，此时 Task 尚未被改写，
-  // 后续带真实结果的 success 回调仍可正常处理（不会留下 success + 无 result 的不一致状态）。
-  let successResult = null;
-  if (st === "success") {
-    successResult = resolveSuccessResult(result, task);
+  // 非 success 终态：直接更新 Task（无需事务，不涉及 Result）
+  if (st !== "success") {
+    const update = { status: st, updated_at: ts };
+    if (st === "processing") update.started_at = ts;
+    if (st === "failed" || st === "cancelled") update.completed_at = ts;
+    if (providerTaskId) update.provider_task_id = providerTaskId;
+    await db.collection("tryon_tasks").doc(tid).update({ data: update });
+    return { ok: true };
   }
 
-  // 至此，success 已通过真实结果验证；开始写 Task 终态。
-  const update = { status: st, updated_at: ts };
-  if (st === "processing") update.started_at = ts;
-  if (st === "success" || st === "failed" || st === "cancelled") update.completed_at = ts;
-  if (providerTaskId) update.provider_task_id = providerTaskId;
-  await db.collection("tryon_tasks").doc(tid).update({ data: update });
+  // success：先验证真实结果（事务外，不信任空值）
+  const successResult = resolveSuccessResult(result, task);
 
-  // Task 已成功写入 success，接着创建/更新 tryon_results（按 task_id 去重）
-  if (st === "success") {
-    const { tryonImage, tryonVideo } = successResult;
-    const dup = await db.collection("tryon_results").where({ task_id: tid }).limit(1).get();
-    if (dup.data.length === 0) {
-      await db.collection("tryon_results").add({
-        data: {
-          _openid: task._openid || task.user_id,
-          user_id: task.user_id,
-          task_id: tid,
-          avatar_view_id: task.avatar_view_id,
-          garment_id: (task.garment_ids || [])[0],
-          garment_name: task.garment_name || "AI 试穿",
-          tryon_image: tryonImage,
-          tryon_video: tryonVideo,
-          ai_tagged: true,
-          created_at: ts,
-          createdAt: ts,
-          updated_at: ts
-        }
-      });
-    } else {
-      await db.collection("tryon_results").doc(dup.data[0]._id).update({
-        data: { tryon_video: tryonVideo, tryon_image: tryonImage, updated_at: ts }
-      });
-    }
-  }
-  return { ok: true };
+  // Phase 5-3-C：Task success + Result 创建/更新 在事务内原子完成
+  return finalizeTryonSuccessAtomically({
+    db, taskId: tid,
+    tryonImage: successResult.tryonImage, tryonVideo: successResult.tryonVideo,
+    provider: task.provider, now: ts
+  });
 }
 
-module.exports = { handleCallback, resolveSuccessResult };
+module.exports = { handleCallback, resolveSuccessResult, finalizeTryonSuccessAtomically };

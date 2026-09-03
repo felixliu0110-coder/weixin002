@@ -22,7 +22,13 @@ function verifySecret(event) {
 exports.main = async (event) => {
   try {
     verifySecret(event);
-    return await handleCallback({ db, taskId: event.taskId, status: event.status, result: event.result });
+    return await handleCallback({
+      db,
+      taskId: event.taskId,
+      status: event.status,
+      result: event.result,
+      providerTaskId: event.providerTaskId
+    });
   } catch (e) {
     console.log("onTryonComplete fail", "error=" + fmtErr(e));
     return { ok: false, error: e.appCode || "INTERNAL", message: e.appCode ? e.message : "内部错误" };

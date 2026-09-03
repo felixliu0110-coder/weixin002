@@ -11,6 +11,7 @@ const { appError, fmtErr } = require("../services/errors");
 const { assertTransition } = require("../services/taskState");
 const { dateStr, consumeQuota, refundQuota, getQuota } = require("../services/quota");
 const { requestDeletion, runDeletion } = require("../services/deletion");
+const { finalizeTryonSuccessAtomically } = require("../services/callback");
 
 // ---- V2 Try-On Engine（Phase 4.2，feature flag 控制，默认关闭以保留回滚能力）----
 // Phase 4.2.1：aiTryon 不再构造业务 Prompt，Prompt / provider payload 完全由
@@ -424,6 +425,14 @@ async function submit(event, openid) {
     const hit = prev.data.find((d) => isImageCacheHit(d, Date.now()));
     if (hit) {
       console.log("aiTryon image cache hit", "taskId=" + hit._id, "cacheKey=" + cacheKey.slice(0, 8), "costMs=" + (Date.now() - t0));
+      // Phase 5-3-C：缓存命中时修复缺失 Result（不重新调用 AI）
+      try {
+        await finalizeTryonSuccessAtomically({
+          db, taskId: hit._id,
+          tryonImage: hit.tryon_image || "", tryonVideo: "",
+          provider: hit.provider || "", now: Date.now()
+        });
+      } catch (_e) { /* 幂等/无真实结果均忽略 */ }
       return {
         ok: true, taskId: hit._id, status: "success", cached: true,
         tryonImage: hit.tryon_image, tryonImageUrl: hit.tryon_image_url || "", tryonVideo: "", garmentName
@@ -630,15 +639,13 @@ async function submit(event, openid) {
     }
     const provider = (engineRes && engineRes.provider) || "engine";
     assertTransition("processing", "success");
-    const update = {
-      stage: "image", status: "success",
-      tryon_image: tryonImage, tryon_image_url: rawUrl,
-      person_asset_id: personAssetId, person_source_type: personSourceType,
-      strategy: "BALANCED", provider,
-      updated_at: Date.now(), completed_at: Date.now()
-    };
-    await db.collection("tryon_tasks").doc(taskId).update({ data: update });
-    await saveTryonResult(Object.assign({ _id: taskId }, task, update));
+    // Phase 5-3-C：Task success + Result 在事务内原子完成
+    await finalizeTryonSuccessAtomically({
+      db, taskId,
+      tryonImage, tryonVideo: "",
+      provider,
+      now: Date.now()
+    });
     console.log("aiTryon engine image ok", "taskId=" + taskId, "provider=" + provider, "costMs=" + (Date.now() - t0));
     // 前端兼容返回格式（不要求前端修改字段）
     return {
@@ -688,9 +695,13 @@ async function submit(event, openid) {
     console.log("aiTryon storage save fail", "taskId=" + taskId, "error=" + e.message);
   }
   assertTransition("processing", "success");
-  const update = { stage: "image", status: "success", tryon_image: tryonImage, tryon_image_url: rawUrl, provider: imgRes.provider || "agnes", updated_at: Date.now(), completed_at: Date.now() };
-  await db.collection("tryon_tasks").doc(taskId).update({ data: update });
-  await saveTryonResult(Object.assign({ _id: taskId }, task, update));
+  // Phase 5-3-C：Task success + Result 在事务内原子完成
+  await finalizeTryonSuccessAtomically({
+    db, taskId,
+    tryonImage, tryonVideo: "",
+    provider: imgRes.provider || "agnes",
+    now: Date.now()
+  });
   console.log("aiTryon image ok", "taskId=" + taskId, "status=success", "costMs=" + (Date.now() - t0));
   return { ok: true, taskId, status: "success", tryonImage, tryonImageUrl: rawUrl, tryonVideo: "", garmentName };
 }
@@ -706,12 +717,15 @@ async function status(event, openid) {
         const st = await aigc.getVideoStatus(d.video_task_id);
         if (st.status === "completed" || st.status === "succeeded" || st.videoUrl) {
           if (d.status !== "success") assertTransition(d.status, "success");
-          await db.collection("tryon_tasks").doc(event.taskId).update({
-            data: { status: "success", tryon_video: st.videoUrl, updated_at: Date.now(), completed_at: Date.now() }
+          // Phase 5-3-C：视频完成也走事务原子写入
+          await finalizeTryonSuccessAtomically({
+            db, taskId: event.taskId,
+            tryonImage: d.tryon_image || "", tryonVideo: st.videoUrl,
+            provider: d.provider || "",
+            now: Date.now()
           });
           d.status = "success";
           d.tryon_video = st.videoUrl;
-          await saveTryonResult(Object.assign({ _id: event.taskId }, d));
           console.log("aiTryon video completed", "taskId=" + event.taskId, "costMs=" + (Date.now() - t0));
         } else if (st.status === "failed") {
           const msg = st.error || "视频生成失败";

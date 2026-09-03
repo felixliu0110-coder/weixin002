@@ -3,32 +3,60 @@ const assert = require("node:assert");
 const { handleCallback } = require("./callback");
 
 function fakeDb(store) {
-  return {
-    collection: (name) => ({
+  function collApi(target, name) {
+    return {
       doc: (id) => ({
         get: async () => {
-          if (store[name] && store[name][id]) return { data: store[name][id] };
+          if (target[name] && target[name][id]) return { data: { ...target[name][id] } };
           throw new Error("not found");
         },
         update: async ({ data }) => {
-          Object.assign(store[name][id], data);
+          if (!target[name]) target[name] = {};
+          if (!target[name][id]) throw new Error("doc not found");
+          Object.assign(target[name][id], data);
           return { stats: { updated: 1 } };
         }
       }),
       where: (q) => ({
         limit: () => ({
           get: async () => ({
-            data: Object.keys(store[name] || {}).map((k) => store[name][k]).filter((d) => d[q.task_id] === q.task_id)
+            data: Object.values(target[name] || {}).filter((d) => {
+              return Object.keys(q).every((k) => d[k] === q[k]);
+            })
           })
         })
       }),
       add: async ({ data }) => {
-        store[name] = store[name] || {};
-        const id = "doc_" + Object.keys(store[name]).length;
-        store[name][id] = data;
+        if (!target[name]) target[name] = {};
+        const id = "doc_" + Object.keys(target[name]).length;
+        target[name][id] = { ...data, _id: id };
         return { _id: id };
       }
-    })
+    };
+  }
+  return {
+    collection: (name) => collApi(store, name),
+    startTransaction: async () => {
+      const txStore = {};
+      for (const [k, v] of Object.entries(store)) {
+        txStore[k] = {};
+        for (const [id, doc] of Object.entries(v)) {
+          txStore[k][id] = { ...doc };
+        }
+      }
+      return {
+        collection: (name) => collApi(txStore, name),
+        commit: async () => {
+          for (const [k, v] of Object.entries(txStore)) {
+            store[k] = {};
+            for (const [id, doc] of Object.entries(v)) {
+              store[k][id] = { ...doc };
+            }
+          }
+        },
+        rollback: async () => {}
+      };
+    }
   };
 }
 
