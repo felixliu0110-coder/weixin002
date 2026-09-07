@@ -48,3 +48,13 @@ project.private.config.json
 %SystemDrive%/
 .cozeproj/reduction
 .codegraph
+
+# 同步临时文件
+weixin002-v22-ui-redesign/
+miniprogram/miniprogram/
+cloudfunctions/cloudfunctions/
+test-e2e.js
+test-full.js
+test-results.txt
+upload_*.jpg
+scripts/search-aliyun-doc.js
