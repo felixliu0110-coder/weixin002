@@ -14,7 +14,8 @@ async function resolveGarment(db, garmentId, openid) {
       category: builtin.category,
       type: "builtin",
       displayImage: builtin.displayImage || "",
-      referenceAsset: null
+      originalFileId: "",
+      referenceAsset: builtin.referenceUrl ? { kind: "public-url", url: builtin.referenceUrl } : null
     };
   }
   if (!openid) throw appError("AUTH_REQUIRED");
@@ -36,6 +37,7 @@ async function resolveGarment(db, garmentId, openid) {
     category: doc.category,
     type: "upload",
     displayImage: fileId,
+    originalFileId: fileId,
     referenceAsset: fileId ? { kind: "cloud-file", fileId: fileId } : null
   };
 }

@@ -22,6 +22,7 @@ function assertDeletionTransition(from, to) {
 
 const DELETABLE_COLLECTIONS = [
   "avatar_profiles",
+  "person_assets",
   "avatar_views",
   "garments",
   "garment_views",
@@ -35,6 +36,10 @@ function collectFileIDs(doc) {
   const out = [];
   const push = (v) => { if (v && v.indexOf("cloud://") === 0) out.push(v); };
   if (doc.original_file_id) push(doc.original_file_id);
+  if (doc.original_photo) push(doc.original_photo);
+  if (doc.front_photo) push(doc.front_photo);
+  if (doc.anchor_image) push(doc.anchor_image);
+  if (doc.three_view_composite) push(doc.three_view_composite);
   if (doc.tryon_image) push(doc.tryon_image);
   if (doc.face_photo_id) push(doc.face_photo_id);
   if (doc.body_photo_id) push(doc.body_photo_id);
@@ -86,13 +91,17 @@ async function runDeletion(db, cloud, openid, jobId) {
         if (!res.data || res.data.length === 0) break;
         for (const doc of res.data) {
           for (const f of collectFileIDs(doc)) fileIDs.add(f);
-          try { await coll.doc(doc._id).remove(); } catch (e) { /* 继续清理其余 */ }
+          await coll.doc(doc._id).remove();
         }
       }
     }
     const list = Array.from(fileIDs);
+    if (list.length && (!cloud || typeof cloud.deleteFile !== "function")) {
+      throw appError("INTERNAL", "删除作业缺少云文件删除能力");
+    }
     for (let i = 0; i < list.length; i += 50) {
-      try { await cloud.deleteFile({ fileList: list.slice(i, i + 50) }); } catch (e) { /* 尽力删除 */ }
+      const batch = list.slice(i, i + 50);
+      await cloud.deleteFile({ fileList: batch });
     }
     assertDeletionTransition("processing", "completed");
     await jobColl.doc(jobId).update({ data: { status: "completed", updated_at: Date.now(), completed_at: Date.now(), removed_files: list.length } });

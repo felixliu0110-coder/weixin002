@@ -49,3 +49,5 @@
   color: var(--accent-text);
   font-weight: 600;
 }
+/* V22 */
+.tabbar{padding:8rpx 28rpx calc(8rpx + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);border-top:1rpx solid var(--border-soft);box-shadow:0 -4rpx 18rpx rgba(58,43,34,.045)}.tab{gap:4rpx;padding:5rpx 0}.tab-ic{width:44rpx;height:44rpx}.tab-label{font-size:20rpx}.tab.on .tab-ic{transform:translateY(-1rpx) scale(1.04)}

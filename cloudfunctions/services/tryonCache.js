@@ -5,9 +5,17 @@ const CACHE_TTL_MS = 7 * 24 * 3600 * 1000;      // 成功结果复用有效期 7
 const FAILED_TTL_MS = 7 * 24 * 3600 * 1000;     // 失败记录保留 7 天
 const SUCCESS_TTL_MS = 30 * 24 * 3600 * 1000;   // 成功记录保留 30 天
 
-function buildTryonCacheKey({ openid, avatarViewId, garmentIds, kind }) {
+function buildTryonCacheKey({ openid, avatarViewId, garmentIds, kind, personAssetId, personAssetVersion }) {
   const sorted = (garmentIds || []).slice().sort().join(",");
-  const raw = [openid || "", avatarViewId || "", sorted, kind || "ai_image"].join("|");
+  // 人物资产版本必须进入缓存隔离边界：同一 avatarViewId 换了人物资产/版本，不能复用旧结果。
+  const raw = [
+    openid || "",
+    avatarViewId || "",
+    personAssetId || "",
+    personAssetVersion || "",
+    sorted,
+    kind || "ai_image"
+  ].join("|");
   return crypto.createHash("sha1").update(raw).digest("hex");
 }
 

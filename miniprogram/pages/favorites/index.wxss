@@ -44,3 +44,5 @@
 .cat-chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-on); font-weight: 600; box-shadow: 0 4rpx 12rpx rgba(227, 165, 149, 0.25); }
 .cat-chip-hover { opacity: 0.85; }
 .tpl-garment-list { margin-top: 24rpx; max-height: 600rpx; overflow-y: auto; }
+/* V22 */
+.content{padding-top:14rpx}.empty-state{padding:90rpx 28rpx;border-radius:22rpx}.es-ic{width:64rpx;height:64rpx;border-radius:18rpx;background:var(--surface-2);display:flex;align-items:center;justify-content:center}.es-text{font-size:25rpx;color:var(--fg-2);text-align:center;line-height:1.5}.delete-bar{padding:12rpx 28rpx calc(12rpx + env(safe-area-inset-bottom));background:rgba(248,244,238,.96);border-top:1rpx solid var(--border-soft)}

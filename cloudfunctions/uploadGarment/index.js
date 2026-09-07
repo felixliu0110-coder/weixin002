@@ -1,13 +1,13 @@
 const cloud = require("wx-server-sdk");
-const { requireLogin, requireId, requireString, requireEnum, requireArray, parseSizeLabel, parseMeasurements } = require("../services/validation");
-const { appError, fmtErr } = require("../services/errors");
-const { detectImageContentType } = require("../services/storage");
-const { getV1BuiltinList } = require("../services/builtinGarments");
+const { requireLogin, requireId, requireString, requireEnum, requireArray, parseSizeLabel, parseMeasurements } = require("./validation");
+const { appError, fmtErr } = require("./errors");
+const { detectImageContentType } = require("./storage");
+const { getV1BuiltinList } = require("./builtinGarments");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 const CATEGORIES = ["上衣", "裤子"];
-const MAX_FILE_BYTES = 10 * 1024 * 1024; // 与 storage.MAX_BYTES 一致
+const MAX_FILE_BYTES = 5 * 1024 * 1024; // 阿里云 aitryon 输入上限；衣物必须可直接进入试穿链路
 
 /* 内容安全检测（下载 → 大小校验 → 按文件真实内容识别 MIME → imgSecCheck）。
    不信任前端 MIME，也不信任 cloudPath 扩展名；无法识别真实图片类型则拒绝。 */
@@ -16,7 +16,10 @@ async function checkFile(fileID) {
   const buf = dl.fileContent || Buffer.alloc(0);
   if (buf.length > MAX_FILE_BYTES) throw appError("PAYLOAD_TOO_LARGE", "文件过大");
   const contentType = detectImageContentType(buf);
-  if (!contentType) throw appError("INVALID_ARGUMENT", "不支持的图片类型");
+  // V1 试穿 Provider 只接受 jpg/jpeg/png/bmp/heic；当前上传链统一收窄为可直接试穿的 jpg/png。
+  if (!contentType || !["image/jpeg", "image/png"].includes(contentType)) {
+    throw appError("INVALID_ARGUMENT", "当前 V1 仅支持 JPG/PNG 衣物图片");
+  }
   const res = await cloud.openapi.security.imgSecCheck({
     media: { contentType, value: buf }
   });

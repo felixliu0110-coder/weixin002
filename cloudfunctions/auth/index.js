@@ -1,6 +1,6 @@
 const cloud = require("wx-server-sdk");
-const { requireLogin, requireEnum, requireInt, requireString } = require("../services/validation");
-const { appError, fmtErr } = require("../services/errors");
+const { requireLogin, requireEnum, requireInt, requireString } = require("./validation");
+const { appError, fmtErr } = require("./errors");
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
@@ -42,7 +42,9 @@ async function profileSave(event, openid) {
   const data = {};
   if (event.gender !== undefined) data.gender = requireEnum(event.gender, "gender", ["female", "male"]);
   for (const k of ["heightCm", "weightKg", "bustCm", "waistCm", "hipCm", "legLengthCm", "neckLengthCm", "shoulderCm", "armLengthCm", "shoeSize"]) {
-    if (event[k] !== undefined) data[k] = requireInt(event[k], k, { min: 0, max: 300 });
+    if (event[k] !== undefined) {
+      data[k] = event[k] === null || event[k] === "" ? null : requireInt(event[k], k, { min: 0, max: 300 });
+    }
   }
   if (event.skinTone !== undefined) data.skinTone = requireString(event.skinTone, "skinTone", 20);
   if (event.estimate !== undefined) data.estimate = !!event.estimate;

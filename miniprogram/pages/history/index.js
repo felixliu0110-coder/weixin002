@@ -34,7 +34,8 @@ Page({
           resultId: item.resultId || item.id,
           taskId: item.taskId || "",
           garmentId: item.garmentId || "",
-          avatarViewId: item.avatarViewId || "",
+          personAssetId: item.personAssetId || "",
+          avatarViewId: "",
           tryonImage: item.image,
           tryonVideo: item.videoUrl || "",
           garmentName: item.garmentName

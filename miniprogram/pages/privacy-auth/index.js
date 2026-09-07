@@ -8,7 +8,7 @@ Page({
     wx.removeStorageSync(DRAFT_KEY);
 
     toast(
-      "未同意授权：将不采集人脸照片，人物形象使用默认形象",
+      "未授权照片：不会建立真人人物照片资产；可稍后返回补充",
       2400
     );
 
@@ -81,17 +81,28 @@ Page({
         await api.saveAvatarProfile(data);
       }
 
+      const profile = await api.getAvatarProfile();
+      if (!profile || !profile.id) {
+        throw new Error("人物档案创建失败");
+      }
+
+      // V1：真实人物照片直接建立 Person Asset。
+      await api.getPersonAsset(profile.id, {
+        ensure: true,
+        originalPhoto: data.bodyPhoto || profile.body_photo_id || profile.bodyPhoto || "",
+        frontPhoto: data.facePhoto || profile.face_photo_id || profile.facePhoto || ""
+      });
+
       wx.removeStorageSync(DRAFT_KEY);
-
       wx.hideLoading();
-
-      navigate("/pages/generate-progress/index");
+      navigate("/pages/home/index", { reLaunch: true });
     } catch (err) {
       wx.hideLoading();
 
+      console.error("[privacy-auth] accept failed", err);
       toast(
         (err && err.message) || "保存失败，请重试",
-        2400
+        2600
       );
     } finally {
       this._submitting = false;

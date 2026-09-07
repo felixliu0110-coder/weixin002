@@ -2,7 +2,8 @@
    客户端提交的 garmentName/garmentImage 不作为生成依据；内置模板无云存储原图，
    生成四视图/试穿图时不携带参考图（纯提示词）。
    V1 用户入口仅允许 上衣/裤子 分类；g-skirt 等未来能力保留但不在 V1 路径展示。
-   displayImage 为小程序本地 UI 展示资源，非 Provider reference asset。 */
+   displayImage 为小程序本地 UI 展示资源，非 Provider reference asset。
+   真实 Provider 需要在部署环境显式配置公网 HTTPS 模板图；未配置时必须 fail-closed。 */
 const V1_CATEGORIES = ["上衣", "裤子"];
 
 const BUILTIN_GARMENTS = {
@@ -19,7 +20,13 @@ function isBuiltinGarment(id) {
 }
 
 function getBuiltinGarment(id) {
-  return BUILTIN_GARMENTS[id] || null;
+  const g = BUILTIN_GARMENTS[id];
+  if (!g) return null;
+  const envKey = "BUILTIN_GARMENT_REFERENCE_" + String(id).replace(/[^A-Za-z0-9]/g, "_").toUpperCase();
+  const referenceUrl = process.env[envKey] || "";
+  return Object.assign({}, g, {
+    referenceUrl: referenceUrl || null
+  });
 }
 
 /* V1 过滤：仅返回属于 V1 分类（上衣/裤子）的内置模板 */

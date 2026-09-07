@@ -67,12 +67,21 @@ module.exports = {
     }
     try {
       const res = await wx.cloud.callFunction({ name: "auth", data: Object.assign({ action: "profileSave" }, data) });
-      const r = res.result;
-      if (!r || !r.ok) throw serviceError((r && r.message) || "档案保存失败");
+      const r = res && res.result;
+      if (!r || !r.ok) {
+        const message = (r && r.message) || "档案保存失败";
+        const e = serviceError(message);
+        e.appCode = (r && r.error) || e.appCode;
+        e.cloudResult = r || null;
+        console.error("[api.saveAvatarProfile] cloud function rejected", { result: r, request: data });
+        throw e;
+      }
       return { ok: true, id: r.id };
     } catch (e) {
+      // 云模式下绝不回退 Mock；保留真实云函数/SDK错误，便于开发期定位。
+      console.error("[api.saveAvatarProfile] failed", e);
       if (mockAllowed()) return mock.saveAvatarProfile(data);
-      throw serviceError("档案保存失败");
+      throw e && e.message ? e : serviceError("档案保存失败");
     }
   },
 
@@ -210,14 +219,29 @@ module.exports = {
     });
   },
 
+  async retryAiTryon(taskId) {
+    if (!cloudReady()) throw serviceError("云环境未配置");
+    try {
+      const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "retry", taskId } });
+      const r = res.result;
+      if (!r || !r.ok) throw serviceError((r && (r.message || r.error)) || "重新生成失败");
+      if (r.provider && r.provider !== "aitryon") throw serviceError("V1 试穿 Provider 异常");
+      return r;
+    } catch (e) {
+      throw serviceError((e && (e.errMsg || e.message)) || "重新生成失败");
+    }
+  },
+
   async getTryonStatus(taskId) {
     if (!cloudReady()) {
       if (mockAllowed()) return mock.getTryonStatus(taskId);
       throw serviceError("云环境未配置");
     }
     try {
-      const res = await db().collection("tryon_tasks").doc(taskId).get();
-      return { taskId, status: res.data.status };
+      const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "status", taskId } });
+      const r = res.result;
+      if (!r || !r.ok) throw serviceError((r && (r.message || r.error)) || "状态查询失败");
+      return r;
     } catch (e) {
       if (mockAllowed()) return mock.getTryonStatus(taskId);
       throw serviceError("状态查询失败");
@@ -240,7 +264,8 @@ module.exports = {
         resultId: d.resultId || d.id,
         taskId: d.taskId || "",
         garmentId: d.garmentId || "",
-        avatarViewId: d.avatarViewId || "",
+        personAssetId: d.personAssetId || "",
+        avatarViewId: "",
         garmentName: d.garmentName,
         date: fmtDate(d.createdAt),
         createdAt: d.createdAt,
@@ -384,7 +409,7 @@ module.exports = {
         if (r && r.empty) return null; // 尚未生成人物形象：空态
         throw serviceError("人物形象读取失败");
       }
-      return { status: r.status, views: r.views, isExample: false };
+      return { avatarViewId: r.avatarViewId, status: r.status, views: r.views, provider: r.provider, isExample: false };
     } catch (e) {
       if (mockAllowed()) return mock.getAvatarViews();
       throw serviceError("人物形象读取失败");
@@ -415,48 +440,64 @@ module.exports = {
   },
 
   async submitAiTryon(params) {
-    if (!cloudReady()) {
-      if (mockAllowed()) return mock.submitAiTryon(params);
-      throw serviceError("云环境未配置");
-    }
+    if (!cloudReady()) throw serviceError("云环境未配置");
     try {
       const res = await wx.cloud.callFunction({ name: "aiTryon", data: Object.assign({ action: "submit" }, params) });
       const r = res.result;
-      if (!r.ok || isMockResult(r)) {
-        if (mockAllowed()) {
-          const m = await mock.submitAiTryon(params);
-          m.error = r.error || "AI 生成服务暂不可用，请稍后重试";
-          return m;
-        }
-        throw serviceError(r.error || "AI 生成服务暂不可用，请稍后重试");
-      }
+      if (!r || !r.ok) throw serviceError((r && (r.message || r.error)) || "AI 生成服务暂不可用，请稍后重试");
+      if (r.provider && r.provider !== "aitryon") throw serviceError("V1 试穿 Provider 异常");
       return r;
     } catch (e) {
-      if (mockAllowed()) {
-        const m = await mock.submitAiTryon(params);
-        m.error = (e && (e.errMsg || e.message)) || "云函数调用失败";
-        return m;
-      }
-      throw serviceError("试穿提交失败");
+      throw serviceError((e && (e.errMsg || e.message)) || "试穿提交失败");
+    }
+  },
+
+  async getTryonDiagnostics() {
+    if (!cloudReady()) throw serviceError("云环境未配置");
+    try {
+      const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "diagnostics" } });
+      const r = res.result;
+      if (!r || !r.ok) throw serviceError((r && (r.message || r.error)) || "试穿运行时检查失败");
+      return r;
+    } catch (e) {
+      throw serviceError((e && (e.errMsg || e.message)) || "试穿运行时检查失败");
+    }
+  },
+
+  async getPersonAsset(avatarProfileId, options = {}) {
+    if (!cloudReady()) {
+      if (mockAllowed()) return null;
+      throw serviceError("云环境未配置");
+    }
+    try {
+      const res = await wx.cloud.callFunction({
+        name: "aiTryon",
+        data: {
+          action: "personAsset",
+          avatarProfileId,
+          mode: options.ensure ? "ensure" : "get",
+          originalPhoto: options.originalPhoto || "",
+          frontPhoto: options.frontPhoto || ""
+        }
+      });
+      const r = res.result;
+      if (!r || !r.ok) throw serviceError((r && r.message) || "人物资产读取失败");
+      return r.asset || null;
+    } catch (e) {
+      if (mockAllowed()) return null;
+      throw serviceError("人物资产读取失败");
     }
   },
 
   async getAiTryonStatus(taskId) {
-    if (!cloudReady()) {
-      if (mockAllowed()) return mock.getAiTryonStatus(taskId);
-      throw serviceError("云环境未配置");
-    }
+    if (!cloudReady()) throw serviceError("云环境未配置");
     try {
       const res = await wx.cloud.callFunction({ name: "aiTryon", data: { action: "status", taskId } });
       const r = res.result;
-      if (!r.ok || isMockResult(r)) {
-        if (mockAllowed()) return mock.getAiTryonStatus(taskId);
-        throw serviceError("进度查询失败");
-      }
+      if (!r || !r.ok) throw serviceError((r && (r.message || r.error)) || "进度查询失败");
       return r;
     } catch (e) {
-      if (mockAllowed()) return mock.getAiTryonStatus(taskId);
-      throw serviceError("进度查询失败");
+      throw serviceError((e && (e.errMsg || e.message)) || "进度查询失败");
     }
   },
 
@@ -480,10 +521,21 @@ module.exports = {
     }
   },
 
-  // 账户信息暂走本地模拟（云上数据范围待用户确认后接入）
+  // 微信云身份由平台维护；客户端退出只清理本地登录状态，不伪造服务端登出。
   getUserInfo: mock.getUserInfo,
   saveUserInfo: mock.saveUserInfo,
-  logout: mock.logout,
+  async logout() {
+    try {
+      wx.removeStorageSync("userOpenid");
+      wx.removeStorageSync("aiTryonPending");
+      wx.removeStorageSync("aiTryonTask");
+      wx.removeStorageSync("aiTryonResult");
+      wx.removeStorageSync("avatarPhotoDraft");
+      return { ok: true };
+    } catch (e) {
+      throw serviceError("退出登录失败");
+    }
+  },
 
   async saveResult(result) {
     if (!cloudReady()) {

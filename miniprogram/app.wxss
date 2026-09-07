@@ -133,3 +133,65 @@ image { display: block; }
 .ri-end { font-size: 28rpx; color: var(--fg-2); display: flex; align-items: center; gap: 8rpx; }
 .ri-end .iconfont { font-size: 28rpx; }
 .ri-badge { font-size: 25rpx; background: var(--tag-bg); color: var(--fg-2); border-radius: 999rpx; padding: 6rpx 18rpx; }
+
+/* ===== V22 UI REDESIGN ===== */
+page {
+  --bg: #F8F4EE;
+  --surface: #FFFFFF;
+  --surface-2: #F3EEE7;
+  --fg: #24211F;
+  --fg-2: #5B514A;
+  --muted: #958A80;
+  --border: #E6DDD4;
+  --border-soft: #EFE8E0;
+  --accent: #D99A89;
+  --accent-deep: #B97868;
+  --accent-strong: #C98978;
+  --accent-soft: #F4E2DB;
+  --accent-tab: #D9A08F;
+  --accent-text: #765046;
+  --ring-track: #EBD2C9;
+  --danger: #B74A3D;
+  --tag-bg: #F0ECE7;
+  --btn-soft: #F2E9E2;
+  --search-bg: #F3F0EB;
+  --backdrop: #E9E2D9;
+  --accent-on: #FFFFFF;
+  --mask: rgba(25,22,20,.48);
+  --radius-xs: 12rpx;
+  --radius-sm: 18rpx;
+  --radius-md: 24rpx;
+  --radius-lg: 30rpx;
+  --radius-xl: 38rpx;
+  --shadow-card: 0 2rpx 12rpx rgba(58,43,34,.045);
+  --shadow-card-hover: 0 7rpx 22rpx rgba(58,43,34,.08);
+  --shadow-raise: 0 10rpx 28rpx rgba(58,43,34,.09);
+  --shadow-btn: 0 6rpx 16rpx rgba(185,120,104,.20);
+}
+
+.wx-page { background: var(--bg); }
+.content { padding-left: 28rpx; padding-right: 28rpx; }
+
+/* common visual hierarchy */
+.intro, .home-nav { padding-left: 0; padding-right: 0; }
+.title, .intro .title { letter-spacing: -.02em; }
+.sub, .intro .sub, .subtitle, .hint { color: var(--muted); }
+.section-head, .sec-hd { margin-top: 34rpx; margin-bottom: 18rpx; }
+.sec-title, .section-head>text:first-child { font-size: 32rpx; font-weight: 650; }
+
+.card, .form-card, .info-card, .edit-card, .row-list, .photo-card, .empty-state, .home-empty {
+  box-shadow: var(--shadow-card);
+}
+
+/* all tappable rows have an obvious hit area */
+.row { min-height: 108rpx; padding: 20rpx 24rpx; }
+.ri-ic { width: 68rpx; height: 68rpx; flex-basis: 68rpx; border-radius: 18rpx; }
+.ri-title { font-size: 29rpx; font-weight: 600; }
+.ri-sub { font-size: 24rpx; color: var(--muted); }
+
+/* bottom action area: calm, consistent, one primary action */
+.footer-bar { padding: 14rpx 28rpx calc(14rpx + env(safe-area-inset-bottom)); background: rgba(248,244,238,.96); backdrop-filter: blur(18rpx); }
+.footer-bar .btn { min-height: 88rpx; }
+
+/* pills are reserved for status/filter, not primary navigation */
+.btn-icon{width:30rpx;height:30rpx;margin-right:8rpx;opacity:.7}.btn-icon-white{filter:brightness(0) invert(1);opacity:.95}

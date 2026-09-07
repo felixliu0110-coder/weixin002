@@ -12,7 +12,8 @@ Page({
       toast("请先填写反馈内容");
       return;
     }
-    this.setData({ formOk: true, fbText: "" });
+    this.setData({ formOk: true });
+    toast("感谢你的反馈");
   },
   goProfile() { navigate("/pages/profile/index"); }
 });

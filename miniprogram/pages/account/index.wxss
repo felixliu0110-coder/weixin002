@@ -33,3 +33,6 @@
 .gender-row { display: flex; gap: 20rpx; margin-top: 12rpx; }
 .gender-btn { flex: 1; }
 .gender-btn.disabled { opacity: 0.5; }
+.ri-ic image{width:34rpx;height:34rpx;opacity:.72}.account-avatar{width:104rpx;height:104rpx;border-radius:22rpx;background:var(--accent-soft);color:var(--accent-text);display:flex;align-items:center;justify-content:center;font-size:38rpx;font-weight:700}.account-head{display:flex;align-items:center;gap:18rpx;padding:24rpx 0}.account-name{font-size:34rpx;font-weight:700}.account-id{font-size:23rpx;color:var(--muted);margin-top:6rpx}.logout-btn{margin-top:28rpx}
+/* V22 */
+.content{padding-top:8rpx}.row-list{margin-top:10rpx}.hint.mt-32{font-size:22rpx;line-height:1.55}

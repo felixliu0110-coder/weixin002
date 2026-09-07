@@ -18,16 +18,35 @@ async function deleteExpired(status, ttlMs, timeField) {
   let removed = 0;
   for (let i = 0; i < MAX_ROUNDS; i++) {
     const cutoff = Date.now() - ttlMs;
-    const where = { status };
-    if (timeField === "created_at") {
-      where.created_at = _.lt(cutoff);
+    let rows = [];
+
+    if (timeField === "updated_at") {
+      // updated_at 存在：按 updated_at 判断。
+      const updatedRes = await db.collection("tryon_tasks")
+        .where({ status, updated_at: _.lt(cutoff) })
+        .limit(BATCH).get();
+      rows = rows.concat(updatedRes.data || []);
+
+      // updated_at 缺失：严格回退 created_at；不能用 updated_at < cutoff 代替，
+      // 因为 CloudBase 缺失字段不会满足 lt 条件。
+      if (rows.length < BATCH) {
+        const fallbackRes = await db.collection("tryon_tasks")
+          .where({ status, updated_at: _.exists(false), created_at: _.lt(cutoff) })
+          .limit(BATCH - rows.length).get();
+        rows = rows.concat(fallbackRes.data || []);
+      }
     } else {
-      // updated_at 缺失时回退 created_at：用 _.or 兼容两种字段
-      where[timeField] = _.lt(cutoff);
+      const res = await db.collection("tryon_tasks")
+        .where({ status, [timeField]: _.lt(cutoff) })
+        .limit(BATCH).get();
+      rows = res.data || [];
     }
-    const res = await db.collection("tryon_tasks").where(where).limit(BATCH).get();
-    if (!res.data || res.data.length === 0) break;
-    for (const doc of res.data) {
+
+    if (rows.length === 0) break;
+    const seen = new Set();
+    for (const doc of rows) {
+      if (!doc || !doc._id || seen.has(doc._id)) continue;
+      seen.add(doc._id);
       await db.collection("tryon_tasks").doc(doc._id).remove();
       removed += 1;
     }

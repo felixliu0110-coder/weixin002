@@ -21,8 +21,7 @@
  */
 
 const { STRATEGY_NAMES, createResponse, createErrorResponse } = require('./types');
-const { getStrategyConfig, isProviderConfigurable } = require('./config');
-const AgnesProvider = require('./providers/agnes');
+const { getStrategyConfig, isProviderConfigurable, getProviderConfigurationConflict } = require('./config');
 const AliyunTryOnProvider = require('./providers/aliyun');
 const MockProvider = require('./providers/mock');
 
@@ -36,10 +35,6 @@ class TryOnRouter {
   }
 
   registerProviders() {
-    // Agnes
-    if (isProviderConfigurable('agnes')) {
-      this.providers.set('agnes', new AgnesProvider());
-    }
     // Aliyun aitryon
     if (isProviderConfigurable('aitryon')) {
       this.providers.set('aitryon', new AliyunTryOnProvider('aitryon'));
@@ -60,6 +55,14 @@ class TryOnRouter {
    */
   async generate(ctx, strategy = STRATEGY_NAMES.BALANCED) {
     const t0 = Date.now();
+
+    const providerConflict = getProviderConfigurationConflict();
+    if (providerConflict) {
+      return createErrorResponse(
+        Object.assign(new Error(providerConflict.code + ': 仅允许配置一个付费 AI Provider'), { code: providerConflict.code }),
+        'engine'
+      );
+    }
 
     const strategyConfig = getStrategyConfig(strategy);
     if (!strategyConfig) {

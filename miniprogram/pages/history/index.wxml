@@ -29,5 +29,5 @@
     </btn>
   </view>
 
-  <tab-bar selected="{{3}}" navMode="{{true}}"></tab-bar>
+  <tab-bar selected="{{2}}" navMode="{{true}}"></tab-bar>
 </view>

@@ -1,7 +1,0 @@
-{
-  "usingComponents": {
-    "nav-bar": "/components/nav-bar/index",
-    "btn": "/components/btn/index"
-  },
-  "navigationBarTitleText": "生成人物形象"
-}

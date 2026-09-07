@@ -2,7 +2,7 @@
 const config = require("../config");
 const wxApi = typeof wx !== "undefined" ? wx : (global.__wx || {});
 
-const TAB_ROUTES = ["/pages/home/index", "/pages/tryon-select/index", "/pages/favorites/index", "/pages/profile/index"];
+const TAB_ROUTES = ["/pages/home/index", "/pages/wardrobe/index", "/pages/profile/index"];
 
 function toast(msg, ms) {
   if (!wxApi.showToast) return;

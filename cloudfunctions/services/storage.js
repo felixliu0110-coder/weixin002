@@ -20,8 +20,16 @@ function isPrivateIp(ip) {
   if (net.isIPv6(ip)) {
     const norm = ip.toLowerCase().split("%")[0];
     if (norm === "::" || norm === "::1") return true;
+    // IPv4-mapped IPv6：::ffff:a.b.c.d 及规范化变体必须按对应 IPv4 地址判断，
+    // 防止 DNS/解析结果通过 IPv6 形式绕过 RFC1918/回环/链路本地拦截。
+    const mapped = norm.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+    if (mapped) return isPrivateIp(mapped[1]);
+    // IPv4-compatible / mapped 的常见完整写法：0:0:0:0:0:ffff:a.b.c.d
+    const fullMapped = norm.match(/^0:0:0:0:0:ffff:(\d+\.\d+\.\d+\.\d+)$/);
+    if (fullMapped) return isPrivateIp(fullMapped[1]);
     if (norm.startsWith("fe8") || norm.startsWith("fe9") || norm.startsWith("fea") || norm.startsWith("feb")) return true; // fe80::/10 link-local
     if (norm.startsWith("fc") || norm.startsWith("fd")) return true; // fc00::/7 ULA
+    if (norm.startsWith("ff")) return true; // multicast
     if (norm.startsWith("2001:db8")) return true; // 文档保留
     return false;
   }
@@ -186,4 +194,89 @@ function detectImageContentType(buffer) {
   return null;
 }
 
-module.exports = { downloadToBuffer, saveRemoteImage, isPrivateIp, parseUrl, MAX_BYTES, MAX_REDIRECTS, detectImageContentType };
+
+
+function readImageDimensions(buffer, contentType) {
+  if (!Buffer.isBuffer(buffer) || !contentType) return null;
+  try {
+    if (contentType === "image/png" && buffer.length >= 24) {
+      if (buffer.readUInt32BE(0) !== 0x89504E47) return null;
+      return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+    }
+    if (contentType === "image/webp" && buffer.length >= 30) {
+      if (buffer.toString("ascii", 0, 4) !== "RIFF" || buffer.toString("ascii", 8, 12) !== "WEBP") return null;
+      const chunk = buffer.toString("ascii", 12, 16);
+      if (chunk === "VP8X" && buffer.length >= 30) {
+        const width = 1 + (buffer[24] | (buffer[25] << 8) | (buffer[26] << 16));
+        const height = 1 + (buffer[27] | (buffer[28] << 8) | (buffer[29] << 16));
+        return { width, height };
+      }
+      if (chunk === "VP8L" && buffer.length >= 25) {
+        // VP8L signature 0x2f, 14-bit width/height packed into 5 bytes.
+        if (buffer[20] !== 0x2f) return null;
+        const bits = buffer[21] | (buffer[22] << 8) | (buffer[23] << 16) | (buffer[24] << 24);
+        const width = 1 + (bits & 0x3fff);
+        const height = 1 + ((bits >>> 14) & 0x3fff);
+        return { width, height };
+      }
+      return null;
+    }
+    if (contentType === "image/jpeg" && buffer.length >= 4) {
+      if (buffer[0] !== 0xFF || buffer[1] !== 0xD8) return null;
+      let i = 2;
+      while (i + 1 < buffer.length) {
+        while (i < buffer.length && buffer[i] === 0xFF) i++;
+        if (i >= buffer.length) break;
+        const marker = buffer[i++];
+        if (marker === 0xD8 || marker === 0xD9) continue;
+        if (marker === 0xDA) break;
+        if (i + 1 >= buffer.length) break;
+        const len = buffer.readUInt16BE(i);
+        if (len < 2 || i + len > buffer.length) return null;
+        const sof = ((marker >= 0xC0 && marker <= 0xC3) ||
+                     (marker >= 0xC5 && marker <= 0xC7) ||
+                     (marker >= 0xC9 && marker <= 0xCB) ||
+                     (marker >= 0xCD && marker <= 0xCF));
+        if (sof && len >= 7) {
+          return { width: buffer.readUInt16BE(i + 5), height: buffer.readUInt16BE(i + 3) };
+        }
+        i += len;
+      }
+    }
+  } catch (_e) {
+    return null;
+  }
+  return null;
+}
+
+const TRYON_MIN_BYTES = 5 * 1024;
+const TRYON_MAX_BYTES = 5 * 1024 * 1024;
+
+/* Provider 侧 AI 试衣输入约束：当前阿里云 aitryon / aitryon-plus 要求
+   5KB~5MB；这里在真正扣额度、调用 Provider 前 fail-closed。
+   只对当前 V1 已允许的 JPEG/PNG/WEBP 做内容校验。 */
+async function validateTryonInputUrl(url) {
+  if (!url || typeof url !== "string") {
+    throw appError("INVALID_ARGUMENT", "试穿图片地址缺失");
+  }
+  const r = await requestOnce(url, MAX_REDIRECTS);
+  if (r.buffer.length < TRYON_MIN_BYTES) {
+    throw appError("INVALID_ARGUMENT", "试穿图片过小（至少 5KB）");
+  }
+  if (r.buffer.length > TRYON_MAX_BYTES) {
+    throw appError("PAYLOAD_TOO_LARGE", "试穿图片过大（最多 5MB）");
+  }
+  const detected = detectImageContentType(r.buffer);
+  // DashScope aitryon 当前 V1 合同：jpg/jpeg/png/bmp/heic；项目自身上传链目前仅稳定产出 jpg/png。
+  // WebP 虽可被部分上游识别，但 Provider 明确不收，不能让 preflight 放行后再由 Provider 拒绝。
+  if (!detected || !["image/jpeg", "image/png"].includes(detected)) {
+    throw appError("INVALID_ARGUMENT", "试穿图片格式不支持");
+  }
+  const dimensions = readImageDimensions(r.buffer, detected);
+  if (!dimensions || dimensions.width < 150 || dimensions.height < 150 || dimensions.width > 4096 || dimensions.height > 4096) {
+    throw appError("INVALID_ARGUMENT", "试穿图片尺寸必须在 150~4096 px 之间");
+  }
+  return { contentType: detected, size: r.buffer.length, width: dimensions.width, height: dimensions.height };
+}
+
+module.exports = { downloadToBuffer, saveRemoteImage, isPrivateIp, parseUrl, MAX_BYTES, MAX_REDIRECTS, detectImageContentType, readImageDimensions, TRYON_MIN_BYTES, TRYON_MAX_BYTES, validateTryonInputUrl };

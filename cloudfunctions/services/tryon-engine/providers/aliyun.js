@@ -20,7 +20,7 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
           displayName: '阿里云 aitryon-plus',
           apiUrl: 'https://dashscope.aliyuncs.com/api/v1/services/aigc/image2image/image-synthesis',
           apiKeyEnv: 'DASHSCOPE_API_KEY',
-          defaultCost: 300,
+          defaultCost: 50,
           model: 'aitryon-plus',
           maxRetries: 1
         }
@@ -29,7 +29,7 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
           displayName: '阿里云 aitryon',
           apiUrl: 'https://dashscope.aliyuncs.com/api/v1/services/aigc/image2image/image-synthesis',
           apiKeyEnv: 'DASHSCOPE_API_KEY',
-          defaultCost: 100,
+          defaultCost: 20,
           model: 'aitryon',
           maxRetries: 1
         };
@@ -133,9 +133,9 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
       throw new Error(`Task failed: ${pollRes.output?.task_status || 'UNKNOWN'}`);
     }
 
-    const resultUrl = pollRes.output?.results?.[0]?.url;
+    const resultUrl = pollRes.output?.image_url || pollRes.output?.results?.[0]?.url || '';
     if (!resultUrl) {
-      throw new Error('No result URL in task output');
+      throw Object.assign(new Error('No result image URL in task output'), { code: 'PROVIDER_RESULT_MISSING' });
     }
 
     return {
@@ -166,11 +166,24 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
         let data = '';
         res.on('data', chunk => { data += chunk; });
         res.on('end', () => {
+          let json;
           try {
-            resolve(JSON.parse(data));
+            json = JSON.parse(data);
           } catch (e) {
-            reject(new Error(`Invalid JSON response: ${data.slice(0, 200)}`));
+            reject(Object.assign(
+              new Error(`Invalid JSON response: ${data.slice(0, 200)}`),
+              { code: 'PROVIDER_INVALID_RESPONSE', statusCode: res.statusCode }
+            ));
+            return;
           }
+          if (res.statusCode >= 400) {
+            reject(Object.assign(
+              new Error(json.message || json.error || `DashScope HTTP ${res.statusCode}`),
+              { code: json.code || `PROVIDER_HTTP_${res.statusCode}`, statusCode: res.statusCode }
+            ));
+            return;
+          }
+          resolve(json);
         });
       });
 
@@ -182,19 +195,25 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
   }
 
   async pollTask(taskId, maxAttempts = 60) {
-    const PollIntervalMs = 3000;
+    const pollIntervalMs = 3000;
+    const terminalStatuses = new Set(['SUCCEEDED', 'FAILED', 'UNKNOWN', 'CANCELED', 'CANCELLED']);
 
     for (let i = 0; i < maxAttempts; i++) {
-      await this.sleep(PollIntervalMs);
+      await this.sleep(pollIntervalMs);
 
       try {
         const res = await this.getRequest(`/api/v1/tasks/${taskId}`);
-        if (res.output?.task_status) {
+        const status = res.output?.task_status;
+        if (status && terminalStatuses.has(status)) {
           return res;
         }
+        // PENDING / PRE-PROCESSING / RUNNING / POST-PROCESSING 均为中间态，继续轮询。
       } catch (e) {
-        // 单次轮询失败不中断
-        console.log('Poll attempt failed:', e.message);
+        // 仅对临时性错误继续轮询；认证/参数/任务不存在等永久错误应立即失败，
+        // 避免错误配置导致最长约 3 分钟的无意义等待。
+        const retryable = !e.statusCode || e.statusCode === 408 || e.statusCode === 429 || e.statusCode >= 500;
+        if (!retryable) throw e;
+        console.log('Poll attempt failed, retrying:', e.message);
       }
     }
 
@@ -217,11 +236,24 @@ class AliyunTryOnProvider extends BaseTryOnProvider {
         let data = '';
         res.on('data', chunk => { data += chunk; });
         res.on('end', () => {
+          let json;
           try {
-            resolve(JSON.parse(data));
+            json = JSON.parse(data);
           } catch (e) {
-            reject(new Error(`Invalid JSON: ${data.slice(0, 200)}`));
+            reject(Object.assign(
+              new Error(`Invalid JSON: ${data.slice(0, 200)}`),
+              { code: 'PROVIDER_INVALID_RESPONSE', statusCode: res.statusCode }
+            ));
+            return;
           }
+          if (res.statusCode >= 400) {
+            reject(Object.assign(
+              new Error(json.message || json.error || `DashScope HTTP ${res.statusCode}`),
+              { code: json.code || `PROVIDER_HTTP_${res.statusCode}`, statusCode: res.statusCode }
+            ));
+            return;
+          }
+          resolve(json);
         });
       });
 

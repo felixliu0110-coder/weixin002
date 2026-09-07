@@ -15,21 +15,38 @@ Page({
     }
     // 真实微信登录：云函数获取微信身份（openid），存本地后进入
     const app = getApp();
-    const enter = () => {
+    const enter = async () => {
       if (app && app.globalData) app.globalData.loggedIn = true;
-      navigate("/pages/basic-info/index");
+      try {
+        const profileRes = await wx.cloud.callFunction({ name: "auth", data: { action: "profileGet" } });
+        const r = profileRes && profileRes.result || {};
+        if (!r.ok) throw new Error(r.message || "人物档案读取失败");
+        navigate(r.empty ? "/pages/basic-info/index" : "/pages/home/index");
+      } catch (e) {
+        console.error("[login] profile bootstrap failed", e);
+        toast((e && e.message) || "读取人物档案失败，请重试");
+      }
     };
     if (wx.cloud && wx.cloud.callFunction) {
       wx.cloud.callFunction({ name: "auth", data: { action: "login" } })
         .then((res) => {
-          const r = res.result || {};
-          wx.setStorageSync("userOpenid", r.openid || "");
-          if (app && app.globalData) app.globalData.openid = r.openid || "";
-          enter();
+          const r = res && res.result || {};
+          if (!r.ok || !r.loggedIn || !r.openid) {
+            const err = new Error(r.message || "微信身份校验失败");
+            err.cloudResult = r;
+            throw err;
+          }
+          wx.setStorageSync("userOpenid", r.openid);
+          if (app && app.globalData) app.globalData.openid = r.openid;
+          return enter();
         })
-        .catch(() => enter()); // 云函数未部署/异常时回退本地进入（不阻塞演示）
+        .catch((e) => {
+          console.error("[login] auth failed", e);
+          toast((e && e.message) || "登录失败，请稍后重试");
+        });
     } else {
-      enter();
+      console.error("[login] wx.cloud unavailable");
+      toast("云服务未就绪，请检查小程序云开发配置");
     }
   }
 });

@@ -1,40 +1,26 @@
 <view class="wx-page">
-  <nav-bar title="个人资料" showBack="{{true}}"></nav-bar>
-
+  <nav-bar title="账号" showBack="{{true}}"></nav-bar>
   <view class="content">
     <view class="account-head">
-      <view class="account-avatar">云</view>
+      <view class="account-avatar">我</view>
       <view class="account-info">
-        <view class="account-name">{{user.nickname}}</view>
-        <view class="account-id">个人 ID：{{user.userId}}</view>
+        <view class="account-name">微信账号</view>
+        <view class="account-id">{{loggedIn ? "已通过微信身份验证" : "当前未登录"}}</view>
       </view>
     </view>
-
     <view class="row-list">
-      <view class="row" hover-class="row-hover" bindtap="onEditName">
-        <view class="ri-ic neu"><text class="row-tag">名</text></view>
-        <view class="ri-main"><view class="ri-title">昵称</view><view class="ri-sub">点击修改，默认来自微信</view></view>
-        <view class="ri-end">{{user.nickname}}<image class="ic-img" style="width:28rpx;height:28rpx" src="/assets/icons/png/icon-chevron-right-gray.png" /></view>
-      </view>
-      <view class="row" hover-class="row-hover" bindtap="onWechat">
-        <view class="ri-ic neu"><text class="row-tag">微</text></view>
-        <view class="ri-main"><view class="ri-title">微信绑定</view><view class="ri-sub">用于登录与账号安全</view></view>
-        <view class="ri-end">{{user.wechatBound ? '已绑定' : '去绑定'}}</view>
-      </view>
-      <view class="row" hover-class="row-hover" bindtap="onPhone">
-        <view class="ri-ic neu"><text class="row-tag">机</text></view>
-        <view class="ri-main"><view class="ri-title">手机号</view><view class="ri-sub">用于找回账号与安全验证</view></view>
-        <view class="ri-end">{{user.phoneBound ? '已绑定' : '去绑定'}}</view>
+      <view class="row">
+        <view class="ri-ic neu"><image src="/assets/icons/png/icon-user-gray.png" /></view>
+        <view class="ri-main"><view class="ri-title">微信身份</view><view class="ri-sub">用于账号归属与数据隔离</view></view>
+        <view class="ri-end">{{loggedIn ? "已验证" : "未登录"}}</view>
       </view>
       <view class="row">
-        <view class="ri-ic neu"><text class="row-tag">ID</text></view>
-        <view class="ri-main"><view class="ri-title">个人 ID</view><view class="ri-sub">你的唯一账号标识</view></view>
-        <view class="ri-end">{{user.userId}}</view>
+        <view class="ri-ic neu"><image src="/assets/icons/png/icon-shield-gray.png" /></view>
+        <view class="ri-main"><view class="ri-title">账号数据</view><view class="ri-sub">人物、衣物、试穿记录按当前微信身份隔离</view></view>
       </view>
     </view>
-
-    <btn class="logout-btn" type="danger" bindtap="onLogout">退出登录</btn>
+    <view class="hint mt-32">V1 不在账号页虚构手机号、个人 ID 或第三方绑定状态。</view>
+    <btn class="logout-btn" type="danger" bindtap="onLogout"><image class="btn-icon btn-icon-white" src="/assets/icons/png/icon-user-gray.png" />退出登录</btn>
   </view>
-
-  <tab-bar selected="{{3}}" navMode="{{true}}" pill="{{true}}"></tab-bar>
+  <tab-bar selected="{{2}}" navMode="{{true}}" pill="{{true}}"></tab-bar>
 </view>

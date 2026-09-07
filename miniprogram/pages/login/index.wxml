@@ -9,8 +9,6 @@
       <view class="box"><image class="ic-img" style="width:26rpx;height:26rpx" src="/assets/icons/png/icon-check-white.png" /></view>
       <view class="check-copy">我已阅读并同意<text class="strong">《用户协议》</text>和<text class="strong">《隐私政策》</text></view>
     </view>
-    <btn class="login-cta" type="primary" bindtap="onLogin">微信授权登录</btn>
+    <btn class="login-cta" type="primary" bindtap="onLogin"><image class="btn-icon btn-icon-white" src="/assets/icons/png/icon-user-gray.png" />微信授权登录</btn>
   </view>
-
-  <tab-bar selected="{{0}}" navMode="{{true}}"></tab-bar>
 </view>

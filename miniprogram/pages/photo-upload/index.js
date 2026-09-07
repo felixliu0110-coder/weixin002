@@ -17,6 +17,7 @@ Page({
   data: {
     faceState: "none",
     bodyState: "none",
+    bodyReady: false,
     sheetVisible: false
   },
 
@@ -42,12 +43,14 @@ Page({
 
       this.setData({
         faceState: draft.faceTempPath || facePhoto ? "done" : "none",
-        bodyState: draft.bodyTempPath || bodyPhoto ? "done" : "none"
+        bodyState: draft.bodyTempPath || bodyPhoto ? "done" : "none",
+        bodyReady: !!(draft.bodyTempPath || bodyPhoto)
       });
     }).catch(() => {
       this.setData({
         faceState: draft.faceTempPath ? "done" : "none",
-        bodyState: draft.bodyTempPath ? "done" : "none"
+        bodyState: draft.bodyTempPath ? "done" : "none",
+        bodyReady: !!draft.bodyTempPath
       });
     });
   },
@@ -94,8 +97,8 @@ Page({
           throw new Error("未选择照片");
         }
 
-        if (f.size && f.size > 10 * 1024 * 1024) {
-          throw new Error("照片大小不能超过10MB");
+        if (f.size && f.size > 5 * 1024 * 1024) {
+          throw new Error("照片大小不能超过5MB");
         }
 
         const draft = Object.assign({}, readDraft(), {
@@ -109,7 +112,7 @@ Page({
         } else {
           draft.bodyTempPath = f.tempFilePath;
           draft.bodyPhoto = "";
-          this.setData({ bodyState: "done" });
+          this.setData({ bodyState: "done", bodyReady: true });
         }
 
         wx.setStorageSync(DRAFT_KEY, draft);
@@ -136,8 +139,13 @@ Page({
       updatedAt: Date.now()
     });
 
-    wx.setStorageSync(DRAFT_KEY, draft);
+    const hasBodyPhoto = !!(draft.bodyTempPath || draft.existingBodyPhoto);
+    if (!hasBodyPhoto) {
+      toast("请先添加一张适合作为试穿基准的正面全身照");
+      return;
+    }
 
+    wx.setStorageSync(DRAFT_KEY, draft);
     navigate("/pages/privacy-auth/index");
   }
 });

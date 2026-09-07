@@ -6,9 +6,6 @@ Page({
   onShow() {
     // 仅在 onShow 加载（onLoad 后必触发 onShow，双处调用会重复请求）
     this.loadFavorites();
-    if (typeof this.getTabBar === "function" && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 2, navMode: false, pill: false });
-    }
   },
   loadFavorites() {
     api.getFavorites().then((favorites) => {

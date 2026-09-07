@@ -4,18 +4,8 @@ const api = require("../../utils/api");
 Page({
   data: {
     collectVisible: false,
-    templateVisible: false,
     collecting: false,
-    tplName: "",
-    tplCategory: "",
-    categories: ["上衣", "裤子"],
-    result: { tryonImage: "", tryonVideo: "", garmentName: "AI 试穿", garments: [] },
-    // 保存模板多选相关
-    tplGarments: [],      // 本次穿搭的衣物列表（供弹层展示）
-    tplSelected: [],      // 用户勾选的衣物索引
-    tplEditIndex: -1,     // 当前正在编辑的衣物索引
-    tplEditName: "",      // 编辑中的名称
-    tplEditCategory: ""   // 编辑中的分类
+    result: { tryonImage: "", tryonVideo: "", garmentName: "AI 试穿", garments: [] }
   },
   onLoad() {
     const r = wx.getStorageSync("aiTryonResult") || {};
@@ -98,116 +88,17 @@ Page({
     });
   },
 
-  /* ---------- 保存模板（重构：多选衣物分别保存） ---------- */
-  onSaveTemplate() {
-    const source = this.data.result.garments || [];
-    // 历史记录/收藏进入本页时无衣物明细（单条记录只存了合成图）：不开空弹层
-    if (!source.length) {
-      toast("该记录没有衣物明细，请在生成完成时保存");
-      return;
-    }
-    const garments = source.map((g, i) => Object.assign({}, g, {
-      _index: i,
-      _checked: false,
-      _editName: g.name,
-      _editCategory: g.category || "上衣"
-    }));
-    this.setData({
-      templateVisible: true,
-      tplGarments: garments,
-      tplSelected: [],
-      tplEditIndex: -1,
-      tplEditName: "",
-      tplEditCategory: ""
+  onRetry() {
+    const r = this.data.result || {};
+    const garmentId = r.garmentId || (r.garments && r.garments[0] && r.garments[0].id) || "";
+    if (!garmentId) return toast("找不到这次试穿的衣物，请从衣橱重新选择");
+    const g = (r.garments || []).find(x => x.id === garmentId);
+    wx.setStorageSync("aiTryonPending", {
+      garmentId, garmentIds: [garmentId], garmentNames: [g ? g.name : (r.garmentName || "所选衣物")],
+      garmentImages: [g ? g.image : ""], garmentCategories: [g ? (g.category || "上衣") : "上衣"],
+      displayName: g ? g.name : (r.garmentName || "所选衣物")
     });
-  },
-  closeTemplate() { this.setData({ templateVisible: false }); },
-
-  // 勾选/取消勾选衣物
-  toggleTplGarment(e) {
-    const idx = e.currentTarget.dataset.idx;
-    const garments = this.data.tplGarments.map((g, i) =>
-      i === idx ? Object.assign({}, g, { _checked: !g._checked }) : g
-    );
-    const selected = garments.filter((g) => g._checked).map((g) => g._index);
-    this.setData({ tplGarments: garments, tplSelected: selected });
-  },
-
-  // 打开单件衣物的编辑弹层
-  openTplEdit(e) {
-    const idx = e.currentTarget.dataset.idx;
-    const g = this.data.tplGarments[idx];
-    this.setData({
-      tplEditIndex: idx,
-      tplEditName: g._editName,
-      tplEditCategory: g._editCategory
-    });
-  },
-  closeTplEdit() { this.setData({ tplEditIndex: -1 }); },
-
-  onTplEditName(e) { this.setData({ tplEditName: e.detail.value }); },
-  onTplEditCategory(e) { this.setData({ tplEditCategory: e.currentTarget.dataset.cat }); },
-
-  // 保存单件衣物的编辑
-  confirmTplEdit() {
-    const name = (this.data.tplEditName || "").trim();
-    if (!name) {
-      toast("请输入衣物名称");
-      return;
-    }
-    if (!this.data.tplEditCategory) {
-      toast("请选择衣物分类");
-      return;
-    }
-    const idx = this.data.tplEditIndex;
-    const garments = this.data.tplGarments.map((g, i) =>
-      i === idx ? Object.assign({}, g, { _editName: name, _editCategory: this.data.tplEditCategory }) : g
-    );
-    this.setData({ tplGarments: garments, tplEditIndex: -1 });
-  },
-
-  // 确认保存：批量保存勾选的衣物
-  confirmSaveTemplate() {
-    const toSave = this.data.tplGarments.filter((g) => g._checked);
-    if (toSave.length === 0) {
-      toast("请至少选择一件衣物");
-      return;
-    }
-    // 检查每件是否都有名称和分类
-    for (const g of toSave) {
-      if (!g._editName.trim()) {
-        toast("请为所有选中的衣物填写名称");
-        return;
-      }
-      if (!g._editCategory) {
-        toast("请为所有选中的衣物选择分类");
-        return;
-      }
-    }
-
-    this.setData({ templateVisible: false });
-
-    // 串行保存（避免并发问题）
-    let saved = 0;
-    const saveNext = (i) => {
-      if (i >= toSave.length) {
-        toast(`已保存 ${saved} 件衣物到模板库`);
-        return;
-      }
-      const g = toSave[i];
-      api.saveToTemplates({
-        category: g._editCategory,
-        name: g._editName.trim(),
-        image: g.image
-      }).then(() => {
-        saved++;
-        saveNext(i + 1);
-      }).catch(() => {
-        toast(`「${g._editName}」保存失败`);
-        saveNext(i + 1);
-      });
-    };
-    saveNext(0);
+    navigate("/pages/tryon-progress/index");
   },
 
   /* ---------- 分享 ---------- */
@@ -219,13 +110,9 @@ Page({
     // 分享卡片：仅分享图片（不分享视频）
     return {
       title: "「" + (this.data.result.garmentName || "AI 试穿") + "」AI 试穿效果（AI 生成效果，仅供参考）",
-      path: "/pages/login/index",
+      path: "/pages/home/index",
       imageUrl: this.data.result.tryonImage
     };
   },
 
-  /* ---------- 跳转到视频生成页 ---------- */
-  goToVideoGenerate() {
-    navigate("/pages/video-generate/index");
-  }
 });

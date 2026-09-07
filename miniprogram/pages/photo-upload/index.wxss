@@ -16,3 +16,5 @@
 .upload-status.error { color: var(--danger); }
 .next-btn { display: block; margin-top: 48rpx; width: 100%; }
 .next-btn.disabled { opacity: 0.5; }
+/* V22 */
+.content{padding-left:28rpx;padding-right:28rpx}.sec-title{font-size:32rpx;margin:28rpx 0 12rpx}.hint{font-size:23rpx}.upload-grid{gap:12rpx}.upload-card{border-radius:18rpx;box-shadow:none}.upload-card image{height:250rpx}.upload-meta{padding:12rpx 14rpx 15rpx}.upload-name{font-size:24rpx}.upload-status{font-size:21rpx}.next-btn{margin-top:30rpx}

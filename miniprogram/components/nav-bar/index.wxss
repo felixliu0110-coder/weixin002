@@ -8,3 +8,5 @@
 .nav-btn { width: 80rpx; height: 80rpx; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); color: var(--fg); transition: background 0.15s ease; }
 .nav-btn-hover { background: var(--surface-2); }
 .nav-btn .iconfont { font-size: 42rpx; }
+/* V22 */
+.nav{background:var(--bg)}.nav-bar{padding:0 20rpx}.nav-left{width:84rpx}.nav-title{left:104rpx;right:104rpx;font-size:31rpx;font-weight:650}.nav-btn{width:64rpx;height:64rpx;border-radius:16rpx}.nav-btn-hover{background:var(--surface-2)}.nav-right{gap:2rpx}

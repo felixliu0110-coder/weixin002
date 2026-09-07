@@ -79,21 +79,25 @@ class TryOnProvider {
 /**
  * 统一返回格式
  */
-function createResponse(result) {
+function createResponse(result = {}) {
+  const status = result.status || result.rawStatus || result.normalized || '';
+  const rawStatus = result.rawStatus || result.status || '';
+  const normalized = result.normalized || result.status || result.rawStatus || '';
   return {
     ok: result.ok !== false,
-    provider: result.provider || 'unknown',
+    provider: result.provider || 'aitryon',
     imageUrl: result.imageUrl || result.resultUrl || '',
     cost: result.cost || 0,
     latency: result.latencyMs || 0,
     taskId: result.taskId || '',
+    status,
+    rawStatus,
+    normalized,
+    error: result.error || result.errorMessage || '',
+    errorCode: result.errorCode || '',
     metadata: result.metadata || {}
   };
 }
-
-/**
- * 错误响应
- */
 function createErrorResponse(error, provider = 'unknown') {
   return {
     ok: false,

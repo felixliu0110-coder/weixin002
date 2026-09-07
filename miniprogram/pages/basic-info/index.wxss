@@ -1,14 +1,3 @@
-.wx-page { height: 100vh; display: flex; flex-direction: column; background: var(--bg); overflow: hidden; }
-.label { font-size: 28rpx; color: var(--fg-2); }
-.val { font-size: 36rpx; font-weight: 700; color: var(--fg); }
-.val .unit { font-size: 26rpx; font-weight: 500; color: var(--fg-2); margin-left: 4rpx; }
-slider { width: 100%; }
-.sec-title { font-size: 34rpx; font-weight: 600; color: var(--fg); }
-.hint { font-size: 26rpx; color: var(--fg-2); }
-.num-card { padding: 20rpx 14rpx 16rpx; border-radius: var(--radius-md); background: var(--surface); border: 1rpx solid var(--border-soft); box-shadow: var(--shadow-card); transition: all 0.2s var(--ease); }
-.num-card .nc-name { font-size: 26rpx; }
-.num-card .nc-val { font-size: 32rpx; }
-.nc-val .unit { font-size: 25rpx; font-weight: 500; color: var(--fg-2); }
-.num-card .nc-step { margin-top: 10rpx; gap: 6rpx; }
-.num-card .nc-step .step-btn { width: 48rpx; height: 48rpx; border-radius: var(--radius-sm); transition: all 0.15s ease; }
-.step-hover { background: var(--accent-soft); border-color: var(--accent); }
+.wx-page{height:100vh;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}.content{flex:1;min-height:0;overflow-y:auto;padding:8rpx 24rpx 48rpx}.intro{padding:26rpx 4rpx}.intro .title{display:block;font-size:38rpx;font-weight:700}.intro .sub{display:block;margin-top:10rpx;font-size:26rpx;color:var(--muted);line-height:1.65}.form-card{background:var(--surface);border:1rpx solid var(--border-soft);border-radius:var(--radius-lg);padding:6rpx 28rpx 30rpx}.field{margin-top:28rpx}.label{display:block;font-size:27rpx;color:var(--fg-2);margin-bottom:12rpx}.required{font-size:23rpx;color:var(--accent-text)}.input-unit{display:flex;align-items:center;border:1rpx solid var(--border);border-radius:var(--radius-md);height:86rpx;padding:0 22rpx}.input-unit input{flex:1;font-size:30rpx}.input-unit text{color:var(--muted);font-size:26rpx}.section-head{display:flex;justify-content:space-between;align-items:baseline;margin:36rpx 4rpx 16rpx;font-size:31rpx;font-weight:600}.section-head text:last-child{font-size:24rpx;color:var(--muted);font-weight:400}.measure-grid{display:grid;grid-template-columns:1fr 1fr;gap:14rpx}.measure-card{padding:20rpx;background:var(--surface);border:1rpx solid var(--border-soft);border-radius:var(--radius-md)}.measure-card>text{font-size:25rpx;color:var(--fg-2)}.measure-card>view{display:flex;align-items:center;margin-top:12rpx}.measure-card input{flex:1;font-size:28rpx}.measure-card>view>text{font-size:23rpx;color:var(--muted)}
+/* V22 */
+.intro{padding:22rpx 0}.intro .title{font-size:34rpx}.intro .sub{font-size:24rpx}.form-card{padding:4rpx 22rpx 24rpx;border-radius:22rpx;box-shadow:none}.field{margin-top:24rpx}.label{font-size:25rpx}.input-unit{height:78rpx;border-radius:16rpx}.input-unit input{font-size:29rpx}.measure-card{padding:17rpx;border-radius:16rpx}.measure-card>text{font-size:23rpx}

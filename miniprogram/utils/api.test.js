@@ -11,7 +11,7 @@ test("api.getAvatarProfile 返回档案（mock 实现）", async () => {
 });
 
 test("api 暴露全部数据访问方法", () => {
-  const methods = ["getAvatarProfile", "saveAvatarProfile", "getGarmentTemplates", "getGarmentLibrary", "getMyTemplates", "addToMyTemplates", "getHomeTemplates", "uploadGarment", "getMyGarments", "deleteMyGarments", "submitTryon", "getTryonStatus", "getHistory", "getFavorites", "deleteItems", "saveToTemplates", "recognizeGarment", "getQuota", "getUserInfo", "saveUserInfo", "logout", "saveResult", "deleteUserData", "createAvatarViews", "getAvatarViews", "ensureGarmentViews", "submitAiTryon", "getAiTryonStatus", "saveAiResult", "updateGarment"];
+  const methods = ["getAvatarProfile", "saveAvatarProfile", "getPersonAsset", "getGarmentTemplates", "getGarmentLibrary", "getMyTemplates", "addToMyTemplates", "getHomeTemplates", "uploadGarment", "getMyGarments", "deleteMyGarments", "submitTryon", "getTryonStatus", "getHistory", "getFavorites", "deleteItems", "saveToTemplates", "recognizeGarment", "getQuota", "getUserInfo", "saveUserInfo", "logout", "saveResult", "deleteUserData", "createAvatarViews", "getAvatarViews", "ensureGarmentViews", "submitAiTryon", "getAiTryonStatus", "saveAiResult", "updateGarment"];
   methods.forEach((m) => assert.strictEqual(typeof api[m], "function", m + " missing"));
 });
 
@@ -24,6 +24,29 @@ test("getMyGarments/deleteMyGarments 走 mock（mockEnabled）", async () => {
   await api.deleteMyGarments(mine.map((g) => g.id));
   const after = await api.getMyGarments();
   assert.ok(!after.some((g) => g.name === "API测试衣"));
+});
+
+test("getTryonStatus 云端模式通过 aiTryon status 获取服务端所有权校验后的状态", async () => {
+  const saved = { wx: global.wx, mockEnabled: config.mockEnabled };
+  config.mockEnabled = false;
+  let captured = null;
+  global.wx = {
+    cloud: {
+      callFunction: async (args) => { captured = args; return { result: { ok: true, taskId: "task-1", status: "processing" } }; }
+    }
+  };
+  // 设置 cloud env，让 api 走真实云端分支；其余 API 不在此测试。
+  const savedEnv = config.cloudEnv;
+  config.cloudEnv = "test-env";
+  try {
+    const r = await api.getTryonStatus("task-1");
+    assert.strictEqual(r.status, "processing");
+    assert.deepStrictEqual(captured, { name: "aiTryon", data: { action: "status", taskId: "task-1" } });
+  } finally {
+    config.cloudEnv = savedEnv;
+    config.mockEnabled = saved.mockEnabled;
+    global.wx = saved.wx;
+  }
 });
 
 test("production（mockEnabled=false 且无云环境）不 fallback，直接抛服务错误", async () => {

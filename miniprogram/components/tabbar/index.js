@@ -23,7 +23,7 @@ Component({
       this._lastTapIndex = index;
       // 立即更新选中高亮，避免切换时选中态滞后造成晃动
       this.setData({ selected: index });
-      // 四个目标均为 tabBar 页面：必须用 switchTab（navigateTo 无法打开 tabBar 页）
+      // 三个目标均为 tabBar 页面：必须用 switchTab（navigateTo 无法打开 tabBar 页）
       wx.switchTab({ url: item.pagePath });
     }
   }

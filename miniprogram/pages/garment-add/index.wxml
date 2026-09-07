@@ -1,0 +1,15 @@
+<view class="wx-page">
+  <nav-bar title="添加衣物" showBack="{{true}}"></nav-bar>
+  <view class="content">
+    <view class="intro"><text class="title">把衣服放进衣橱</text><text class="sub">保存后不会自动开始试穿。你可以之后随时选择它试穿。</text></view>
+    <view class="photo-card" bindtap="pickPhoto"><image wx:if="{{tempPath}}" src="{{tempPath}}" mode="aspectFit"/><view wx:else class="photo-empty"><image src="/assets/icons/png/icon-upload-gray.png" style="width:48rpx;height:48rpx"/><text>添加衣物照片</text><text class="small">建议单件、平铺、背景干净</text></view></view>
+    <view class="photo-actions"><view bindtap="pickAlbum"><image src="/assets/icons/png/icon-photo-deep.png" />从相册选择</view><view bindtap="pickCamera"><image src="/assets/icons/png/icon-camera-deep.png" />拍照</view></view>
+    <view class="form-card">
+      <view class="field"><text class="label">衣物名称</text><input class="input" placeholder="例如：米色交叉上衣" maxlength="30" value="{{name}}" bindinput="onName" /></view>
+      <view class="field"><text class="label">分类</text><view class="chips"><view wx:for="{{categories}}" wx:key="*this" class="chip {{item===category?'on':''}}" data-cat="{{item}}" bindtap="onCategory">{{item}}</view></view></view>
+      <view class="field"><text class="label">尺码 <text class="optional">选填</text></text><input class="input" placeholder="例如：M" value="{{sizeLabel}}" bindinput="onSize" /></view>
+      <view class="field" wx:if="{{category==='上衣'}}"><text class="label">衣物尺寸 <text class="optional">都可选填，不确定就留空</text></text><view class="measure-grid"><input class="input" placeholder="衣长 cm" data-field="lengthCm" bindinput="onInput"/><input class="input" placeholder="胸宽 cm" data-field="chestWidthCm" bindinput="onInput"/><input class="input" placeholder="肩宽 cm" data-field="shoulderWidthCm" bindinput="onInput"/><input class="input" placeholder="袖长 cm" data-field="sleeveLengthCm" bindinput="onInput"/></view></view>
+    </view>
+  </view>
+  <view class="footer-bar"><btn class="footer-main" type="primary" loading="{{uploading}}" bindtap="submit"><image class="btn-icon btn-icon-white" src="/assets/icons/png/icon-save-gray.png" />保存衣物</btn></view>
+</view>

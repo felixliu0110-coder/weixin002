@@ -1,0 +1,11 @@
+<view class="wx-page">
+  <nav-bar title="我的衣橱"></nav-bar>
+  <view class="content">
+    <view class="wardrobe-head"><view><text class="wardrobe-title">我的衣物</text><text class="wardrobe-sub">{{garments.length}} 件 · 点击查看，长按删除</text></view><view class="add-link" bindtap="onAdd"><image src="/assets/icons/png/icon-plus-gray.png" />添加</view></view>
+    <view class="cat-tabs"><view class="cat-tab {{activeCat==='全部'?'on':''}}" data-cat="全部" bindtap="onCat">全部</view><view wx:for="{{categories}}" wx:key="*this" class="cat-tab {{activeCat===item?'on':''}}" data-cat="{{item}}" bindtap="onCat">{{item}}</view></view>
+    <view wx:if="{{loading}}" class="state">正在加载衣物…</view>
+    <view wx:elif="{{filtered.length===0}}" class="empty-state"><view class="empty-icon"><image src="/assets/icons/png/icon-hanger-gray.png" /></view><text>{{activeCat==='全部' ? '衣橱还是空的' : '这个分类还没有衣物'}}</text><text class="empty-sub">添加衣物后，它会一直保存在这里，不会自动开始试穿。</text><btn type="primary" size="sm" bindtap="onAdd"><image class="btn-icon btn-icon-white" src="/assets/icons/png/icon-plus-gray.png" />添加衣物</btn></view>
+    <view wx:else class="grid"><view wx:for="{{filtered}}" wx:key="id" class="item" data-id="{{item.id}}" bindtap="onTap" bindlongpress="onTryon"><view class="item-img"><image src="{{item.image}}" mode="aspectFill" /></view><text class="name">{{item.name}}</text><text class="meta">{{item.category}}<text wx:if="{{item.size_label}}"> · {{item.size_label}}</text></text></view></view>
+    <view wx:if="{{filtered.length && activeCat==='全部'}}" class="wardrobe-tip">长按衣物可快速进入试穿选择；也可以先进入详情查看信息。</view>
+  </view>
+</view>

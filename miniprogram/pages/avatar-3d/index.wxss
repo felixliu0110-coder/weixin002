@@ -130,3 +130,5 @@
 .footer-sub {
   flex: 1;
 }
+/* V22 */
+.avatar-intro{padding:22rpx 0 16rpx}.avatar-intro-title{font-size:34rpx;font-weight:700}.avatar-intro-sub{font-size:24rpx;color:var(--muted);line-height:1.6}.avatar-stage{border-radius:22rpx;box-shadow:none}.example-tag{top:14rpx;left:14rpx}.sec-hd{margin-top:28rpx}.profile-grid{background:var(--surface);border:1rpx solid var(--border-soft);border-radius:22rpx;overflow:hidden}.p-cell{padding:22rpx 8rpx}.pc-label{font-size:22rpx}.pc-val{font-size:30rpx;margin-top:8rpx}.footer-main{flex:1.4}.footer-sub{flex:1}

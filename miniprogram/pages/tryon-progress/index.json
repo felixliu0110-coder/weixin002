@@ -4,5 +4,5 @@
     "tab-bar": "/components/tabbar/index",
     "btn": "/components/btn/index"
   },
-  "navigationBarTitleText": "正在生成穿搭"
+  "navigationBarTitleText": "正在试穿"
 }

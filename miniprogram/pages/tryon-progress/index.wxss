@@ -18,3 +18,6 @@
 .step-item.done .step-text { color: var(--fg); font-weight: 500; }
 .step-item.active .step-text { color: var(--accent-text); font-weight: 600; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+/* V22 */
+.gen-layout{padding-top:40rpx}.gen-title{font-size:34rpx;font-weight:700}.gen-sub{font-size:24rpx;color:var(--muted);max-width:560rpx}.gen-cards{gap:12rpx}.gen-card{border-radius:20rpx;padding:22rpx 18rpx;box-shadow:none}.gc-ic{width:52rpx;height:52rpx;border-radius:16rpx}.gc-label{font-size:22rpx}.gc-val{font-size:25rpx}.err-actions{gap:12rpx}
+.btn-icon-white{filter:brightness(0) invert(1)}
